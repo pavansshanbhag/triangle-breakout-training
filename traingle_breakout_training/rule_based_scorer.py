@@ -18,8 +18,8 @@ Rules
 
 import logging
 
-from config import CANDLE_MINUTES, MIN_VOLUME_RATIO, RULE_ALERT_THRESHOLD
-from feature_extractor import FEATURE_NAMES, extract_features, features_to_array
+from .config import CANDLE_MINUTES, MIN_VOLUME_RATIO, RULE_ALERT_THRESHOLD
+from .feature_extractor import FEATURE_NAMES, extract_features, features_to_array
 
 logger = logging.getLogger(__name__)
 

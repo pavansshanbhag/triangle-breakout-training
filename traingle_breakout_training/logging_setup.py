@@ -12,7 +12,7 @@ import logging.handlers
 import sys
 from pathlib import Path
 
-from config import LOG_LEVEL, LOG_PATH
+from .config import LOG_LEVEL, LOG_PATH
 
 
 class _ColourFormatter(logging.Formatter):

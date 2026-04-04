@@ -13,7 +13,7 @@ from urllib.parse import urlencode
 import pandas as pd
 import requests
 
-from config import QUESTDB_BASE_URL, INTERVAL
+from .config import QUESTDB_BASE_URL, INTERVAL
 
 logger = logging.getLogger(__name__)
 

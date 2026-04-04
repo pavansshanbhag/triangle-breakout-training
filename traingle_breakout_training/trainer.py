@@ -29,18 +29,18 @@ from sklearn.model_selection import LeaveOneOut
 from sklearn.preprocessing import RobustScaler
 from xgboost import XGBClassifier
 
-from config import (
+from .config import (
     FEATURE_IMPORTANCE_PATH,
     MIN_EXAMPLES_FOR_ML,
     MODEL_PATH,
     MIN_VOLUME_RATIO,
 )
-from feature_extractor import (
+from .feature_extractor import (
     FEATURE_NAMES,
     extract_features,
     features_to_array,
 )
-from questdb_reader import fetch_paired_examples
+from .questdb_reader import fetch_paired_examples
 
 logger = logging.getLogger(__name__)
 

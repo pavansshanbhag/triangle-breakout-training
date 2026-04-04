@@ -51,7 +51,7 @@ import numpy as np
 import pandas as pd
 from scipy.stats import linregress
 
-from config import (
+from .config import (
     CANDLE_MINUTES,
     CANDLES_PER_DAY,
     MIN_SWING_POINTS,

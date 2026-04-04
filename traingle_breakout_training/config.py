@@ -33,9 +33,12 @@ SCAN_TICKERS = [
 ]
 
 # ── Training ──────────────────────────────────────────────────────────────────
+import os as _os
+_MODELS_DIR = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "..", "models")
+
 MIN_EXAMPLES_FOR_ML = 8       # below this, fall back to rule-based scorer
-MODEL_PATH = "models/triangle_breakout.pkl"
-FEATURE_IMPORTANCE_PATH = "models/feature_importance.json"
+MODEL_PATH = _os.path.join(_MODELS_DIR, "triangle_breakout.pkl")
+FEATURE_IMPORTANCE_PATH = _os.path.join(_MODELS_DIR, "feature_importance.json")
 
 # How many 15-min candles after zone end we allow a breakout annotation to sit.
 # "a couple of candles far" at 15-min = up to ~2 hrs = 8 candles

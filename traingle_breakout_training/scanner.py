@@ -21,6 +21,7 @@ Or call scan_all() from main.py on a schedule.
 """
 
 import argparse
+import json
 import logging
 from dataclasses import dataclass, field
 from datetime import datetime, timezone, timedelta
@@ -29,7 +30,7 @@ from typing import Optional
 import numpy as np
 import pandas as pd
 
-from config import (
+from .config import (
     CANDLE_MINUTES,
     CANDLES_PER_DAY,
     INTERVAL,
@@ -42,17 +43,17 @@ from config import (
     SCAN_TICKERS,
     ZIGZAG_DEVIATIONS,
 )
-from feature_extractor import (
+from .feature_extractor import (
     _best_zigzag,
     extract_features,
     explain_features,
     features_to_array,
     fit_trendlines_from_swings,
 )
-from questdb_reader import fetch_candles, fetch_latest_candles
-from rule_based_scorer import explain as rule_explain
-from rule_based_scorer import is_alert as rule_is_alert
-from trainer import load_model
+from .questdb_reader import fetch_candles, fetch_latest_candles
+from .rule_based_scorer import explain as rule_explain
+from .rule_based_scorer import is_alert as rule_is_alert
+from .trainer import load_model
 
 logger = logging.getLogger(__name__)
 
@@ -73,8 +74,16 @@ class BreakoutAlert:
     score:               float
     mode:                str          # "ml" or "rule_based"
     direction:           str          # "bullish" or "bearish"
-    upper_trendline_val: float
-    lower_trendline_val: float
+    upper_trendline_start_ts:  datetime
+    upper_trendline_end_ts:    datetime
+    lower_trendline_start_ts:  datetime
+    lower_trendline_end_ts:    datetime
+    upper_trendline_start_val: float
+    upper_trendline_end_val:   float
+    lower_trendline_start_val: float
+    lower_trendline_end_val:   float
+    upper_trendline_val:       float     # projected value at breakout candle
+    lower_trendline_val:       float     # projected value at breakout candle
     volume_ratio:        float
     zigzag_deviation:    float
     n_swing_highs:       int
@@ -82,31 +91,53 @@ class BreakoutAlert:
     features:            dict = field(repr=False)
     explanation:         str  = field(repr=False)
 
-    def log_summary(self):
+    def to_dict(self) -> dict:
         IST = timezone(timedelta(hours=5, minutes=30))
-        sep = "─" * 60
-        logger.info(sep)
-        logger.info("  BREAKOUT ALERT: %s", self.ticker)
-        logger.info(sep)
-        logger.info("  Timestamp    : %s IST", self.breakout_ts.astimezone(IST).strftime("%Y-%m-%d %H:%M"))
-        logger.info("  Close        : %.2f", self.breakout_close)
-        logger.info("  Triangle     : %s", self.triangle_type.upper())
-        logger.info("  Direction    : %s", self.direction.upper())
-        logger.info("  Score        : %.3f  [%s]", self.score, self.mode)
-        logger.info("  Volume       : %.0f  (%.1fx zone avg)", self.breakout_volume, self.volume_ratio)
-        logger.info("  Zone         : %d candles  (%.1f trading days)",
-                    self.zone_candle_count, self.zone_trading_days)
-        logger.info("  Zone span    : %s → %s",
-                    self.zone_start_ts.astimezone(IST).strftime("%Y-%m-%d %H:%M"),
-                    self.zone_end_ts.astimezone(IST).strftime("%Y-%m-%d %H:%M"))
-        logger.info("  Upper line   : %.2f   Lower line: %.2f",
-                    self.upper_trendline_val, self.lower_trendline_val)
-        logger.info("  ZigZag       : dev=%.1f%%  swings: %d highs / %d lows",
-                    self.zigzag_deviation * 100, self.n_swing_highs, self.n_swing_lows)
-        logger.info("")
-        for line in self.explanation.split("\n"):
-            logger.info("  %s", line)
-        logger.info(sep)
+
+        def fmt(ts: datetime) -> str:
+            return ts.astimezone(IST).strftime("%Y-%m-%d %H:%M IST")
+
+        return {
+            "ticker":        self.ticker,
+            "breakout_ts":   fmt(self.breakout_ts),
+            "breakout_close": self.breakout_close,
+            "breakout_volume": self.breakout_volume,
+            "triangle_type": self.triangle_type,
+            "direction":     self.direction,
+            "score":         round(self.score, 4),
+            "mode":          self.mode,
+            "volume_ratio":  round(self.volume_ratio, 3),
+            "zone": {
+                "start_ts":     fmt(self.zone_start_ts),
+                "end_ts":       fmt(self.zone_end_ts),
+                "candle_count": self.zone_candle_count,
+                "trading_days": round(self.zone_trading_days, 1),
+            },
+            "upper_trendline": {
+                "start_ts":    fmt(self.upper_trendline_start_ts),
+                "start_price": round(self.upper_trendline_start_val, 2),
+                "end_ts":      fmt(self.upper_trendline_end_ts),
+                "end_price":   round(self.upper_trendline_end_val, 2),
+                "at_breakout": round(self.upper_trendline_val, 2),
+            },
+            "lower_trendline": {
+                "start_ts":    fmt(self.lower_trendline_start_ts),
+                "start_price": round(self.lower_trendline_start_val, 2),
+                "end_ts":      fmt(self.lower_trendline_end_ts),
+                "end_price":   round(self.lower_trendline_end_val, 2),
+                "at_breakout": round(self.lower_trendline_val, 2),
+            },
+            "zigzag": {
+                "deviation_pct": round(self.zigzag_deviation * 100, 1),
+                "n_swing_highs": self.n_swing_highs,
+                "n_swing_lows":  self.n_swing_lows,
+            },
+            "features":    self.features,
+            "explanation": self.explanation,
+        }
+
+    def log_summary(self):
+        logger.info("BREAKOUT ALERT\n%s", json.dumps(self.to_dict(), indent=2))
 
 
 # ── Triangle detector (O(n) ZigZag-based) ─────────────────────────────────────
@@ -343,8 +374,16 @@ def evaluate_breakout(
         score               = score,
         mode                = mode,
         direction           = direction,
-        upper_trendline_val = upper_at_bo,
-        lower_trendline_val = lower_at_bo,
+        upper_trendline_start_ts  = candles.iloc[int(zone_info["u_idx"][0])]["ts"].to_pydatetime(),
+        upper_trendline_end_ts    = candles.iloc[int(zone_info["u_idx"][-1])]["ts"].to_pydatetime(),
+        lower_trendline_start_ts  = candles.iloc[int(zone_info["l_idx"][0])]["ts"].to_pydatetime(),
+        lower_trendline_end_ts    = candles.iloc[int(zone_info["l_idx"][-1])]["ts"].to_pydatetime(),
+        upper_trendline_start_val = float(zone_info["u_prices"][0]),
+        upper_trendline_end_val   = float(zone_info["u_prices"][-1]),
+        lower_trendline_start_val = float(zone_info["l_prices"][0]),
+        lower_trendline_end_val   = float(zone_info["l_prices"][-1]),
+        upper_trendline_val       = upper_at_bo,
+        lower_trendline_val       = lower_at_bo,
         volume_ratio        = volume_ratio,
         zigzag_deviation    = zone_info["deviation"],
         n_swing_highs       = zone_info["n_swing_highs"],
@@ -372,7 +411,7 @@ def scan_ticker(
     logger.debug("Scanning %s ...", ticker)
 
     if from_ts or to_ts:
-        from questdb_reader import fetch_candles
+        from .questdb_reader import fetch_candles
         candles = fetch_candles(ticker, interval=INTERVAL, from_ts=from_ts, to_ts=to_ts)
     else:
         candles = fetch_latest_candles(ticker, n=SCAN_LOOKBACK_CANDLES, interval=INTERVAL)
@@ -393,9 +432,9 @@ def scan_ticker(
 
 # ── Continuous (historical) window scan ───────────────────────────────────────
 
-# Max triangle zone = 55 trading days. Once the window exceeds this, the left
+# Max triangle zone = 12 trading days. Once the window exceeds this, the left
 # edge slides right to keep the window at this size.
-_MAX_WINDOW_CANDLES = CANDLES_PER_DAY * 55   # 1375 candles
+_MAX_WINDOW_CANDLES = CANDLES_PER_DAY * 12   # 300 candles
 
 
 def scan_ticker_continuous(
@@ -411,8 +450,8 @@ def scan_ticker_continuous(
       - Left edge starts at from_ts (index 0).
       - Right edge (breakout candidate) starts at MIN_ZONE_CANDLES and advances
         one candle at a time.
-      - Once the window exceeds 55 trading days (1,375 candles), the left edge
-        advances so the window stays at exactly 1,375 candles.
+      - Once the window exceeds 12 trading days (300 candles), the left edge
+        advances so the window stays at exactly 300 candles.
       - After a breakout fires at position i, skip forward MIN_ZONE_CANDLES
         candles to avoid re-detecting the same event.
     """
@@ -449,9 +488,10 @@ def scan_ticker_continuous(
             if alert:
                 alert.log_summary()
                 alerts.append(alert)
-                # Jump past the current zone to avoid duplicate alerts
-                i += MIN_ZONE_CANDLES
-                continue
+                # Abandon the old zone so the next window starts fresh,
+                # but advance only 1 candle so a reversal breakout nearby
+                # (e.g. bullish after a fake bearish) is not missed.
+                left = i
 
         i += 1
 
@@ -471,6 +511,7 @@ def scan_all_continuous(
     logger.info("═" * 60)
     logger.info("  Continuous scan : %s → %s", from_ts.strftime("%Y-%m-%d"), to_ts.strftime("%Y-%m-%d"))
     logger.info("  Max window      : %d candles (%d trading days)", _MAX_WINDOW_CANDLES, _MAX_WINDOW_CANDLES // CANDLES_PER_DAY)
+
     logger.info("  Tickers         : %s", ", ".join(tickers))
     logger.info("═" * 60)
 
@@ -540,10 +581,83 @@ def scan_all(
     return alerts
 
 
+# ── Public library API ───────────────────────────────────────────────────────
+
+def _parse_date(d) -> Optional[datetime]:
+    """Accept a datetime (returned as-is) or a 'YYYY-MM-DD' string (parsed as UTC)."""
+    if d is None:
+        return None
+    if isinstance(d, datetime):
+        return d if d.tzinfo else d.replace(tzinfo=timezone.utc)
+    return datetime.strptime(d, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+
+
+def scan(
+    ticker: str = None,
+    from_date=None,
+    to_date=None,
+) -> list[BreakoutAlert]:
+    """
+    Scan for triangle breakouts. Loads the model automatically.
+
+    Args:
+        ticker:    Single ticker symbol, or None to scan all configured tickers.
+        from_date: Start of candle window — 'YYYY-MM-DD' string or datetime (UTC).
+                   None = use default lookback (SCAN_LOOKBACK_CANDLES).
+        to_date:   End of candle window   — 'YYYY-MM-DD' string or datetime (UTC).
+                   None = up to the latest available candle.
+
+    Returns:
+        List of BreakoutAlert objects (may be empty).
+
+    Examples::
+
+        from traingle_breakout_training.scanner import scan, backtest
+
+        alerts = scan()                                     # all tickers, latest window
+        alerts = scan("ROTO")                              # single ticker
+        alerts = scan("ROTO", from_date="2024-06-01",
+                               to_date="2024-09-30")       # historical snapshot
+    """
+    from_ts = _parse_date(from_date)
+    to_ts   = _parse_date(to_date)
+    tickers = [ticker.upper()] if ticker else None
+    return scan_all(tickers, from_ts=from_ts, to_ts=to_ts)
+
+
+def backtest(
+    from_date,
+    to_date,
+    ticker: str = None,
+) -> list[BreakoutAlert]:
+    """
+    Sliding-window backtest — detect all breakouts between two dates.
+
+    Args:
+        from_date: Start date — 'YYYY-MM-DD' string or datetime (UTC).
+        to_date:   End date   — 'YYYY-MM-DD' string or datetime (UTC).
+        ticker:    Single ticker symbol, or None to scan all configured tickers.
+
+    Returns:
+        List of BreakoutAlert objects (may be empty).
+
+    Examples::
+
+        from traingle_breakout_training.scanner import backtest
+
+        alerts = backtest("2024-06-01", "2024-09-30")
+        alerts = backtest("2024-06-01", "2024-09-30", ticker="ROTO")
+    """
+    from_ts = _parse_date(from_date)
+    to_ts   = _parse_date(to_date)
+    tickers = [ticker.upper()] if ticker else None
+    return scan_all_continuous(from_ts, to_ts, tickers)
+
+
 # ── CLI ───────────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
-    import logging_setup   # noqa
+    from traingle_breakout_training import logging_setup  # noqa
 
     parser = argparse.ArgumentParser(description="Triangle breakout scanner (15-min NSE)")
     parser.add_argument("--ticker",    help="Scan a single ticker instead of all")

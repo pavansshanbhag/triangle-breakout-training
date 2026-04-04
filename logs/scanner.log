@@ -1,0 +1,2812 @@
+2026-03-31 19:09:59  INFO      trainer                 ════════════════════════════════════════════════════════════
+2026-03-31 19:09:59  INFO      trainer                 Starting training pipeline
+2026-03-31 19:14:11  INFO      trainer                 ════════════════════════════════════════════════════════════
+2026-03-31 19:14:11  INFO      trainer                 Starting training pipeline
+2026-03-31 19:14:12  INFO      questdb_reader          Paired 14 training examples
+2026-03-31 19:14:12  INFO      trainer                 Generated 27 synthetic negative examples
+2026-03-31 19:14:12  INFO      trainer                 Dataset: 14 positives, 27 negatives, 41 total
+2026-03-31 19:14:12  INFO      trainer                 Running Leave-One-Out CV on 41 samples...
+2026-03-31 19:14:13  INFO      trainer                 LOOCV → acc=0.98  prec=1.00  recall=0.93  (TP=13 FP=0 FN=1 TN=27)
+2026-03-31 19:14:13  INFO      trainer                 Top features:
+2026-03-31 19:14:13  INFO      trainer                   breakout_close_vs_upper             0.4560
+2026-03-31 19:14:13  INFO      trainer                   close_position                      0.2636
+2026-03-31 19:14:13  INFO      trainer                   volume_ratio                        0.1515
+2026-03-31 19:14:13  INFO      trainer                   lower_slope_pct                     0.0585
+2026-03-31 19:14:13  INFO      trainer                   zone_width                          0.0303
+2026-03-31 19:14:13  INFO      trainer                 Model saved → models\triangle_breakout.pkl
+2026-03-31 19:14:13  INFO      trainer                 Feature importances saved → models\feature_importance.json
+2026-03-31 19:14:13  INFO      trainer                 Training complete.
+2026-03-31 19:14:13  INFO      trainer                 ════════════════════════════════════════════════════════════
+2026-03-31 19:14:13  INFO      __main__                Training result: mode=ml  positives=14  negatives=27
+2026-03-31 19:14:13  INFO      __main__                LOOCV  acc=0.98  prec=1.00  recall=0.93
+2026-03-31 21:45:59  INFO      trainer                 Model loaded from models\triangle_breakout.pkl  (trained on 14 examples)
+2026-03-31 21:45:59  INFO      __main__                No breakout detected for EQUITAS
+2026-03-31 21:46:50  INFO      trainer                 Model loaded from models\triangle_breakout.pkl  (trained on 14 examples)
+2026-03-31 21:46:50  INFO      __main__                No breakout detected for EQUITAS
+2026-03-31 21:47:19  INFO      trainer                 Model loaded from models\triangle_breakout.pkl  (trained on 14 examples)
+2026-03-31 21:47:19  INFO      __main__                No breakout detected for NETWEB
+2026-04-01 00:30:38  INFO      trainer                 Model loaded from models\triangle_breakout.pkl  (trained on 14 examples)
+2026-04-01 00:30:38  INFO      __main__                No breakout detected for NETWEB
+2026-04-01 00:31:16  INFO      trainer                 Model loaded from models\triangle_breakout.pkl  (trained on 14 examples)
+2026-04-01 00:31:16  INFO      scanner                 NETWEB: continuous scan  2026-01-01 → 2026-03-18  (1310 candles, 52.4 trading days)
+2026-04-01 00:31:25  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-01 00:31:25  INFO      scanner                   BREAKOUT ALERT: NETWEB
+2026-04-01 00:31:25  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-01 00:31:25  INFO      scanner                   Timestamp    : 2026-02-19 04:00 IST
+2026-04-01 00:31:25  INFO      scanner                   Close        : 3557.00
+2026-04-01 00:31:25  INFO      scanner                   Triangle     : DESCENDING
+2026-04-01 00:31:25  INFO      scanner                   Direction    : BULLISH
+2026-04-01 00:31:25  INFO      scanner                   Score        : 0.890  [ml]
+2026-04-01 00:31:25  INFO      scanner                   Volume       : 58568  (8.3x zone avg)
+2026-04-01 00:31:25  INFO      scanner                   Zone         : 851 candles  (34.0 trading days)
+2026-04-01 00:31:25  INFO      scanner                   Zone span    : 2026-01-01 03:45 → 2026-02-19 03:45
+2026-04-01 00:31:25  INFO      scanner                   Upper line   : 3332.90   Lower line: 3074.80
+2026-04-01 00:31:25  INFO      scanner                   ZigZag       : dev=2.5%  swings: 28 highs / 27 lows
+2026-04-01 00:31:25  INFO      scanner                 
+2026-04-01 00:31:25  INFO      scanner                   ML probability: 0.890  (threshold: 0.6)
+2026-04-01 00:31:25  INFO      scanner                   
+2026-04-01 00:31:25  INFO      scanner                   Upper trendline flat (-0.0019%/candle) — descending triangle
+2026-04-01 00:31:25  INFO      scanner                   Lower trendline slope : -0.007%/candle
+2026-04-01 00:31:25  INFO      scanner                   Zone width            : 851 candles (34.0 trading days)
+2026-04-01 00:31:25  INFO      scanner                   Apex proximity        : 100% through triangle
+2026-04-01 00:31:25  INFO      scanner                   Breakout lag          : 1 candles (15 min after zone end)
+2026-04-01 00:31:25  INFO      scanner                   Volume ratio          : 8.3x zone avg
+2026-04-01 00:31:25  INFO      scanner                   Close vs upper line   : +6.72%
+2026-04-01 00:31:25  INFO      scanner                   Body strength         : 22% of candle range
+2026-04-01 00:31:25  INFO      scanner                   Close position        : 9% of range (top = bullish)
+2026-04-01 00:31:25  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-01 00:31:28  INFO      scanner                 NETWEB: continuous scan complete — 1 alert(s)
+2026-04-01 01:27:42  INFO      trainer                 Model loaded from models\triangle_breakout.pkl  (trained on 14 examples)
+2026-04-01 01:27:42  INFO      scanner                 NETWEB: continuous scan  2025-12-02 → 2026-03-18  (1835 candles, 73.4 trading days)
+2026-04-01 01:27:43  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-01 01:27:43  INFO      scanner                   BREAKOUT ALERT: NETWEB
+2026-04-01 01:27:43  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-01 01:27:43  INFO      scanner                   Timestamp    : 2025-12-15 04:15 IST
+2026-04-01 01:27:43  INFO      scanner                   Close        : 3229.40
+2026-04-01 01:27:43  INFO      scanner                   Triangle     : DESCENDING
+2026-04-01 01:27:43  INFO      scanner                   Direction    : BULLISH
+2026-04-01 01:27:43  INFO      scanner                   Score        : 0.915  [ml]
+2026-04-01 01:27:43  INFO      scanner                   Volume       : 7269  (2.7x zone avg)
+2026-04-01 01:27:43  INFO      scanner                   Zone         : 227 candles  (9.1 trading days)
+2026-04-01 01:27:43  INFO      scanner                   Zone span    : 2025-12-02 03:45 → 2025-12-15 04:00
+2026-04-01 01:27:43  INFO      scanner                   Upper line   : 3178.20   Lower line: 2913.85
+2026-04-01 01:27:43  INFO      scanner                   ZigZag       : dev=2.5%  swings: 6 highs / 5 lows
+2026-04-01 01:27:43  INFO      scanner                 
+2026-04-01 01:27:43  INFO      scanner                   ML probability: 0.915  (threshold: 0.6)
+2026-04-01 01:27:43  INFO      scanner                   
+2026-04-01 01:27:43  INFO      scanner                   Upper trendline: -0.008%/candle
+2026-04-01 01:27:43  INFO      scanner                   Lower trendline slope : -0.028%/candle
+2026-04-01 01:27:43  INFO      scanner                   Zone width            : 227 candles (9.1 trading days)
+2026-04-01 01:27:43  INFO      scanner                   Apex proximity        : 100% through triangle
+2026-04-01 01:27:43  INFO      scanner                   Breakout lag          : 1 candles (15 min after zone end)
+2026-04-01 01:27:43  INFO      scanner                   Volume ratio          : 2.7x zone avg
+2026-04-01 01:27:43  INFO      scanner                   Close vs upper line   : +1.61%
+2026-04-01 01:27:43  INFO      scanner                   Body strength         : 72% of candle range
+2026-04-01 01:27:43  INFO      scanner                   Close position        : 79% of range (top = bullish)
+2026-04-01 01:27:43  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-01 01:27:45  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-01 01:27:45  INFO      scanner                   BREAKOUT ALERT: NETWEB
+2026-04-01 01:27:45  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-01 01:27:45  INFO      scanner                   Timestamp    : 2026-01-05 05:15 IST
+2026-04-01 01:27:45  INFO      scanner                   Close        : 3269.85
+2026-04-01 01:27:45  INFO      scanner                   Triangle     : ASCENDING
+2026-04-01 01:27:45  INFO      scanner                   Direction    : BULLISH
+2026-04-01 01:27:45  INFO      scanner                   Score        : 0.886  [ml]
+2026-04-01 01:27:45  INFO      scanner                   Volume       : 49553  (24.2x zone avg)
+2026-04-01 01:27:45  INFO      scanner                   Zone         : 581 candles  (23.2 trading days)
+2026-04-01 01:27:45  INFO      scanner                   Zone span    : 2025-12-02 03:45 → 2026-01-05 05:00
+2026-04-01 01:27:45  INFO      scanner                   Upper line   : 3244.33   Lower line: 3058.40
+2026-04-01 01:27:45  INFO      scanner                   ZigZag       : dev=2.0%  swings: 14 highs / 13 lows
+2026-04-01 01:27:45  INFO      scanner                 
+2026-04-01 01:27:45  INFO      scanner                   ML probability: 0.886  (threshold: 0.6)
+2026-04-01 01:27:45  INFO      scanner                   
+2026-04-01 01:27:45  INFO      scanner                   Upper trendline: 0.002%/candle
+2026-04-01 01:27:45  INFO      scanner                   Lower trendline slope : -0.001%/candle
+2026-04-01 01:27:45  INFO      scanner                   Zone width            : 581 candles (23.2 trading days)
+2026-04-01 01:27:45  INFO      scanner                   Apex proximity        : 100% through triangle
+2026-04-01 01:27:45  INFO      scanner                   Breakout lag          : 1 candles (15 min after zone end)
+2026-04-01 01:27:45  INFO      scanner                   Volume ratio          : 24.2x zone avg
+2026-04-01 01:27:45  INFO      scanner                   Close vs upper line   : +0.79%
+2026-04-01 01:27:45  INFO      scanner                   Body strength         : 56% of candle range
+2026-04-01 01:27:45  INFO      scanner                   Close position        : 59% of range (top = bullish)
+2026-04-01 01:27:45  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-01 01:27:47  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-01 01:27:47  INFO      scanner                   BREAKOUT ALERT: NETWEB
+2026-04-01 01:27:47  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-01 01:27:47  INFO      scanner                   Timestamp    : 2026-01-19 03:45 IST
+2026-04-01 01:27:47  INFO      scanner                   Close        : 3652.85
+2026-04-01 01:27:47  INFO      scanner                   Triangle     : SYMMETRICAL
+2026-04-01 01:27:47  INFO      scanner                   Direction    : BULLISH
+2026-04-01 01:27:47  INFO      scanner                   Score        : 0.890  [ml]
+2026-04-01 01:27:47  INFO      scanner                   Volume       : 248909  (66.9x zone avg)
+2026-04-01 01:27:47  INFO      scanner                   Zone         : 800 candles  (32.0 trading days)
+2026-04-01 01:27:47  INFO      scanner                   Zone span    : 2025-12-02 03:45 → 2026-01-16 09:45
+2026-04-01 01:27:47  INFO      scanner                   Upper line   : 3432.53   Lower line: 3289.68
+2026-04-01 01:27:47  INFO      scanner                   ZigZag       : dev=2.5%  swings: 19 highs / 18 lows
+2026-04-01 01:27:47  INFO      scanner                 
+2026-04-01 01:27:47  INFO      scanner                   ML probability: 0.890  (threshold: 0.6)
+2026-04-01 01:27:47  INFO      scanner                   
+2026-04-01 01:27:47  INFO      scanner                   Upper trendline: 0.009%/candle
+2026-04-01 01:27:47  INFO      scanner                   Lower trendline slope : 0.011%/candle
+2026-04-01 01:27:47  INFO      scanner                   Zone width            : 800 candles (32.0 trading days)
+2026-04-01 01:27:47  INFO      scanner                   Apex proximity        : 31% through triangle
+2026-04-01 01:27:47  INFO      scanner                   Breakout lag          : 1 candles (15 min after zone end)
+2026-04-01 01:27:47  INFO      scanner                   Volume ratio          : 66.9x zone avg
+2026-04-01 01:27:47  INFO      scanner                   Close vs upper line   : +6.42%
+2026-04-01 01:27:47  INFO      scanner                   Body strength         : 39% of candle range
+2026-04-01 01:27:47  INFO      scanner                   Close position        : 30% of range (top = bullish)
+2026-04-01 01:27:47  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-01 01:27:51  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-01 01:27:51  INFO      scanner                   BREAKOUT ALERT: NETWEB
+2026-04-01 01:27:51  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-01 01:27:51  INFO      scanner                   Timestamp    : 2026-02-18 06:15 IST
+2026-04-01 01:27:51  INFO      scanner                   Close        : 3498.50
+2026-04-01 01:27:51  INFO      scanner                   Triangle     : ASCENDING
+2026-04-01 01:27:51  INFO      scanner                   Direction    : BULLISH
+2026-04-01 01:27:51  INFO      scanner                   Score        : 0.890  [ml]
+2026-04-01 01:27:51  INFO      scanner                   Volume       : 73678  (15.2x zone avg)
+2026-04-01 01:27:51  INFO      scanner                   Zone         : 1360 candles  (54.4 trading days)
+2026-04-01 01:27:51  INFO      scanner                   Zone span    : 2025-12-02 03:45 → 2026-02-18 06:00
+2026-04-01 01:27:51  INFO      scanner                   Upper line   : 3362.34   Lower line: 3152.17
+2026-04-01 01:27:51  INFO      scanner                   ZigZag       : dev=2.5%  swings: 34 highs / 33 lows
+2026-04-01 01:27:51  INFO      scanner                 
+2026-04-01 01:27:51  INFO      scanner                   ML probability: 0.890  (threshold: 0.6)
+2026-04-01 01:27:51  INFO      scanner                   
+2026-04-01 01:27:51  INFO      scanner                   Upper trendline flat (0.0016%/candle) — descending triangle
+2026-04-01 01:27:51  INFO      scanner                   Lower trendline slope : 0.001%/candle
+2026-04-01 01:27:51  INFO      scanner                   Zone width            : 1360 candles (54.4 trading days)
+2026-04-01 01:27:51  INFO      scanner                   Apex proximity        : 100% through triangle
+2026-04-01 01:27:51  INFO      scanner                   Breakout lag          : 1 candles (15 min after zone end)
+2026-04-01 01:27:51  INFO      scanner                   Volume ratio          : 15.2x zone avg
+2026-04-01 01:27:51  INFO      scanner                   Close vs upper line   : +4.05%
+2026-04-01 01:27:51  INFO      scanner                   Body strength         : 15% of candle range
+2026-04-01 01:27:51  INFO      scanner                   Close position        : 43% of range (top = bullish)
+2026-04-01 01:27:51  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-01 01:27:55  INFO      scanner                 NETWEB: continuous scan complete — 4 alert(s)
+2026-04-01 01:37:13  INFO      trainer                 Model loaded from models\triangle_breakout.pkl  (trained on 14 examples)
+2026-04-01 01:37:13  INFO      scanner                 NETWEB: continuous scan  2025-12-02 → 2026-03-18  (1835 candles, 73.4 trading days)
+2026-04-01 01:37:14  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-01 01:37:14  INFO      scanner                   BREAKOUT ALERT: NETWEB
+2026-04-01 01:37:14  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-01 01:37:14  INFO      scanner                   Timestamp    : 2025-12-15 09:45 IST
+2026-04-01 01:37:14  INFO      scanner                   Close        : 3229.40
+2026-04-01 01:37:14  INFO      scanner                   Triangle     : DESCENDING
+2026-04-01 01:37:14  INFO      scanner                   Direction    : BULLISH
+2026-04-01 01:37:14  INFO      scanner                   Score        : 0.915  [ml]
+2026-04-01 01:37:14  INFO      scanner                   Volume       : 7269  (2.7x zone avg)
+2026-04-01 01:37:14  INFO      scanner                   Zone         : 227 candles  (9.1 trading days)
+2026-04-01 01:37:14  INFO      scanner                   Zone span    : 2025-12-02 09:15 → 2025-12-15 09:30
+2026-04-01 01:37:14  INFO      scanner                   Upper line   : 3178.20   Lower line: 2913.85
+2026-04-01 01:37:14  INFO      scanner                   ZigZag       : dev=2.5%  swings: 6 highs / 5 lows
+2026-04-01 01:37:14  INFO      scanner                 
+2026-04-01 01:37:14  INFO      scanner                   ML probability: 0.915  (threshold: 0.6)
+2026-04-01 01:37:14  INFO      scanner                   
+2026-04-01 01:37:14  INFO      scanner                   Upper trendline: -0.008%/candle
+2026-04-01 01:37:14  INFO      scanner                   Lower trendline slope : -0.028%/candle
+2026-04-01 01:37:14  INFO      scanner                   Zone width            : 227 candles (9.1 trading days)
+2026-04-01 01:37:14  INFO      scanner                   Apex proximity        : 100% through triangle
+2026-04-01 01:37:14  INFO      scanner                   Breakout lag          : 1 candles (15 min after zone end)
+2026-04-01 01:37:14  INFO      scanner                   Volume ratio          : 2.7x zone avg
+2026-04-01 01:37:14  INFO      scanner                   Close vs upper line   : +1.61%
+2026-04-01 01:37:14  INFO      scanner                   Body strength         : 72% of candle range
+2026-04-01 01:37:14  INFO      scanner                   Close position        : 79% of range (top = bullish)
+2026-04-01 01:37:14  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-01 01:37:16  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-01 01:37:16  INFO      scanner                   BREAKOUT ALERT: NETWEB
+2026-04-01 01:37:16  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-01 01:37:16  INFO      scanner                   Timestamp    : 2026-01-05 10:45 IST
+2026-04-01 01:37:16  INFO      scanner                   Close        : 3269.85
+2026-04-01 01:37:16  INFO      scanner                   Triangle     : ASCENDING
+2026-04-01 01:37:16  INFO      scanner                   Direction    : BULLISH
+2026-04-01 01:37:16  INFO      scanner                   Score        : 0.886  [ml]
+2026-04-01 01:37:16  INFO      scanner                   Volume       : 49553  (24.2x zone avg)
+2026-04-01 01:37:16  INFO      scanner                   Zone         : 581 candles  (23.2 trading days)
+2026-04-01 01:37:16  INFO      scanner                   Zone span    : 2025-12-02 09:15 → 2026-01-05 10:30
+2026-04-01 01:37:16  INFO      scanner                   Upper line   : 3244.33   Lower line: 3058.40
+2026-04-01 01:37:16  INFO      scanner                   ZigZag       : dev=2.0%  swings: 14 highs / 13 lows
+2026-04-01 01:37:16  INFO      scanner                 
+2026-04-01 01:37:16  INFO      scanner                   ML probability: 0.886  (threshold: 0.6)
+2026-04-01 01:37:16  INFO      scanner                   
+2026-04-01 01:37:16  INFO      scanner                   Upper trendline: 0.002%/candle
+2026-04-01 01:37:16  INFO      scanner                   Lower trendline slope : -0.001%/candle
+2026-04-01 01:37:16  INFO      scanner                   Zone width            : 581 candles (23.2 trading days)
+2026-04-01 01:37:16  INFO      scanner                   Apex proximity        : 100% through triangle
+2026-04-01 01:37:16  INFO      scanner                   Breakout lag          : 1 candles (15 min after zone end)
+2026-04-01 01:37:16  INFO      scanner                   Volume ratio          : 24.2x zone avg
+2026-04-01 01:37:16  INFO      scanner                   Close vs upper line   : +0.79%
+2026-04-01 01:37:16  INFO      scanner                   Body strength         : 56% of candle range
+2026-04-01 01:37:16  INFO      scanner                   Close position        : 59% of range (top = bullish)
+2026-04-01 01:37:16  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-01 01:37:18  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-01 01:37:18  INFO      scanner                   BREAKOUT ALERT: NETWEB
+2026-04-01 01:37:18  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-01 01:37:18  INFO      scanner                   Timestamp    : 2026-01-19 09:15 IST
+2026-04-01 01:37:18  INFO      scanner                   Close        : 3652.85
+2026-04-01 01:37:18  INFO      scanner                   Triangle     : SYMMETRICAL
+2026-04-01 01:37:18  INFO      scanner                   Direction    : BULLISH
+2026-04-01 01:37:18  INFO      scanner                   Score        : 0.890  [ml]
+2026-04-01 01:37:18  INFO      scanner                   Volume       : 248909  (66.9x zone avg)
+2026-04-01 01:37:18  INFO      scanner                   Zone         : 800 candles  (32.0 trading days)
+2026-04-01 01:37:18  INFO      scanner                   Zone span    : 2025-12-02 09:15 → 2026-01-16 15:15
+2026-04-01 01:37:18  INFO      scanner                   Upper line   : 3432.53   Lower line: 3289.68
+2026-04-01 01:37:18  INFO      scanner                   ZigZag       : dev=2.5%  swings: 19 highs / 18 lows
+2026-04-01 01:37:18  INFO      scanner                 
+2026-04-01 01:37:18  INFO      scanner                   ML probability: 0.890  (threshold: 0.6)
+2026-04-01 01:37:18  INFO      scanner                   
+2026-04-01 01:37:18  INFO      scanner                   Upper trendline: 0.009%/candle
+2026-04-01 01:37:18  INFO      scanner                   Lower trendline slope : 0.011%/candle
+2026-04-01 01:37:18  INFO      scanner                   Zone width            : 800 candles (32.0 trading days)
+2026-04-01 01:37:18  INFO      scanner                   Apex proximity        : 31% through triangle
+2026-04-01 01:37:18  INFO      scanner                   Breakout lag          : 1 candles (15 min after zone end)
+2026-04-01 01:37:18  INFO      scanner                   Volume ratio          : 66.9x zone avg
+2026-04-01 01:37:18  INFO      scanner                   Close vs upper line   : +6.42%
+2026-04-01 01:37:18  INFO      scanner                   Body strength         : 39% of candle range
+2026-04-01 01:37:18  INFO      scanner                   Close position        : 30% of range (top = bullish)
+2026-04-01 01:37:18  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-01 01:37:22  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-01 01:37:22  INFO      scanner                   BREAKOUT ALERT: NETWEB
+2026-04-01 01:37:22  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-01 01:37:22  INFO      scanner                   Timestamp    : 2026-02-18 11:45 IST
+2026-04-01 01:37:22  INFO      scanner                   Close        : 3498.50
+2026-04-01 01:37:22  INFO      scanner                   Triangle     : ASCENDING
+2026-04-01 01:37:22  INFO      scanner                   Direction    : BULLISH
+2026-04-01 01:37:22  INFO      scanner                   Score        : 0.890  [ml]
+2026-04-01 01:37:22  INFO      scanner                   Volume       : 73678  (15.2x zone avg)
+2026-04-01 01:37:22  INFO      scanner                   Zone         : 1360 candles  (54.4 trading days)
+2026-04-01 01:37:22  INFO      scanner                   Zone span    : 2025-12-02 09:15 → 2026-02-18 11:30
+2026-04-01 01:37:22  INFO      scanner                   Upper line   : 3362.34   Lower line: 3152.17
+2026-04-01 01:37:22  INFO      scanner                   ZigZag       : dev=2.5%  swings: 34 highs / 33 lows
+2026-04-01 01:37:22  INFO      scanner                 
+2026-04-01 01:37:22  INFO      scanner                   ML probability: 0.890  (threshold: 0.6)
+2026-04-01 01:37:22  INFO      scanner                   
+2026-04-01 01:37:22  INFO      scanner                   Upper trendline flat (0.0016%/candle) — descending triangle
+2026-04-01 01:37:22  INFO      scanner                   Lower trendline slope : 0.001%/candle
+2026-04-01 01:37:22  INFO      scanner                   Zone width            : 1360 candles (54.4 trading days)
+2026-04-01 01:37:22  INFO      scanner                   Apex proximity        : 100% through triangle
+2026-04-01 01:37:22  INFO      scanner                   Breakout lag          : 1 candles (15 min after zone end)
+2026-04-01 01:37:22  INFO      scanner                   Volume ratio          : 15.2x zone avg
+2026-04-01 01:37:22  INFO      scanner                   Close vs upper line   : +4.05%
+2026-04-01 01:37:22  INFO      scanner                   Body strength         : 15% of candle range
+2026-04-01 01:37:22  INFO      scanner                   Close position        : 43% of range (top = bullish)
+2026-04-01 01:37:22  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-01 01:37:25  INFO      scanner                 NETWEB: continuous scan complete — 4 alert(s)
+2026-04-03 07:14:49  INFO      trainer                 Model loaded from models\triangle_breakout.pkl  (trained on 14 examples)
+2026-04-03 07:15:34  INFO      trainer                 Model loaded from models\triangle_breakout.pkl  (trained on 14 examples)
+2026-04-03 07:15:34  INFO      scanner                 NETWEB: continuous scan  2025-12-02 → 2026-03-18  (1835 candles, 73.4 trading days)
+2026-04-03 07:15:35  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 07:15:35  INFO      scanner                   BREAKOUT ALERT: NETWEB
+2026-04-03 07:15:35  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 07:15:35  INFO      scanner                   Timestamp    : 2025-12-15 09:45 IST
+2026-04-03 07:15:35  INFO      scanner                   Close        : 3229.40
+2026-04-03 07:15:35  INFO      scanner                   Triangle     : DESCENDING
+2026-04-03 07:15:35  INFO      scanner                   Direction    : BULLISH
+2026-04-03 07:15:35  INFO      scanner                   Score        : 0.915  [ml]
+2026-04-03 07:15:35  INFO      scanner                   Volume       : 7269  (2.7x zone avg)
+2026-04-03 07:15:35  INFO      scanner                   Zone         : 227 candles  (9.1 trading days)
+2026-04-03 07:15:35  INFO      scanner                   Zone span    : 2025-12-02 09:15 → 2025-12-15 09:30
+2026-04-03 07:15:35  INFO      scanner                   Upper line   : 3178.20   Lower line: 2913.85
+2026-04-03 07:15:35  INFO      scanner                   ZigZag       : dev=2.5%  swings: 6 highs / 5 lows
+2026-04-03 07:15:35  INFO      scanner                 
+2026-04-03 07:15:35  INFO      scanner                   ML probability: 0.915  (threshold: 0.6)
+2026-04-03 07:15:35  INFO      scanner                   
+2026-04-03 07:15:35  INFO      scanner                   Upper trendline: -0.008%/candle
+2026-04-03 07:15:35  INFO      scanner                   Lower trendline slope : -0.028%/candle
+2026-04-03 07:15:35  INFO      scanner                   Zone width            : 227 candles (9.1 trading days)
+2026-04-03 07:15:35  INFO      scanner                   Apex proximity        : 100% through triangle
+2026-04-03 07:15:35  INFO      scanner                   Breakout lag          : 1 candles (15 min after zone end)
+2026-04-03 07:15:35  INFO      scanner                   Volume ratio          : 2.7x zone avg
+2026-04-03 07:15:35  INFO      scanner                   Close vs upper line   : +1.61%
+2026-04-03 07:15:35  INFO      scanner                   Body strength         : 72% of candle range
+2026-04-03 07:15:35  INFO      scanner                   Close position        : 79% of range (top = bullish)
+2026-04-03 07:15:35  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 07:15:38  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 07:15:38  INFO      scanner                   BREAKOUT ALERT: NETWEB
+2026-04-03 07:15:38  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 07:15:38  INFO      scanner                   Timestamp    : 2026-01-05 10:45 IST
+2026-04-03 07:15:38  INFO      scanner                   Close        : 3269.85
+2026-04-03 07:15:38  INFO      scanner                   Triangle     : ASCENDING
+2026-04-03 07:15:38  INFO      scanner                   Direction    : BULLISH
+2026-04-03 07:15:38  INFO      scanner                   Score        : 0.886  [ml]
+2026-04-03 07:15:38  INFO      scanner                   Volume       : 49553  (24.2x zone avg)
+2026-04-03 07:15:38  INFO      scanner                   Zone         : 581 candles  (23.2 trading days)
+2026-04-03 07:15:38  INFO      scanner                   Zone span    : 2025-12-02 09:15 → 2026-01-05 10:30
+2026-04-03 07:15:38  INFO      scanner                   Upper line   : 3244.33   Lower line: 3058.40
+2026-04-03 07:15:38  INFO      scanner                   ZigZag       : dev=2.0%  swings: 14 highs / 13 lows
+2026-04-03 07:15:38  INFO      scanner                 
+2026-04-03 07:15:38  INFO      scanner                   ML probability: 0.886  (threshold: 0.6)
+2026-04-03 07:15:38  INFO      scanner                   
+2026-04-03 07:15:38  INFO      scanner                   Upper trendline: 0.002%/candle
+2026-04-03 07:15:38  INFO      scanner                   Lower trendline slope : -0.001%/candle
+2026-04-03 07:15:38  INFO      scanner                   Zone width            : 581 candles (23.2 trading days)
+2026-04-03 07:15:38  INFO      scanner                   Apex proximity        : 100% through triangle
+2026-04-03 07:15:38  INFO      scanner                   Breakout lag          : 1 candles (15 min after zone end)
+2026-04-03 07:15:38  INFO      scanner                   Volume ratio          : 24.2x zone avg
+2026-04-03 07:15:38  INFO      scanner                   Close vs upper line   : +0.79%
+2026-04-03 07:15:38  INFO      scanner                   Body strength         : 56% of candle range
+2026-04-03 07:15:38  INFO      scanner                   Close position        : 59% of range (top = bullish)
+2026-04-03 07:15:38  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 07:15:41  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 07:15:41  INFO      scanner                   BREAKOUT ALERT: NETWEB
+2026-04-03 07:15:41  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 07:15:41  INFO      scanner                   Timestamp    : 2026-01-19 09:15 IST
+2026-04-03 07:15:41  INFO      scanner                   Close        : 3652.85
+2026-04-03 07:15:41  INFO      scanner                   Triangle     : SYMMETRICAL
+2026-04-03 07:15:41  INFO      scanner                   Direction    : BULLISH
+2026-04-03 07:15:41  INFO      scanner                   Score        : 0.890  [ml]
+2026-04-03 07:15:41  INFO      scanner                   Volume       : 248909  (66.9x zone avg)
+2026-04-03 07:15:41  INFO      scanner                   Zone         : 800 candles  (32.0 trading days)
+2026-04-03 07:15:41  INFO      scanner                   Zone span    : 2025-12-02 09:15 → 2026-01-16 15:15
+2026-04-03 07:15:41  INFO      scanner                   Upper line   : 3432.53   Lower line: 3289.68
+2026-04-03 07:15:41  INFO      scanner                   ZigZag       : dev=2.5%  swings: 19 highs / 18 lows
+2026-04-03 07:15:41  INFO      scanner                 
+2026-04-03 07:15:41  INFO      scanner                   ML probability: 0.890  (threshold: 0.6)
+2026-04-03 07:15:41  INFO      scanner                   
+2026-04-03 07:15:41  INFO      scanner                   Upper trendline: 0.009%/candle
+2026-04-03 07:15:41  INFO      scanner                   Lower trendline slope : 0.011%/candle
+2026-04-03 07:15:41  INFO      scanner                   Zone width            : 800 candles (32.0 trading days)
+2026-04-03 07:15:41  INFO      scanner                   Apex proximity        : 31% through triangle
+2026-04-03 07:15:41  INFO      scanner                   Breakout lag          : 1 candles (15 min after zone end)
+2026-04-03 07:15:41  INFO      scanner                   Volume ratio          : 66.9x zone avg
+2026-04-03 07:15:41  INFO      scanner                   Close vs upper line   : +6.42%
+2026-04-03 07:15:41  INFO      scanner                   Body strength         : 39% of candle range
+2026-04-03 07:15:41  INFO      scanner                   Close position        : 30% of range (top = bullish)
+2026-04-03 07:15:41  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 07:15:46  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 07:15:46  INFO      scanner                   BREAKOUT ALERT: NETWEB
+2026-04-03 07:15:46  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 07:15:46  INFO      scanner                   Timestamp    : 2026-02-18 11:45 IST
+2026-04-03 07:15:46  INFO      scanner                   Close        : 3498.50
+2026-04-03 07:15:46  INFO      scanner                   Triangle     : ASCENDING
+2026-04-03 07:15:46  INFO      scanner                   Direction    : BULLISH
+2026-04-03 07:15:46  INFO      scanner                   Score        : 0.890  [ml]
+2026-04-03 07:15:46  INFO      scanner                   Volume       : 73678  (15.2x zone avg)
+2026-04-03 07:15:46  INFO      scanner                   Zone         : 1360 candles  (54.4 trading days)
+2026-04-03 07:15:46  INFO      scanner                   Zone span    : 2025-12-02 09:15 → 2026-02-18 11:30
+2026-04-03 07:15:46  INFO      scanner                   Upper line   : 3362.34   Lower line: 3152.17
+2026-04-03 07:15:46  INFO      scanner                   ZigZag       : dev=2.5%  swings: 34 highs / 33 lows
+2026-04-03 07:15:46  INFO      scanner                 
+2026-04-03 07:15:46  INFO      scanner                   ML probability: 0.890  (threshold: 0.6)
+2026-04-03 07:15:46  INFO      scanner                   
+2026-04-03 07:15:46  INFO      scanner                   Upper trendline flat (0.0016%/candle) — descending triangle
+2026-04-03 07:15:46  INFO      scanner                   Lower trendline slope : 0.001%/candle
+2026-04-03 07:15:46  INFO      scanner                   Zone width            : 1360 candles (54.4 trading days)
+2026-04-03 07:15:46  INFO      scanner                   Apex proximity        : 100% through triangle
+2026-04-03 07:15:46  INFO      scanner                   Breakout lag          : 1 candles (15 min after zone end)
+2026-04-03 07:15:46  INFO      scanner                   Volume ratio          : 15.2x zone avg
+2026-04-03 07:15:46  INFO      scanner                   Close vs upper line   : +4.05%
+2026-04-03 07:15:46  INFO      scanner                   Body strength         : 15% of candle range
+2026-04-03 07:15:46  INFO      scanner                   Close position        : 43% of range (top = bullish)
+2026-04-03 07:15:46  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 07:15:50  INFO      scanner                 NETWEB: continuous scan complete — 4 alert(s)
+2026-04-03 08:07:05  INFO      trainer                 Model loaded from models\triangle_breakout.pkl  (trained on 14 examples)
+2026-04-03 08:07:05  INFO      scanner                 NETWEB: continuous scan  2025-12-02 → 2026-03-18  (1835 candles, 73.4 trading days)
+2026-04-03 08:07:05  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:07:05  INFO      scanner                   BREAKOUT ALERT: NETWEB
+2026-04-03 08:07:05  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:07:05  INFO      scanner                   Timestamp    : 2025-12-15 09:45 IST
+2026-04-03 08:07:05  INFO      scanner                   Close        : 3229.40
+2026-04-03 08:07:05  INFO      scanner                   Triangle     : DESCENDING
+2026-04-03 08:07:05  INFO      scanner                   Direction    : BULLISH
+2026-04-03 08:07:05  INFO      scanner                   Score        : 0.915  [ml]
+2026-04-03 08:07:05  INFO      scanner                   Volume       : 7269  (2.7x zone avg)
+2026-04-03 08:07:05  INFO      scanner                   Zone         : 227 candles  (9.1 trading days)
+2026-04-03 08:07:05  INFO      scanner                   Zone span    : 2025-12-02 09:15 → 2025-12-15 09:30
+2026-04-03 08:07:05  INFO      scanner                   Upper line   : 3178.20   Lower line: 2913.85
+2026-04-03 08:07:05  INFO      scanner                   ZigZag       : dev=2.5%  swings: 6 highs / 5 lows
+2026-04-03 08:07:05  INFO      scanner                 
+2026-04-03 08:07:05  INFO      scanner                   ML probability: 0.915  (threshold: 0.6)
+2026-04-03 08:07:05  INFO      scanner                   
+2026-04-03 08:07:05  INFO      scanner                   Upper trendline: -0.008%/candle
+2026-04-03 08:07:05  INFO      scanner                   Lower trendline slope : -0.028%/candle
+2026-04-03 08:07:05  INFO      scanner                   Zone width            : 227 candles (9.1 trading days)
+2026-04-03 08:07:05  INFO      scanner                   Apex proximity        : 100% through triangle
+2026-04-03 08:07:05  INFO      scanner                   Breakout lag          : 1 candles (15 min after zone end)
+2026-04-03 08:07:05  INFO      scanner                   Volume ratio          : 2.7x zone avg
+2026-04-03 08:07:05  INFO      scanner                   Close vs upper line   : +1.61%
+2026-04-03 08:07:05  INFO      scanner                   Body strength         : 72% of candle range
+2026-04-03 08:07:05  INFO      scanner                   Close position        : 79% of range (top = bullish)
+2026-04-03 08:07:05  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:07:07  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:07:07  INFO      scanner                   BREAKOUT ALERT: NETWEB
+2026-04-03 08:07:07  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:07:07  INFO      scanner                   Timestamp    : 2026-01-05 10:45 IST
+2026-04-03 08:07:07  INFO      scanner                   Close        : 3269.85
+2026-04-03 08:07:07  INFO      scanner                   Triangle     : ASCENDING
+2026-04-03 08:07:07  INFO      scanner                   Direction    : BULLISH
+2026-04-03 08:07:07  INFO      scanner                   Score        : 0.886  [ml]
+2026-04-03 08:07:07  INFO      scanner                   Volume       : 49553  (24.2x zone avg)
+2026-04-03 08:07:07  INFO      scanner                   Zone         : 581 candles  (23.2 trading days)
+2026-04-03 08:07:07  INFO      scanner                   Zone span    : 2025-12-02 09:15 → 2026-01-05 10:30
+2026-04-03 08:07:07  INFO      scanner                   Upper line   : 3244.33   Lower line: 3058.40
+2026-04-03 08:07:07  INFO      scanner                   ZigZag       : dev=2.0%  swings: 14 highs / 13 lows
+2026-04-03 08:07:07  INFO      scanner                 
+2026-04-03 08:07:07  INFO      scanner                   ML probability: 0.886  (threshold: 0.6)
+2026-04-03 08:07:07  INFO      scanner                   
+2026-04-03 08:07:07  INFO      scanner                   Upper trendline: 0.002%/candle
+2026-04-03 08:07:07  INFO      scanner                   Lower trendline slope : -0.001%/candle
+2026-04-03 08:07:07  INFO      scanner                   Zone width            : 581 candles (23.2 trading days)
+2026-04-03 08:07:07  INFO      scanner                   Apex proximity        : 100% through triangle
+2026-04-03 08:07:07  INFO      scanner                   Breakout lag          : 1 candles (15 min after zone end)
+2026-04-03 08:07:07  INFO      scanner                   Volume ratio          : 24.2x zone avg
+2026-04-03 08:07:07  INFO      scanner                   Close vs upper line   : +0.79%
+2026-04-03 08:07:07  INFO      scanner                   Body strength         : 56% of candle range
+2026-04-03 08:07:07  INFO      scanner                   Close position        : 59% of range (top = bullish)
+2026-04-03 08:07:07  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:07:07  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:07:07  INFO      scanner                   BREAKOUT ALERT: NETWEB
+2026-04-03 08:07:07  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:07:07  INFO      scanner                   Timestamp    : 2026-01-19 09:15 IST
+2026-04-03 08:07:07  INFO      scanner                   Close        : 3652.85
+2026-04-03 08:07:07  INFO      scanner                   Triangle     : SYMMETRICAL
+2026-04-03 08:07:07  INFO      scanner                   Direction    : BULLISH
+2026-04-03 08:07:07  INFO      scanner                   Score        : 0.890  [ml]
+2026-04-03 08:07:07  INFO      scanner                   Volume       : 248909  (66.9x zone avg)
+2026-04-03 08:07:07  INFO      scanner                   Zone         : 800 candles  (32.0 trading days)
+2026-04-03 08:07:07  INFO      scanner                   Zone span    : 2025-12-02 09:15 → 2026-01-16 15:15
+2026-04-03 08:07:07  INFO      scanner                   Upper line   : 3432.53   Lower line: 3289.68
+2026-04-03 08:07:07  INFO      scanner                   ZigZag       : dev=2.5%  swings: 19 highs / 18 lows
+2026-04-03 08:07:07  INFO      scanner                 
+2026-04-03 08:07:07  INFO      scanner                   ML probability: 0.890  (threshold: 0.6)
+2026-04-03 08:07:07  INFO      scanner                   
+2026-04-03 08:07:07  INFO      scanner                   Upper trendline: 0.009%/candle
+2026-04-03 08:07:07  INFO      scanner                   Lower trendline slope : 0.011%/candle
+2026-04-03 08:07:07  INFO      scanner                   Zone width            : 800 candles (32.0 trading days)
+2026-04-03 08:07:07  INFO      scanner                   Apex proximity        : 31% through triangle
+2026-04-03 08:07:07  INFO      scanner                   Breakout lag          : 1 candles (15 min after zone end)
+2026-04-03 08:07:07  INFO      scanner                   Volume ratio          : 66.9x zone avg
+2026-04-03 08:07:07  INFO      scanner                   Close vs upper line   : +6.42%
+2026-04-03 08:07:07  INFO      scanner                   Body strength         : 39% of candle range
+2026-04-03 08:07:07  INFO      scanner                   Close position        : 30% of range (top = bullish)
+2026-04-03 08:07:07  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:07:10  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:07:10  INFO      scanner                   BREAKOUT ALERT: NETWEB
+2026-04-03 08:07:10  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:07:10  INFO      scanner                   Timestamp    : 2026-02-18 11:45 IST
+2026-04-03 08:07:10  INFO      scanner                   Close        : 3498.50
+2026-04-03 08:07:10  INFO      scanner                   Triangle     : ASCENDING
+2026-04-03 08:07:10  INFO      scanner                   Direction    : BULLISH
+2026-04-03 08:07:10  INFO      scanner                   Score        : 0.890  [ml]
+2026-04-03 08:07:10  INFO      scanner                   Volume       : 73678  (15.2x zone avg)
+2026-04-03 08:07:10  INFO      scanner                   Zone         : 1360 candles  (54.4 trading days)
+2026-04-03 08:07:10  INFO      scanner                   Zone span    : 2025-12-02 09:15 → 2026-02-18 11:30
+2026-04-03 08:07:10  INFO      scanner                   Upper line   : 3362.34   Lower line: 3152.17
+2026-04-03 08:07:10  INFO      scanner                   ZigZag       : dev=2.5%  swings: 34 highs / 33 lows
+2026-04-03 08:07:10  INFO      scanner                 
+2026-04-03 08:07:10  INFO      scanner                   ML probability: 0.890  (threshold: 0.6)
+2026-04-03 08:07:10  INFO      scanner                   
+2026-04-03 08:07:10  INFO      scanner                   Upper trendline flat (0.0016%/candle) — descending triangle
+2026-04-03 08:07:10  INFO      scanner                   Lower trendline slope : 0.001%/candle
+2026-04-03 08:07:10  INFO      scanner                   Zone width            : 1360 candles (54.4 trading days)
+2026-04-03 08:07:10  INFO      scanner                   Apex proximity        : 100% through triangle
+2026-04-03 08:07:10  INFO      scanner                   Breakout lag          : 1 candles (15 min after zone end)
+2026-04-03 08:07:10  INFO      scanner                   Volume ratio          : 15.2x zone avg
+2026-04-03 08:07:10  INFO      scanner                   Close vs upper line   : +4.05%
+2026-04-03 08:07:10  INFO      scanner                   Body strength         : 15% of candle range
+2026-04-03 08:07:10  INFO      scanner                   Close position        : 43% of range (top = bullish)
+2026-04-03 08:07:10  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:07:12  INFO      scanner                 NETWEB: continuous scan complete — 4 alert(s)
+2026-04-03 08:13:39  INFO      trainer                 Model loaded from models\triangle_breakout.pkl  (trained on 14 examples)
+2026-04-03 08:13:39  INFO      scanner                 NETWEB: continuous scan  2025-12-02 → 2026-03-18  (1835 candles, 73.4 trading days)
+2026-04-03 08:13:39  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:13:39  INFO      scanner                   BREAKOUT ALERT: NETWEB
+2026-04-03 08:13:39  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:13:39  INFO      scanner                   Timestamp    : 2025-12-15 09:45 IST
+2026-04-03 08:13:39  INFO      scanner                   Close        : 3229.40
+2026-04-03 08:13:39  INFO      scanner                   Triangle     : DESCENDING
+2026-04-03 08:13:39  INFO      scanner                   Direction    : BULLISH
+2026-04-03 08:13:39  INFO      scanner                   Score        : 0.915  [ml]
+2026-04-03 08:13:39  INFO      scanner                   Volume       : 7269  (2.7x zone avg)
+2026-04-03 08:13:39  INFO      scanner                   Zone         : 227 candles  (9.1 trading days)
+2026-04-03 08:13:39  INFO      scanner                   Zone span    : 2025-12-02 09:15 → 2025-12-15 09:30
+2026-04-03 08:13:39  INFO      scanner                   Upper line   : 2025-12-02 09:15 → 2025-12-15 09:30
+2026-04-03 08:13:39  INFO      scanner                   Lower line   : 2025-12-02 10:30 → 2025-12-15 09:30
+2026-04-03 08:13:39  INFO      scanner                   Upper line   : 3178.20   Lower line: 2913.85
+2026-04-03 08:13:39  INFO      scanner                   ZigZag       : dev=2.5%  swings: 6 highs / 5 lows
+2026-04-03 08:13:39  INFO      scanner                 
+2026-04-03 08:13:39  INFO      scanner                   ML probability: 0.915  (threshold: 0.6)
+2026-04-03 08:13:39  INFO      scanner                   
+2026-04-03 08:13:39  INFO      scanner                   Upper trendline: -0.008%/candle
+2026-04-03 08:13:39  INFO      scanner                   Lower trendline slope : -0.028%/candle
+2026-04-03 08:13:39  INFO      scanner                   Zone width            : 227 candles (9.1 trading days)
+2026-04-03 08:13:39  INFO      scanner                   Apex proximity        : 100% through triangle
+2026-04-03 08:13:39  INFO      scanner                   Breakout lag          : 1 candles (15 min after zone end)
+2026-04-03 08:13:39  INFO      scanner                   Volume ratio          : 2.7x zone avg
+2026-04-03 08:13:39  INFO      scanner                   Close vs upper line   : +1.61%
+2026-04-03 08:13:39  INFO      scanner                   Body strength         : 72% of candle range
+2026-04-03 08:13:39  INFO      scanner                   Close position        : 79% of range (top = bullish)
+2026-04-03 08:13:39  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:13:41  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:13:41  INFO      scanner                   BREAKOUT ALERT: NETWEB
+2026-04-03 08:13:41  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:13:41  INFO      scanner                   Timestamp    : 2026-01-05 10:45 IST
+2026-04-03 08:13:41  INFO      scanner                   Close        : 3269.85
+2026-04-03 08:13:41  INFO      scanner                   Triangle     : ASCENDING
+2026-04-03 08:13:41  INFO      scanner                   Direction    : BULLISH
+2026-04-03 08:13:41  INFO      scanner                   Score        : 0.886  [ml]
+2026-04-03 08:13:41  INFO      scanner                   Volume       : 49553  (24.2x zone avg)
+2026-04-03 08:13:41  INFO      scanner                   Zone         : 581 candles  (23.2 trading days)
+2026-04-03 08:13:41  INFO      scanner                   Zone span    : 2025-12-02 09:15 → 2026-01-05 10:30
+2026-04-03 08:13:41  INFO      scanner                   Upper line   : 2025-12-02 09:15 → 2026-01-05 10:30
+2026-04-03 08:13:41  INFO      scanner                   Lower line   : 2025-12-02 10:30 → 2026-01-05 10:30
+2026-04-03 08:13:41  INFO      scanner                   Upper line   : 3244.33   Lower line: 3058.40
+2026-04-03 08:13:41  INFO      scanner                   ZigZag       : dev=2.0%  swings: 14 highs / 13 lows
+2026-04-03 08:13:41  INFO      scanner                 
+2026-04-03 08:13:41  INFO      scanner                   ML probability: 0.886  (threshold: 0.6)
+2026-04-03 08:13:41  INFO      scanner                   
+2026-04-03 08:13:41  INFO      scanner                   Upper trendline: 0.002%/candle
+2026-04-03 08:13:41  INFO      scanner                   Lower trendline slope : -0.001%/candle
+2026-04-03 08:13:41  INFO      scanner                   Zone width            : 581 candles (23.2 trading days)
+2026-04-03 08:13:41  INFO      scanner                   Apex proximity        : 100% through triangle
+2026-04-03 08:13:41  INFO      scanner                   Breakout lag          : 1 candles (15 min after zone end)
+2026-04-03 08:13:41  INFO      scanner                   Volume ratio          : 24.2x zone avg
+2026-04-03 08:13:41  INFO      scanner                   Close vs upper line   : +0.79%
+2026-04-03 08:13:41  INFO      scanner                   Body strength         : 56% of candle range
+2026-04-03 08:13:41  INFO      scanner                   Close position        : 59% of range (top = bullish)
+2026-04-03 08:13:41  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:13:41  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:13:41  INFO      scanner                   BREAKOUT ALERT: NETWEB
+2026-04-03 08:13:41  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:13:41  INFO      scanner                   Timestamp    : 2026-01-19 09:15 IST
+2026-04-03 08:13:41  INFO      scanner                   Close        : 3652.85
+2026-04-03 08:13:41  INFO      scanner                   Triangle     : SYMMETRICAL
+2026-04-03 08:13:41  INFO      scanner                   Direction    : BULLISH
+2026-04-03 08:13:41  INFO      scanner                   Score        : 0.890  [ml]
+2026-04-03 08:13:41  INFO      scanner                   Volume       : 248909  (66.9x zone avg)
+2026-04-03 08:13:41  INFO      scanner                   Zone         : 800 candles  (32.0 trading days)
+2026-04-03 08:13:41  INFO      scanner                   Zone span    : 2025-12-02 09:15 → 2026-01-16 15:15
+2026-04-03 08:13:41  INFO      scanner                   Upper line   : 2025-12-02 09:15 → 2026-01-16 15:15
+2026-04-03 08:13:41  INFO      scanner                   Lower line   : 2025-12-02 10:30 → 2026-01-16 15:15
+2026-04-03 08:13:41  INFO      scanner                   Upper line   : 3432.53   Lower line: 3289.68
+2026-04-03 08:13:41  INFO      scanner                   ZigZag       : dev=2.5%  swings: 19 highs / 18 lows
+2026-04-03 08:13:41  INFO      scanner                 
+2026-04-03 08:13:41  INFO      scanner                   ML probability: 0.890  (threshold: 0.6)
+2026-04-03 08:13:41  INFO      scanner                   
+2026-04-03 08:13:41  INFO      scanner                   Upper trendline: 0.009%/candle
+2026-04-03 08:13:41  INFO      scanner                   Lower trendline slope : 0.011%/candle
+2026-04-03 08:13:41  INFO      scanner                   Zone width            : 800 candles (32.0 trading days)
+2026-04-03 08:13:41  INFO      scanner                   Apex proximity        : 31% through triangle
+2026-04-03 08:13:41  INFO      scanner                   Breakout lag          : 1 candles (15 min after zone end)
+2026-04-03 08:13:41  INFO      scanner                   Volume ratio          : 66.9x zone avg
+2026-04-03 08:13:41  INFO      scanner                   Close vs upper line   : +6.42%
+2026-04-03 08:13:41  INFO      scanner                   Body strength         : 39% of candle range
+2026-04-03 08:13:41  INFO      scanner                   Close position        : 30% of range (top = bullish)
+2026-04-03 08:13:41  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:13:44  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:13:44  INFO      scanner                   BREAKOUT ALERT: NETWEB
+2026-04-03 08:13:44  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:13:44  INFO      scanner                   Timestamp    : 2026-02-18 11:45 IST
+2026-04-03 08:13:44  INFO      scanner                   Close        : 3498.50
+2026-04-03 08:13:44  INFO      scanner                   Triangle     : ASCENDING
+2026-04-03 08:13:44  INFO      scanner                   Direction    : BULLISH
+2026-04-03 08:13:44  INFO      scanner                   Score        : 0.890  [ml]
+2026-04-03 08:13:44  INFO      scanner                   Volume       : 73678  (15.2x zone avg)
+2026-04-03 08:13:44  INFO      scanner                   Zone         : 1360 candles  (54.4 trading days)
+2026-04-03 08:13:44  INFO      scanner                   Zone span    : 2025-12-02 09:15 → 2026-02-18 11:30
+2026-04-03 08:13:44  INFO      scanner                   Upper line   : 2025-12-02 09:15 → 2026-02-18 11:30
+2026-04-03 08:13:44  INFO      scanner                   Lower line   : 2025-12-02 10:30 → 2026-02-18 11:30
+2026-04-03 08:13:44  INFO      scanner                   Upper line   : 3362.34   Lower line: 3152.17
+2026-04-03 08:13:44  INFO      scanner                   ZigZag       : dev=2.5%  swings: 34 highs / 33 lows
+2026-04-03 08:13:44  INFO      scanner                 
+2026-04-03 08:13:44  INFO      scanner                   ML probability: 0.890  (threshold: 0.6)
+2026-04-03 08:13:44  INFO      scanner                   
+2026-04-03 08:13:44  INFO      scanner                   Upper trendline flat (0.0016%/candle) — descending triangle
+2026-04-03 08:13:44  INFO      scanner                   Lower trendline slope : 0.001%/candle
+2026-04-03 08:13:44  INFO      scanner                   Zone width            : 1360 candles (54.4 trading days)
+2026-04-03 08:13:44  INFO      scanner                   Apex proximity        : 100% through triangle
+2026-04-03 08:13:44  INFO      scanner                   Breakout lag          : 1 candles (15 min after zone end)
+2026-04-03 08:13:44  INFO      scanner                   Volume ratio          : 15.2x zone avg
+2026-04-03 08:13:44  INFO      scanner                   Close vs upper line   : +4.05%
+2026-04-03 08:13:44  INFO      scanner                   Body strength         : 15% of candle range
+2026-04-03 08:13:44  INFO      scanner                   Close position        : 43% of range (top = bullish)
+2026-04-03 08:13:44  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:13:45  INFO      scanner                 NETWEB: continuous scan complete — 4 alert(s)
+2026-04-03 08:25:52  INFO      trainer                 Model loaded from models\triangle_breakout.pkl  (trained on 14 examples)
+2026-04-03 08:25:52  INFO      scanner                 NETWEB: continuous scan  2025-12-02 → 2026-03-18  (1835 candles, 73.4 trading days)
+2026-04-03 08:25:53  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:25:53  INFO      scanner                   BREAKOUT ALERT: NETWEB
+2026-04-03 08:25:53  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:25:53  INFO      scanner                   Timestamp    : 2025-12-15 09:45 IST
+2026-04-03 08:25:53  INFO      scanner                   Close        : 3229.40
+2026-04-03 08:25:53  INFO      scanner                   Triangle     : DESCENDING
+2026-04-03 08:25:53  INFO      scanner                   Direction    : BULLISH
+2026-04-03 08:25:53  INFO      scanner                   Score        : 0.915  [ml]
+2026-04-03 08:25:53  INFO      scanner                   Volume       : 7269  (2.7x zone avg)
+2026-04-03 08:25:53  INFO      scanner                   Zone         : 227 candles  (9.1 trading days)
+2026-04-03 08:25:53  INFO      scanner                   Zone span    : 2025-12-02 09:15 → 2025-12-15 09:30
+2026-04-03 08:25:53  INFO      scanner                   Upper line   : 2025-12-02 09:15 → 2025-12-15 09:30  (val: 3178.20)
+2026-04-03 08:25:53  INFO      scanner                   Lower line   : 2025-12-02 10:30 → 2025-12-15 09:30  (val: 2913.85)
+2026-04-03 08:25:53  INFO      scanner                   ZigZag       : dev=2.5%  swings: 6 highs / 5 lows
+2026-04-03 08:25:53  INFO      scanner                 
+2026-04-03 08:25:53  INFO      scanner                   ML probability: 0.915  (threshold: 0.6)
+2026-04-03 08:25:53  INFO      scanner                   
+2026-04-03 08:25:53  INFO      scanner                   Upper trendline: -0.008%/candle
+2026-04-03 08:25:53  INFO      scanner                   Lower trendline slope : -0.028%/candle
+2026-04-03 08:25:53  INFO      scanner                   Zone width            : 227 candles (9.1 trading days)
+2026-04-03 08:25:53  INFO      scanner                   Apex proximity        : 100% through triangle
+2026-04-03 08:25:53  INFO      scanner                   Breakout lag          : 1 candles (15 min after zone end)
+2026-04-03 08:25:53  INFO      scanner                   Volume ratio          : 2.7x zone avg
+2026-04-03 08:25:53  INFO      scanner                   Close vs upper line   : +1.61%
+2026-04-03 08:25:53  INFO      scanner                   Body strength         : 72% of candle range
+2026-04-03 08:25:53  INFO      scanner                   Close position        : 79% of range (top = bullish)
+2026-04-03 08:25:53  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:25:54  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:25:54  INFO      scanner                   BREAKOUT ALERT: NETWEB
+2026-04-03 08:25:54  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:25:54  INFO      scanner                   Timestamp    : 2026-01-05 10:45 IST
+2026-04-03 08:25:54  INFO      scanner                   Close        : 3269.85
+2026-04-03 08:25:54  INFO      scanner                   Triangle     : ASCENDING
+2026-04-03 08:25:54  INFO      scanner                   Direction    : BULLISH
+2026-04-03 08:25:54  INFO      scanner                   Score        : 0.886  [ml]
+2026-04-03 08:25:54  INFO      scanner                   Volume       : 49553  (24.2x zone avg)
+2026-04-03 08:25:54  INFO      scanner                   Zone         : 581 candles  (23.2 trading days)
+2026-04-03 08:25:54  INFO      scanner                   Zone span    : 2025-12-02 09:15 → 2026-01-05 10:30
+2026-04-03 08:25:54  INFO      scanner                   Upper line   : 2025-12-02 09:15 → 2026-01-05 10:30  (val: 3244.33)
+2026-04-03 08:25:54  INFO      scanner                   Lower line   : 2025-12-02 10:30 → 2026-01-05 10:30  (val: 3058.40)
+2026-04-03 08:25:54  INFO      scanner                   ZigZag       : dev=2.0%  swings: 14 highs / 13 lows
+2026-04-03 08:25:54  INFO      scanner                 
+2026-04-03 08:25:54  INFO      scanner                   ML probability: 0.886  (threshold: 0.6)
+2026-04-03 08:25:54  INFO      scanner                   
+2026-04-03 08:25:54  INFO      scanner                   Upper trendline: 0.002%/candle
+2026-04-03 08:25:54  INFO      scanner                   Lower trendline slope : -0.001%/candle
+2026-04-03 08:25:54  INFO      scanner                   Zone width            : 581 candles (23.2 trading days)
+2026-04-03 08:25:54  INFO      scanner                   Apex proximity        : 100% through triangle
+2026-04-03 08:25:54  INFO      scanner                   Breakout lag          : 1 candles (15 min after zone end)
+2026-04-03 08:25:54  INFO      scanner                   Volume ratio          : 24.2x zone avg
+2026-04-03 08:25:54  INFO      scanner                   Close vs upper line   : +0.79%
+2026-04-03 08:25:54  INFO      scanner                   Body strength         : 56% of candle range
+2026-04-03 08:25:54  INFO      scanner                   Close position        : 59% of range (top = bullish)
+2026-04-03 08:25:54  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:25:55  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:25:55  INFO      scanner                   BREAKOUT ALERT: NETWEB
+2026-04-03 08:25:55  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:25:55  INFO      scanner                   Timestamp    : 2026-01-19 09:15 IST
+2026-04-03 08:25:55  INFO      scanner                   Close        : 3652.85
+2026-04-03 08:25:55  INFO      scanner                   Triangle     : SYMMETRICAL
+2026-04-03 08:25:55  INFO      scanner                   Direction    : BULLISH
+2026-04-03 08:25:55  INFO      scanner                   Score        : 0.890  [ml]
+2026-04-03 08:25:55  INFO      scanner                   Volume       : 248909  (66.9x zone avg)
+2026-04-03 08:25:55  INFO      scanner                   Zone         : 800 candles  (32.0 trading days)
+2026-04-03 08:25:55  INFO      scanner                   Zone span    : 2025-12-02 09:15 → 2026-01-16 15:15
+2026-04-03 08:25:55  INFO      scanner                   Upper line   : 2025-12-02 09:15 → 2026-01-16 15:15  (val: 3432.53)
+2026-04-03 08:25:55  INFO      scanner                   Lower line   : 2025-12-02 10:30 → 2026-01-16 15:15  (val: 3289.68)
+2026-04-03 08:25:55  INFO      scanner                   ZigZag       : dev=2.5%  swings: 19 highs / 18 lows
+2026-04-03 08:25:55  INFO      scanner                 
+2026-04-03 08:25:55  INFO      scanner                   ML probability: 0.890  (threshold: 0.6)
+2026-04-03 08:25:55  INFO      scanner                   
+2026-04-03 08:25:55  INFO      scanner                   Upper trendline: 0.009%/candle
+2026-04-03 08:25:55  INFO      scanner                   Lower trendline slope : 0.011%/candle
+2026-04-03 08:25:55  INFO      scanner                   Zone width            : 800 candles (32.0 trading days)
+2026-04-03 08:25:55  INFO      scanner                   Apex proximity        : 31% through triangle
+2026-04-03 08:25:55  INFO      scanner                   Breakout lag          : 1 candles (15 min after zone end)
+2026-04-03 08:25:55  INFO      scanner                   Volume ratio          : 66.9x zone avg
+2026-04-03 08:25:55  INFO      scanner                   Close vs upper line   : +6.42%
+2026-04-03 08:25:55  INFO      scanner                   Body strength         : 39% of candle range
+2026-04-03 08:25:55  INFO      scanner                   Close position        : 30% of range (top = bullish)
+2026-04-03 08:25:55  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:25:57  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:25:57  INFO      scanner                   BREAKOUT ALERT: NETWEB
+2026-04-03 08:25:57  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:25:57  INFO      scanner                   Timestamp    : 2026-02-18 11:45 IST
+2026-04-03 08:25:57  INFO      scanner                   Close        : 3498.50
+2026-04-03 08:25:57  INFO      scanner                   Triangle     : ASCENDING
+2026-04-03 08:25:57  INFO      scanner                   Direction    : BULLISH
+2026-04-03 08:25:57  INFO      scanner                   Score        : 0.890  [ml]
+2026-04-03 08:25:57  INFO      scanner                   Volume       : 73678  (15.2x zone avg)
+2026-04-03 08:25:57  INFO      scanner                   Zone         : 1360 candles  (54.4 trading days)
+2026-04-03 08:25:57  INFO      scanner                   Zone span    : 2025-12-02 09:15 → 2026-02-18 11:30
+2026-04-03 08:25:57  INFO      scanner                   Upper line   : 2025-12-02 09:15 → 2026-02-18 11:30  (val: 3362.34)
+2026-04-03 08:25:57  INFO      scanner                   Lower line   : 2025-12-02 10:30 → 2026-02-18 11:30  (val: 3152.17)
+2026-04-03 08:25:57  INFO      scanner                   ZigZag       : dev=2.5%  swings: 34 highs / 33 lows
+2026-04-03 08:25:57  INFO      scanner                 
+2026-04-03 08:25:57  INFO      scanner                   ML probability: 0.890  (threshold: 0.6)
+2026-04-03 08:25:57  INFO      scanner                   
+2026-04-03 08:25:57  INFO      scanner                   Upper trendline flat (0.0016%/candle) — descending triangle
+2026-04-03 08:25:57  INFO      scanner                   Lower trendline slope : 0.001%/candle
+2026-04-03 08:25:57  INFO      scanner                   Zone width            : 1360 candles (54.4 trading days)
+2026-04-03 08:25:57  INFO      scanner                   Apex proximity        : 100% through triangle
+2026-04-03 08:25:57  INFO      scanner                   Breakout lag          : 1 candles (15 min after zone end)
+2026-04-03 08:25:57  INFO      scanner                   Volume ratio          : 15.2x zone avg
+2026-04-03 08:25:57  INFO      scanner                   Close vs upper line   : +4.05%
+2026-04-03 08:25:57  INFO      scanner                   Body strength         : 15% of candle range
+2026-04-03 08:25:57  INFO      scanner                   Close position        : 43% of range (top = bullish)
+2026-04-03 08:25:57  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:25:59  INFO      scanner                 NETWEB: continuous scan complete — 4 alert(s)
+2026-04-03 08:31:29  INFO      trainer                 Model loaded from models\triangle_breakout.pkl  (trained on 14 examples)
+2026-04-03 08:31:29  INFO      scanner                 NETWEB: continuous scan  2025-12-02 → 2026-03-18  (1835 candles, 73.4 trading days)
+2026-04-03 08:31:30  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:31:30  INFO      scanner                   BREAKOUT ALERT: NETWEB
+2026-04-03 08:31:30  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:31:30  INFO      scanner                   Timestamp    : 2025-12-15 09:45 IST
+2026-04-03 08:31:30  INFO      scanner                   Close        : 3229.40
+2026-04-03 08:31:30  INFO      scanner                   Triangle     : DESCENDING
+2026-04-03 08:31:30  INFO      scanner                   Direction    : BULLISH
+2026-04-03 08:31:30  INFO      scanner                   Score        : 0.915  [ml]
+2026-04-03 08:31:30  INFO      scanner                   Volume       : 7269  (2.7x zone avg)
+2026-04-03 08:31:30  INFO      scanner                   Zone         : 227 candles  (9.1 trading days)
+2026-04-03 08:31:30  INFO      scanner                   Zone span    : 2025-12-02 09:15 → 2025-12-15 09:30
+2026-04-03 08:31:30  INFO      scanner                   Upper line   : 2025-12-02 09:15 (3234.10) → 2025-12-15 09:30 (3178.69)
+2026-04-03 08:31:30  INFO      scanner                   Lower line   : 2025-12-02 10:30 (3110.02) → 2025-12-15 09:30 (2915.61)
+2026-04-03 08:31:30  INFO      scanner                   ZigZag       : dev=2.5%  swings: 6 highs / 5 lows
+2026-04-03 08:31:30  INFO      scanner                 
+2026-04-03 08:31:30  INFO      scanner                   ML probability: 0.915  (threshold: 0.6)
+2026-04-03 08:31:30  INFO      scanner                   
+2026-04-03 08:31:30  INFO      scanner                   Upper trendline: -0.008%/candle
+2026-04-03 08:31:30  INFO      scanner                   Lower trendline slope : -0.028%/candle
+2026-04-03 08:31:30  INFO      scanner                   Zone width            : 227 candles (9.1 trading days)
+2026-04-03 08:31:30  INFO      scanner                   Apex proximity        : 100% through triangle
+2026-04-03 08:31:30  INFO      scanner                   Breakout lag          : 1 candles (15 min after zone end)
+2026-04-03 08:31:30  INFO      scanner                   Volume ratio          : 2.7x zone avg
+2026-04-03 08:31:30  INFO      scanner                   Close vs upper line   : +1.61%
+2026-04-03 08:31:30  INFO      scanner                   Body strength         : 72% of candle range
+2026-04-03 08:31:30  INFO      scanner                   Close position        : 79% of range (top = bullish)
+2026-04-03 08:31:30  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:31:31  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:31:31  INFO      scanner                   BREAKOUT ALERT: NETWEB
+2026-04-03 08:31:31  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:31:31  INFO      scanner                   Timestamp    : 2026-01-05 10:45 IST
+2026-04-03 08:31:31  INFO      scanner                   Close        : 3269.85
+2026-04-03 08:31:31  INFO      scanner                   Triangle     : ASCENDING
+2026-04-03 08:31:31  INFO      scanner                   Direction    : BULLISH
+2026-04-03 08:31:31  INFO      scanner                   Score        : 0.886  [ml]
+2026-04-03 08:31:31  INFO      scanner                   Volume       : 49553  (24.2x zone avg)
+2026-04-03 08:31:31  INFO      scanner                   Zone         : 581 candles  (23.2 trading days)
+2026-04-03 08:31:31  INFO      scanner                   Zone span    : 2025-12-02 09:15 → 2026-01-05 10:30
+2026-04-03 08:31:31  INFO      scanner                   Upper line   : 2025-12-02 09:15 (3198.69) → 2026-01-05 10:30 (3244.18)
+2026-04-03 08:31:31  INFO      scanner                   Lower line   : 2025-12-02 10:30 (3069.41) → 2026-01-05 10:30 (3058.44)
+2026-04-03 08:31:31  INFO      scanner                   ZigZag       : dev=2.0%  swings: 14 highs / 13 lows
+2026-04-03 08:31:31  INFO      scanner                 
+2026-04-03 08:31:31  INFO      scanner                   ML probability: 0.886  (threshold: 0.6)
+2026-04-03 08:31:31  INFO      scanner                   
+2026-04-03 08:31:31  INFO      scanner                   Upper trendline: 0.002%/candle
+2026-04-03 08:31:31  INFO      scanner                   Lower trendline slope : -0.001%/candle
+2026-04-03 08:31:31  INFO      scanner                   Zone width            : 581 candles (23.2 trading days)
+2026-04-03 08:31:31  INFO      scanner                   Apex proximity        : 100% through triangle
+2026-04-03 08:31:31  INFO      scanner                   Breakout lag          : 1 candles (15 min after zone end)
+2026-04-03 08:31:31  INFO      scanner                   Volume ratio          : 24.2x zone avg
+2026-04-03 08:31:31  INFO      scanner                   Close vs upper line   : +0.79%
+2026-04-03 08:31:31  INFO      scanner                   Body strength         : 56% of candle range
+2026-04-03 08:31:31  INFO      scanner                   Close position        : 59% of range (top = bullish)
+2026-04-03 08:31:31  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:31:32  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:31:32  INFO      scanner                   BREAKOUT ALERT: NETWEB
+2026-04-03 08:31:32  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:31:32  INFO      scanner                   Timestamp    : 2026-01-19 09:15 IST
+2026-04-03 08:31:32  INFO      scanner                   Close        : 3652.85
+2026-04-03 08:31:32  INFO      scanner                   Triangle     : SYMMETRICAL
+2026-04-03 08:31:32  INFO      scanner                   Direction    : BULLISH
+2026-04-03 08:31:32  INFO      scanner                   Score        : 0.890  [ml]
+2026-04-03 08:31:32  INFO      scanner                   Volume       : 248909  (66.9x zone avg)
+2026-04-03 08:31:32  INFO      scanner                   Zone         : 800 candles  (32.0 trading days)
+2026-04-03 08:31:32  INFO      scanner                   Zone span    : 2025-12-02 09:15 → 2026-01-16 15:15
+2026-04-03 08:31:32  INFO      scanner                   Upper line   : 2025-12-02 09:15 (3208.14) → 2026-01-16 15:15 (3431.97)
+2026-04-03 08:31:32  INFO      scanner                   Lower line   : 2025-12-02 10:30 (3002.36) → 2026-01-16 15:15 (3288.96)
+2026-04-03 08:31:32  INFO      scanner                   ZigZag       : dev=2.5%  swings: 19 highs / 18 lows
+2026-04-03 08:31:32  INFO      scanner                 
+2026-04-03 08:31:32  INFO      scanner                   ML probability: 0.890  (threshold: 0.6)
+2026-04-03 08:31:32  INFO      scanner                   
+2026-04-03 08:31:32  INFO      scanner                   Upper trendline: 0.009%/candle
+2026-04-03 08:31:32  INFO      scanner                   Lower trendline slope : 0.011%/candle
+2026-04-03 08:31:32  INFO      scanner                   Zone width            : 800 candles (32.0 trading days)
+2026-04-03 08:31:32  INFO      scanner                   Apex proximity        : 31% through triangle
+2026-04-03 08:31:32  INFO      scanner                   Breakout lag          : 1 candles (15 min after zone end)
+2026-04-03 08:31:32  INFO      scanner                   Volume ratio          : 66.9x zone avg
+2026-04-03 08:31:32  INFO      scanner                   Close vs upper line   : +6.42%
+2026-04-03 08:31:32  INFO      scanner                   Body strength         : 39% of candle range
+2026-04-03 08:31:32  INFO      scanner                   Close position        : 30% of range (top = bullish)
+2026-04-03 08:31:32  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:31:34  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:31:34  INFO      scanner                   BREAKOUT ALERT: NETWEB
+2026-04-03 08:31:34  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:31:34  INFO      scanner                   Timestamp    : 2026-02-18 11:45 IST
+2026-04-03 08:31:34  INFO      scanner                   Close        : 3498.50
+2026-04-03 08:31:34  INFO      scanner                   Triangle     : ASCENDING
+2026-04-03 08:31:34  INFO      scanner                   Direction    : BULLISH
+2026-04-03 08:31:34  INFO      scanner                   Score        : 0.890  [ml]
+2026-04-03 08:31:34  INFO      scanner                   Volume       : 73678  (15.2x zone avg)
+2026-04-03 08:31:34  INFO      scanner                   Zone         : 1360 candles  (54.4 trading days)
+2026-04-03 08:31:34  INFO      scanner                   Zone span    : 2025-12-02 09:15 → 2026-02-18 11:30
+2026-04-03 08:31:34  INFO      scanner                   Upper line   : 2025-12-02 09:15 (3293.77) → 2026-02-18 11:30 (3362.24)
+2026-04-03 08:31:34  INFO      scanner                   Lower line   : 2025-12-02 10:30 (3129.26) → 2026-02-18 11:30 (3152.13)
+2026-04-03 08:31:34  INFO      scanner                   ZigZag       : dev=2.5%  swings: 34 highs / 33 lows
+2026-04-03 08:31:34  INFO      scanner                 
+2026-04-03 08:31:34  INFO      scanner                   ML probability: 0.890  (threshold: 0.6)
+2026-04-03 08:31:34  INFO      scanner                   
+2026-04-03 08:31:34  INFO      scanner                   Upper trendline flat (0.0016%/candle) — descending triangle
+2026-04-03 08:31:34  INFO      scanner                   Lower trendline slope : 0.001%/candle
+2026-04-03 08:31:34  INFO      scanner                   Zone width            : 1360 candles (54.4 trading days)
+2026-04-03 08:31:34  INFO      scanner                   Apex proximity        : 100% through triangle
+2026-04-03 08:31:34  INFO      scanner                   Breakout lag          : 1 candles (15 min after zone end)
+2026-04-03 08:31:34  INFO      scanner                   Volume ratio          : 15.2x zone avg
+2026-04-03 08:31:34  INFO      scanner                   Close vs upper line   : +4.05%
+2026-04-03 08:31:34  INFO      scanner                   Body strength         : 15% of candle range
+2026-04-03 08:31:34  INFO      scanner                   Close position        : 43% of range (top = bullish)
+2026-04-03 08:31:34  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:31:36  INFO      scanner                 NETWEB: continuous scan complete — 4 alert(s)
+2026-04-03 08:49:36  INFO      trainer                 Model loaded from models\triangle_breakout.pkl  (trained on 14 examples)
+2026-04-03 08:49:36  INFO      scanner                 NETWEB: continuous scan  2025-12-02 → 2026-03-18  (1835 candles, 73.4 trading days)
+2026-04-03 08:49:37  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:49:37  INFO      scanner                   BREAKOUT ALERT: NETWEB
+2026-04-03 08:49:37  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:49:37  INFO      scanner                   Timestamp    : 2025-12-15 09:45 IST
+2026-04-03 08:49:37  INFO      scanner                   Close        : 3229.40
+2026-04-03 08:49:37  INFO      scanner                   Triangle     : DESCENDING
+2026-04-03 08:49:37  INFO      scanner                   Direction    : BULLISH
+2026-04-03 08:49:37  INFO      scanner                   Score        : 0.915  [ml]
+2026-04-03 08:49:37  INFO      scanner                   Volume       : 7269  (2.7x zone avg)
+2026-04-03 08:49:37  INFO      scanner                   Zone         : 227 candles  (9.1 trading days)
+2026-04-03 08:49:37  INFO      scanner                   Zone span    : 2025-12-02 09:15 → 2025-12-15 09:30
+2026-04-03 08:49:37  INFO      scanner                   Upper line   : 2025-12-02 09:15 (3234.10) → 2025-12-15 09:30 (3178.69)
+2026-04-03 08:49:37  INFO      scanner                   Lower line   : 2025-12-02 10:30 (3110.02) → 2025-12-15 09:30 (2915.61)
+2026-04-03 08:49:37  INFO      scanner                   ZigZag       : dev=2.5%  swings: 6 highs / 5 lows
+2026-04-03 08:49:37  INFO      scanner                 
+2026-04-03 08:49:37  INFO      scanner                   ML probability: 0.915  (threshold: 0.6)
+2026-04-03 08:49:37  INFO      scanner                   
+2026-04-03 08:49:37  INFO      scanner                   Upper trendline: -0.008%/candle
+2026-04-03 08:49:37  INFO      scanner                   Lower trendline slope : -0.028%/candle
+2026-04-03 08:49:37  INFO      scanner                   Zone width            : 227 candles (9.1 trading days)
+2026-04-03 08:49:37  INFO      scanner                   Apex proximity        : 100% through triangle
+2026-04-03 08:49:37  INFO      scanner                   Breakout lag          : 1 candles (15 min after zone end)
+2026-04-03 08:49:37  INFO      scanner                   Volume ratio          : 2.7x zone avg
+2026-04-03 08:49:37  INFO      scanner                   Close vs upper line   : +1.61%
+2026-04-03 08:49:37  INFO      scanner                   Body strength         : 72% of candle range
+2026-04-03 08:49:37  INFO      scanner                   Close position        : 79% of range (top = bullish)
+2026-04-03 08:49:37  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:49:38  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:49:38  INFO      scanner                   BREAKOUT ALERT: NETWEB
+2026-04-03 08:49:38  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:49:38  INFO      scanner                   Timestamp    : 2026-01-05 10:45 IST
+2026-04-03 08:49:38  INFO      scanner                   Close        : 3269.85
+2026-04-03 08:49:38  INFO      scanner                   Triangle     : ASCENDING
+2026-04-03 08:49:38  INFO      scanner                   Direction    : BULLISH
+2026-04-03 08:49:38  INFO      scanner                   Score        : 0.886  [ml]
+2026-04-03 08:49:38  INFO      scanner                   Volume       : 49553  (24.2x zone avg)
+2026-04-03 08:49:38  INFO      scanner                   Zone         : 581 candles  (23.2 trading days)
+2026-04-03 08:49:38  INFO      scanner                   Zone span    : 2025-12-02 09:15 → 2026-01-05 10:30
+2026-04-03 08:49:38  INFO      scanner                   Upper line   : 2025-12-02 09:15 (3198.69) → 2026-01-05 10:30 (3244.18)
+2026-04-03 08:49:38  INFO      scanner                   Lower line   : 2025-12-02 10:30 (3069.41) → 2026-01-05 10:30 (3058.44)
+2026-04-03 08:49:38  INFO      scanner                   ZigZag       : dev=2.0%  swings: 14 highs / 13 lows
+2026-04-03 08:49:38  INFO      scanner                 
+2026-04-03 08:49:38  INFO      scanner                   ML probability: 0.886  (threshold: 0.6)
+2026-04-03 08:49:38  INFO      scanner                   
+2026-04-03 08:49:38  INFO      scanner                   Upper trendline: 0.002%/candle
+2026-04-03 08:49:38  INFO      scanner                   Lower trendline slope : -0.001%/candle
+2026-04-03 08:49:38  INFO      scanner                   Zone width            : 581 candles (23.2 trading days)
+2026-04-03 08:49:38  INFO      scanner                   Apex proximity        : 100% through triangle
+2026-04-03 08:49:38  INFO      scanner                   Breakout lag          : 1 candles (15 min after zone end)
+2026-04-03 08:49:38  INFO      scanner                   Volume ratio          : 24.2x zone avg
+2026-04-03 08:49:38  INFO      scanner                   Close vs upper line   : +0.79%
+2026-04-03 08:49:38  INFO      scanner                   Body strength         : 56% of candle range
+2026-04-03 08:49:38  INFO      scanner                   Close position        : 59% of range (top = bullish)
+2026-04-03 08:49:38  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:49:39  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:49:39  INFO      scanner                   BREAKOUT ALERT: NETWEB
+2026-04-03 08:49:39  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:49:39  INFO      scanner                   Timestamp    : 2026-01-19 09:15 IST
+2026-04-03 08:49:39  INFO      scanner                   Close        : 3652.85
+2026-04-03 08:49:39  INFO      scanner                   Triangle     : SYMMETRICAL
+2026-04-03 08:49:39  INFO      scanner                   Direction    : BULLISH
+2026-04-03 08:49:39  INFO      scanner                   Score        : 0.890  [ml]
+2026-04-03 08:49:39  INFO      scanner                   Volume       : 248909  (66.9x zone avg)
+2026-04-03 08:49:39  INFO      scanner                   Zone         : 800 candles  (32.0 trading days)
+2026-04-03 08:49:39  INFO      scanner                   Zone span    : 2025-12-02 09:15 → 2026-01-16 15:15
+2026-04-03 08:49:39  INFO      scanner                   Upper line   : 2025-12-02 09:15 (3208.14) → 2026-01-16 15:15 (3431.97)
+2026-04-03 08:49:39  INFO      scanner                   Lower line   : 2025-12-02 10:30 (3002.36) → 2026-01-16 15:15 (3288.96)
+2026-04-03 08:49:39  INFO      scanner                   ZigZag       : dev=2.5%  swings: 19 highs / 18 lows
+2026-04-03 08:49:39  INFO      scanner                 
+2026-04-03 08:49:39  INFO      scanner                   ML probability: 0.890  (threshold: 0.6)
+2026-04-03 08:49:39  INFO      scanner                   
+2026-04-03 08:49:39  INFO      scanner                   Upper trendline: 0.009%/candle
+2026-04-03 08:49:39  INFO      scanner                   Lower trendline slope : 0.011%/candle
+2026-04-03 08:49:39  INFO      scanner                   Zone width            : 800 candles (32.0 trading days)
+2026-04-03 08:49:39  INFO      scanner                   Apex proximity        : 31% through triangle
+2026-04-03 08:49:39  INFO      scanner                   Breakout lag          : 1 candles (15 min after zone end)
+2026-04-03 08:49:39  INFO      scanner                   Volume ratio          : 66.9x zone avg
+2026-04-03 08:49:39  INFO      scanner                   Close vs upper line   : +6.42%
+2026-04-03 08:49:39  INFO      scanner                   Body strength         : 39% of candle range
+2026-04-03 08:49:39  INFO      scanner                   Close position        : 30% of range (top = bullish)
+2026-04-03 08:49:39  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:49:41  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:49:41  INFO      scanner                   BREAKOUT ALERT: NETWEB
+2026-04-03 08:49:41  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:49:41  INFO      scanner                   Timestamp    : 2026-02-18 11:45 IST
+2026-04-03 08:49:41  INFO      scanner                   Close        : 3498.50
+2026-04-03 08:49:41  INFO      scanner                   Triangle     : ASCENDING
+2026-04-03 08:49:41  INFO      scanner                   Direction    : BULLISH
+2026-04-03 08:49:41  INFO      scanner                   Score        : 0.890  [ml]
+2026-04-03 08:49:41  INFO      scanner                   Volume       : 73678  (15.2x zone avg)
+2026-04-03 08:49:41  INFO      scanner                   Zone         : 1360 candles  (54.4 trading days)
+2026-04-03 08:49:41  INFO      scanner                   Zone span    : 2025-12-02 09:15 → 2026-02-18 11:30
+2026-04-03 08:49:41  INFO      scanner                   Upper line   : 2025-12-02 09:15 (3293.77) → 2026-02-18 11:30 (3362.24)
+2026-04-03 08:49:41  INFO      scanner                   Lower line   : 2025-12-02 10:30 (3129.26) → 2026-02-18 11:30 (3152.13)
+2026-04-03 08:49:41  INFO      scanner                   ZigZag       : dev=2.5%  swings: 34 highs / 33 lows
+2026-04-03 08:49:41  INFO      scanner                 
+2026-04-03 08:49:41  INFO      scanner                   ML probability: 0.890  (threshold: 0.6)
+2026-04-03 08:49:41  INFO      scanner                   
+2026-04-03 08:49:41  INFO      scanner                   Upper trendline flat (0.0016%/candle) — descending triangle
+2026-04-03 08:49:41  INFO      scanner                   Lower trendline slope : 0.001%/candle
+2026-04-03 08:49:41  INFO      scanner                   Zone width            : 1360 candles (54.4 trading days)
+2026-04-03 08:49:41  INFO      scanner                   Apex proximity        : 100% through triangle
+2026-04-03 08:49:41  INFO      scanner                   Breakout lag          : 1 candles (15 min after zone end)
+2026-04-03 08:49:41  INFO      scanner                   Volume ratio          : 15.2x zone avg
+2026-04-03 08:49:41  INFO      scanner                   Close vs upper line   : +4.05%
+2026-04-03 08:49:41  INFO      scanner                   Body strength         : 15% of candle range
+2026-04-03 08:49:41  INFO      scanner                   Close position        : 43% of range (top = bullish)
+2026-04-03 08:49:41  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:49:43  INFO      scanner                 NETWEB: continuous scan complete — 4 alert(s)
+2026-04-03 08:53:07  INFO      trainer                 Model loaded from models\triangle_breakout.pkl  (trained on 14 examples)
+2026-04-03 08:53:07  INFO      scanner                 NETWEB: continuous scan  2025-12-02 → 2026-03-18  (1835 candles, 73.4 trading days)
+2026-04-03 08:53:07  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:53:07  INFO      scanner                   BREAKOUT ALERT: NETWEB
+2026-04-03 08:53:07  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:53:07  INFO      scanner                   Timestamp    : 2025-12-15 09:45 IST
+2026-04-03 08:53:07  INFO      scanner                   Close        : 3229.40
+2026-04-03 08:53:07  INFO      scanner                   Triangle     : DESCENDING
+2026-04-03 08:53:07  INFO      scanner                   Direction    : BULLISH
+2026-04-03 08:53:07  INFO      scanner                   Score        : 0.915  [ml]
+2026-04-03 08:53:07  INFO      scanner                   Volume       : 7269  (2.7x zone avg)
+2026-04-03 08:53:07  INFO      scanner                   Zone         : 227 candles  (9.1 trading days)
+2026-04-03 08:53:07  INFO      scanner                   Zone span    : 2025-12-02 09:15 → 2025-12-15 09:30
+2026-04-03 08:53:07  INFO      scanner                   Upper line   : 2025-12-02 09:15 (3227.95) → 2025-12-15 09:15 (3219.90)
+2026-04-03 08:53:07  INFO      scanner                   Lower line   : 2025-12-02 10:30 (3131.00) → 2025-12-11 09:15 (3033.15)
+2026-04-03 08:53:07  INFO      scanner                   ZigZag       : dev=2.5%  swings: 6 highs / 5 lows
+2026-04-03 08:53:07  INFO      scanner                 
+2026-04-03 08:53:07  INFO      scanner                   ML probability: 0.915  (threshold: 0.6)
+2026-04-03 08:53:07  INFO      scanner                   
+2026-04-03 08:53:07  INFO      scanner                   Upper trendline: -0.008%/candle
+2026-04-03 08:53:07  INFO      scanner                   Lower trendline slope : -0.028%/candle
+2026-04-03 08:53:07  INFO      scanner                   Zone width            : 227 candles (9.1 trading days)
+2026-04-03 08:53:07  INFO      scanner                   Apex proximity        : 100% through triangle
+2026-04-03 08:53:07  INFO      scanner                   Breakout lag          : 1 candles (15 min after zone end)
+2026-04-03 08:53:07  INFO      scanner                   Volume ratio          : 2.7x zone avg
+2026-04-03 08:53:07  INFO      scanner                   Close vs upper line   : +1.61%
+2026-04-03 08:53:07  INFO      scanner                   Body strength         : 72% of candle range
+2026-04-03 08:53:07  INFO      scanner                   Close position        : 79% of range (top = bullish)
+2026-04-03 08:53:07  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:53:09  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:53:09  INFO      scanner                   BREAKOUT ALERT: NETWEB
+2026-04-03 08:53:09  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:53:09  INFO      scanner                   Timestamp    : 2026-01-05 10:45 IST
+2026-04-03 08:53:09  INFO      scanner                   Close        : 3269.85
+2026-04-03 08:53:09  INFO      scanner                   Triangle     : ASCENDING
+2026-04-03 08:53:09  INFO      scanner                   Direction    : BULLISH
+2026-04-03 08:53:09  INFO      scanner                   Score        : 0.886  [ml]
+2026-04-03 08:53:09  INFO      scanner                   Volume       : 49553  (24.2x zone avg)
+2026-04-03 08:53:09  INFO      scanner                   Zone         : 581 candles  (23.2 trading days)
+2026-04-03 08:53:09  INFO      scanner                   Zone span    : 2025-12-02 09:15 → 2026-01-05 10:30
+2026-04-03 08:53:09  INFO      scanner                   Upper line   : 2025-12-02 09:15 (3227.95) → 2026-01-05 10:30 (3254.95)
+2026-04-03 08:53:09  INFO      scanner                   Lower line   : 2025-12-02 10:30 (3131.00) → 2026-01-02 10:15 (3012.75)
+2026-04-03 08:53:09  INFO      scanner                   ZigZag       : dev=2.0%  swings: 14 highs / 13 lows
+2026-04-03 08:53:09  INFO      scanner                 
+2026-04-03 08:53:09  INFO      scanner                   ML probability: 0.886  (threshold: 0.6)
+2026-04-03 08:53:09  INFO      scanner                   
+2026-04-03 08:53:09  INFO      scanner                   Upper trendline: 0.002%/candle
+2026-04-03 08:53:09  INFO      scanner                   Lower trendline slope : -0.001%/candle
+2026-04-03 08:53:09  INFO      scanner                   Zone width            : 581 candles (23.2 trading days)
+2026-04-03 08:53:09  INFO      scanner                   Apex proximity        : 100% through triangle
+2026-04-03 08:53:09  INFO      scanner                   Breakout lag          : 1 candles (15 min after zone end)
+2026-04-03 08:53:09  INFO      scanner                   Volume ratio          : 24.2x zone avg
+2026-04-03 08:53:09  INFO      scanner                   Close vs upper line   : +0.79%
+2026-04-03 08:53:09  INFO      scanner                   Body strength         : 56% of candle range
+2026-04-03 08:53:09  INFO      scanner                   Close position        : 59% of range (top = bullish)
+2026-04-03 08:53:09  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:53:09  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:53:09  INFO      scanner                   BREAKOUT ALERT: NETWEB
+2026-04-03 08:53:09  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:53:09  INFO      scanner                   Timestamp    : 2026-01-19 09:15 IST
+2026-04-03 08:53:09  INFO      scanner                   Close        : 3652.85
+2026-04-03 08:53:09  INFO      scanner                   Triangle     : SYMMETRICAL
+2026-04-03 08:53:09  INFO      scanner                   Direction    : BULLISH
+2026-04-03 08:53:09  INFO      scanner                   Score        : 0.890  [ml]
+2026-04-03 08:53:09  INFO      scanner                   Volume       : 248909  (66.9x zone avg)
+2026-04-03 08:53:09  INFO      scanner                   Zone         : 800 candles  (32.0 trading days)
+2026-04-03 08:53:09  INFO      scanner                   Zone span    : 2025-12-02 09:15 → 2026-01-16 15:15
+2026-04-03 08:53:09  INFO      scanner                   Upper line   : 2025-12-02 09:15 (3227.95) → 2026-01-16 15:15 (3382.75)
+2026-04-03 08:53:09  INFO      scanner                   Lower line   : 2025-12-02 10:30 (3131.00) → 2026-01-16 14:15 (3265.05)
+2026-04-03 08:53:09  INFO      scanner                   ZigZag       : dev=2.5%  swings: 19 highs / 18 lows
+2026-04-03 08:53:09  INFO      scanner                 
+2026-04-03 08:53:09  INFO      scanner                   ML probability: 0.890  (threshold: 0.6)
+2026-04-03 08:53:09  INFO      scanner                   
+2026-04-03 08:53:09  INFO      scanner                   Upper trendline: 0.009%/candle
+2026-04-03 08:53:09  INFO      scanner                   Lower trendline slope : 0.011%/candle
+2026-04-03 08:53:09  INFO      scanner                   Zone width            : 800 candles (32.0 trading days)
+2026-04-03 08:53:09  INFO      scanner                   Apex proximity        : 31% through triangle
+2026-04-03 08:53:09  INFO      scanner                   Breakout lag          : 1 candles (15 min after zone end)
+2026-04-03 08:53:09  INFO      scanner                   Volume ratio          : 66.9x zone avg
+2026-04-03 08:53:09  INFO      scanner                   Close vs upper line   : +6.42%
+2026-04-03 08:53:09  INFO      scanner                   Body strength         : 39% of candle range
+2026-04-03 08:53:09  INFO      scanner                   Close position        : 30% of range (top = bullish)
+2026-04-03 08:53:09  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:53:12  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:53:12  INFO      scanner                   BREAKOUT ALERT: NETWEB
+2026-04-03 08:53:12  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:53:12  INFO      scanner                   Timestamp    : 2026-02-18 11:45 IST
+2026-04-03 08:53:12  INFO      scanner                   Close        : 3498.50
+2026-04-03 08:53:12  INFO      scanner                   Triangle     : ASCENDING
+2026-04-03 08:53:12  INFO      scanner                   Direction    : BULLISH
+2026-04-03 08:53:12  INFO      scanner                   Score        : 0.890  [ml]
+2026-04-03 08:53:12  INFO      scanner                   Volume       : 73678  (15.2x zone avg)
+2026-04-03 08:53:12  INFO      scanner                   Zone         : 1360 candles  (54.4 trading days)
+2026-04-03 08:53:12  INFO      scanner                   Zone span    : 2025-12-02 09:15 → 2026-02-18 11:30
+2026-04-03 08:53:12  INFO      scanner                   Upper line   : 2025-12-02 09:15 (3227.95) → 2026-02-18 11:30 (3531.70)
+2026-04-03 08:53:12  INFO      scanner                   Lower line   : 2025-12-02 10:30 (3131.00) → 2026-02-18 10:30 (3132.55)
+2026-04-03 08:53:12  INFO      scanner                   ZigZag       : dev=2.5%  swings: 34 highs / 33 lows
+2026-04-03 08:53:12  INFO      scanner                 
+2026-04-03 08:53:12  INFO      scanner                   ML probability: 0.890  (threshold: 0.6)
+2026-04-03 08:53:12  INFO      scanner                   
+2026-04-03 08:53:12  INFO      scanner                   Upper trendline flat (0.0016%/candle) — descending triangle
+2026-04-03 08:53:12  INFO      scanner                   Lower trendline slope : 0.001%/candle
+2026-04-03 08:53:12  INFO      scanner                   Zone width            : 1360 candles (54.4 trading days)
+2026-04-03 08:53:12  INFO      scanner                   Apex proximity        : 100% through triangle
+2026-04-03 08:53:12  INFO      scanner                   Breakout lag          : 1 candles (15 min after zone end)
+2026-04-03 08:53:12  INFO      scanner                   Volume ratio          : 15.2x zone avg
+2026-04-03 08:53:12  INFO      scanner                   Close vs upper line   : +4.05%
+2026-04-03 08:53:12  INFO      scanner                   Body strength         : 15% of candle range
+2026-04-03 08:53:12  INFO      scanner                   Close position        : 43% of range (top = bullish)
+2026-04-03 08:53:12  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:53:14  INFO      scanner                 NETWEB: continuous scan complete — 4 alert(s)
+2026-04-03 08:54:07  INFO      trainer                 Model loaded from models\triangle_breakout.pkl  (trained on 14 examples)
+2026-04-03 08:54:07  INFO      scanner                 NETWEB: continuous scan  2025-12-02 → 2026-03-18  (1835 candles, 73.4 trading days)
+2026-04-03 08:54:08  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:54:08  INFO      scanner                   BREAKOUT ALERT: NETWEB
+2026-04-03 08:54:08  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:54:08  INFO      scanner                   Timestamp    : 2025-12-15 09:45 IST
+2026-04-03 08:54:08  INFO      scanner                   Close        : 3229.40
+2026-04-03 08:54:08  INFO      scanner                   Triangle     : DESCENDING
+2026-04-03 08:54:08  INFO      scanner                   Direction    : BULLISH
+2026-04-03 08:54:08  INFO      scanner                   Score        : 0.915  [ml]
+2026-04-03 08:54:08  INFO      scanner                   Volume       : 7269  (2.7x zone avg)
+2026-04-03 08:54:08  INFO      scanner                   Zone         : 227 candles  (9.1 trading days)
+2026-04-03 08:54:08  INFO      scanner                   Zone span    : 2025-12-02 09:15 → 2025-12-15 09:30
+2026-04-03 08:54:08  INFO      scanner                   Upper line   : 3178.20   Lower line: 2913.85
+2026-04-03 08:54:08  INFO      scanner                   ZigZag       : dev=2.5%  swings: 6 highs / 5 lows
+2026-04-03 08:54:08  INFO      scanner                 
+2026-04-03 08:54:08  INFO      scanner                   ML probability: 0.915  (threshold: 0.6)
+2026-04-03 08:54:08  INFO      scanner                   
+2026-04-03 08:54:08  INFO      scanner                   Upper trendline: -0.008%/candle
+2026-04-03 08:54:08  INFO      scanner                   Lower trendline slope : -0.028%/candle
+2026-04-03 08:54:08  INFO      scanner                   Zone width            : 227 candles (9.1 trading days)
+2026-04-03 08:54:08  INFO      scanner                   Apex proximity        : 100% through triangle
+2026-04-03 08:54:08  INFO      scanner                   Breakout lag          : 1 candles (15 min after zone end)
+2026-04-03 08:54:08  INFO      scanner                   Volume ratio          : 2.7x zone avg
+2026-04-03 08:54:08  INFO      scanner                   Close vs upper line   : +1.61%
+2026-04-03 08:54:08  INFO      scanner                   Body strength         : 72% of candle range
+2026-04-03 08:54:08  INFO      scanner                   Close position        : 79% of range (top = bullish)
+2026-04-03 08:54:08  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:54:09  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:54:09  INFO      scanner                   BREAKOUT ALERT: NETWEB
+2026-04-03 08:54:09  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:54:09  INFO      scanner                   Timestamp    : 2026-01-05 10:45 IST
+2026-04-03 08:54:09  INFO      scanner                   Close        : 3269.85
+2026-04-03 08:54:09  INFO      scanner                   Triangle     : ASCENDING
+2026-04-03 08:54:09  INFO      scanner                   Direction    : BULLISH
+2026-04-03 08:54:09  INFO      scanner                   Score        : 0.886  [ml]
+2026-04-03 08:54:09  INFO      scanner                   Volume       : 49553  (24.2x zone avg)
+2026-04-03 08:54:09  INFO      scanner                   Zone         : 581 candles  (23.2 trading days)
+2026-04-03 08:54:09  INFO      scanner                   Zone span    : 2025-12-02 09:15 → 2026-01-05 10:30
+2026-04-03 08:54:09  INFO      scanner                   Upper line   : 3244.33   Lower line: 3058.40
+2026-04-03 08:54:09  INFO      scanner                   ZigZag       : dev=2.0%  swings: 14 highs / 13 lows
+2026-04-03 08:54:09  INFO      scanner                 
+2026-04-03 08:54:09  INFO      scanner                   ML probability: 0.886  (threshold: 0.6)
+2026-04-03 08:54:09  INFO      scanner                   
+2026-04-03 08:54:09  INFO      scanner                   Upper trendline: 0.002%/candle
+2026-04-03 08:54:09  INFO      scanner                   Lower trendline slope : -0.001%/candle
+2026-04-03 08:54:09  INFO      scanner                   Zone width            : 581 candles (23.2 trading days)
+2026-04-03 08:54:09  INFO      scanner                   Apex proximity        : 100% through triangle
+2026-04-03 08:54:09  INFO      scanner                   Breakout lag          : 1 candles (15 min after zone end)
+2026-04-03 08:54:09  INFO      scanner                   Volume ratio          : 24.2x zone avg
+2026-04-03 08:54:09  INFO      scanner                   Close vs upper line   : +0.79%
+2026-04-03 08:54:09  INFO      scanner                   Body strength         : 56% of candle range
+2026-04-03 08:54:09  INFO      scanner                   Close position        : 59% of range (top = bullish)
+2026-04-03 08:54:09  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:54:10  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:54:10  INFO      scanner                   BREAKOUT ALERT: NETWEB
+2026-04-03 08:54:10  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:54:10  INFO      scanner                   Timestamp    : 2026-01-19 09:15 IST
+2026-04-03 08:54:10  INFO      scanner                   Close        : 3652.85
+2026-04-03 08:54:10  INFO      scanner                   Triangle     : SYMMETRICAL
+2026-04-03 08:54:10  INFO      scanner                   Direction    : BULLISH
+2026-04-03 08:54:10  INFO      scanner                   Score        : 0.890  [ml]
+2026-04-03 08:54:10  INFO      scanner                   Volume       : 248909  (66.9x zone avg)
+2026-04-03 08:54:10  INFO      scanner                   Zone         : 800 candles  (32.0 trading days)
+2026-04-03 08:54:10  INFO      scanner                   Zone span    : 2025-12-02 09:15 → 2026-01-16 15:15
+2026-04-03 08:54:10  INFO      scanner                   Upper line   : 3432.53   Lower line: 3289.68
+2026-04-03 08:54:10  INFO      scanner                   ZigZag       : dev=2.5%  swings: 19 highs / 18 lows
+2026-04-03 08:54:10  INFO      scanner                 
+2026-04-03 08:54:10  INFO      scanner                   ML probability: 0.890  (threshold: 0.6)
+2026-04-03 08:54:10  INFO      scanner                   
+2026-04-03 08:54:10  INFO      scanner                   Upper trendline: 0.009%/candle
+2026-04-03 08:54:10  INFO      scanner                   Lower trendline slope : 0.011%/candle
+2026-04-03 08:54:10  INFO      scanner                   Zone width            : 800 candles (32.0 trading days)
+2026-04-03 08:54:10  INFO      scanner                   Apex proximity        : 31% through triangle
+2026-04-03 08:54:10  INFO      scanner                   Breakout lag          : 1 candles (15 min after zone end)
+2026-04-03 08:54:10  INFO      scanner                   Volume ratio          : 66.9x zone avg
+2026-04-03 08:54:10  INFO      scanner                   Close vs upper line   : +6.42%
+2026-04-03 08:54:10  INFO      scanner                   Body strength         : 39% of candle range
+2026-04-03 08:54:10  INFO      scanner                   Close position        : 30% of range (top = bullish)
+2026-04-03 08:54:10  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:54:12  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:54:12  INFO      scanner                   BREAKOUT ALERT: NETWEB
+2026-04-03 08:54:12  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:54:12  INFO      scanner                   Timestamp    : 2026-02-18 11:45 IST
+2026-04-03 08:54:12  INFO      scanner                   Close        : 3498.50
+2026-04-03 08:54:12  INFO      scanner                   Triangle     : ASCENDING
+2026-04-03 08:54:12  INFO      scanner                   Direction    : BULLISH
+2026-04-03 08:54:12  INFO      scanner                   Score        : 0.890  [ml]
+2026-04-03 08:54:12  INFO      scanner                   Volume       : 73678  (15.2x zone avg)
+2026-04-03 08:54:12  INFO      scanner                   Zone         : 1360 candles  (54.4 trading days)
+2026-04-03 08:54:12  INFO      scanner                   Zone span    : 2025-12-02 09:15 → 2026-02-18 11:30
+2026-04-03 08:54:12  INFO      scanner                   Upper line   : 3362.34   Lower line: 3152.17
+2026-04-03 08:54:12  INFO      scanner                   ZigZag       : dev=2.5%  swings: 34 highs / 33 lows
+2026-04-03 08:54:12  INFO      scanner                 
+2026-04-03 08:54:12  INFO      scanner                   ML probability: 0.890  (threshold: 0.6)
+2026-04-03 08:54:12  INFO      scanner                   
+2026-04-03 08:54:12  INFO      scanner                   Upper trendline flat (0.0016%/candle) — descending triangle
+2026-04-03 08:54:12  INFO      scanner                   Lower trendline slope : 0.001%/candle
+2026-04-03 08:54:12  INFO      scanner                   Zone width            : 1360 candles (54.4 trading days)
+2026-04-03 08:54:12  INFO      scanner                   Apex proximity        : 100% through triangle
+2026-04-03 08:54:12  INFO      scanner                   Breakout lag          : 1 candles (15 min after zone end)
+2026-04-03 08:54:12  INFO      scanner                   Volume ratio          : 15.2x zone avg
+2026-04-03 08:54:12  INFO      scanner                   Close vs upper line   : +4.05%
+2026-04-03 08:54:12  INFO      scanner                   Body strength         : 15% of candle range
+2026-04-03 08:54:12  INFO      scanner                   Close position        : 43% of range (top = bullish)
+2026-04-03 08:54:12  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 08:54:14  INFO      scanner                 NETWEB: continuous scan complete — 4 alert(s)
+2026-04-03 10:02:05  INFO      trainer                 Model loaded from models\triangle_breakout.pkl  (trained on 14 examples)
+2026-04-03 10:02:06  INFO      scanner                 NETWEB: continuous scan  2025-12-02 → 2026-03-18  (1835 candles, 73.4 trading days)
+2026-04-03 10:02:06  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 10:02:06  INFO      scanner                   BREAKOUT ALERT: NETWEB
+2026-04-03 10:02:06  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 10:02:06  INFO      scanner                   Timestamp    : 2025-12-15 09:45 IST
+2026-04-03 10:02:06  INFO      scanner                   Close        : 3229.40
+2026-04-03 10:02:06  INFO      scanner                   Triangle     : DESCENDING
+2026-04-03 10:02:06  INFO      scanner                   Direction    : BULLISH
+2026-04-03 10:02:06  INFO      scanner                   Score        : 0.915  [ml]
+2026-04-03 10:02:06  INFO      scanner                   Volume       : 7269  (2.7x zone avg)
+2026-04-03 10:02:06  INFO      scanner                   Zone         : 227 candles  (9.1 trading days)
+2026-04-03 10:02:06  INFO      scanner                   Zone span    : 2025-12-02 09:15 → 2025-12-15 09:30
+2026-04-03 10:02:06  INFO      scanner                   Upper line   : 2025-12-02 09:15 (3227.95) → 2025-12-15 09:15 (3219.90)  [at breakout: 3178.20]
+2026-04-03 10:02:06  INFO      scanner                   Lower line   : 2025-12-02 10:30 (3131.00) → 2025-12-11 09:15 (3033.15)  [at breakout: 2913.85]
+2026-04-03 10:02:06  INFO      scanner                   ZigZag       : dev=2.5%  swings: 6 highs / 5 lows
+2026-04-03 10:02:06  INFO      scanner                 
+2026-04-03 10:02:06  INFO      scanner                   ML probability: 0.915  (threshold: 0.6)
+2026-04-03 10:02:06  INFO      scanner                   
+2026-04-03 10:02:06  INFO      scanner                   Upper trendline: -0.008%/candle
+2026-04-03 10:02:06  INFO      scanner                   Lower trendline slope : -0.028%/candle
+2026-04-03 10:02:06  INFO      scanner                   Zone width            : 227 candles (9.1 trading days)
+2026-04-03 10:02:06  INFO      scanner                   Apex proximity        : 100% through triangle
+2026-04-03 10:02:06  INFO      scanner                   Breakout lag          : 1 candles (15 min after zone end)
+2026-04-03 10:02:06  INFO      scanner                   Volume ratio          : 2.7x zone avg
+2026-04-03 10:02:06  INFO      scanner                   Close vs upper line   : +1.61%
+2026-04-03 10:02:06  INFO      scanner                   Body strength         : 72% of candle range
+2026-04-03 10:02:06  INFO      scanner                   Close position        : 79% of range (top = bullish)
+2026-04-03 10:02:06  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 10:02:08  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 10:02:08  INFO      scanner                   BREAKOUT ALERT: NETWEB
+2026-04-03 10:02:08  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 10:02:08  INFO      scanner                   Timestamp    : 2026-01-05 10:45 IST
+2026-04-03 10:02:08  INFO      scanner                   Close        : 3269.85
+2026-04-03 10:02:08  INFO      scanner                   Triangle     : ASCENDING
+2026-04-03 10:02:08  INFO      scanner                   Direction    : BULLISH
+2026-04-03 10:02:08  INFO      scanner                   Score        : 0.886  [ml]
+2026-04-03 10:02:08  INFO      scanner                   Volume       : 49553  (24.2x zone avg)
+2026-04-03 10:02:08  INFO      scanner                   Zone         : 581 candles  (23.2 trading days)
+2026-04-03 10:02:08  INFO      scanner                   Zone span    : 2025-12-02 09:15 → 2026-01-05 10:30
+2026-04-03 10:02:08  INFO      scanner                   Upper line   : 2025-12-02 09:15 (3227.95) → 2026-01-05 10:30 (3254.95)  [at breakout: 3244.33]
+2026-04-03 10:02:08  INFO      scanner                   Lower line   : 2025-12-02 10:30 (3131.00) → 2026-01-02 10:15 (3012.75)  [at breakout: 3058.40]
+2026-04-03 10:02:08  INFO      scanner                   ZigZag       : dev=2.0%  swings: 14 highs / 13 lows
+2026-04-03 10:02:08  INFO      scanner                 
+2026-04-03 10:02:08  INFO      scanner                   ML probability: 0.886  (threshold: 0.6)
+2026-04-03 10:02:08  INFO      scanner                   
+2026-04-03 10:02:08  INFO      scanner                   Upper trendline: 0.002%/candle
+2026-04-03 10:02:08  INFO      scanner                   Lower trendline slope : -0.001%/candle
+2026-04-03 10:02:08  INFO      scanner                   Zone width            : 581 candles (23.2 trading days)
+2026-04-03 10:02:08  INFO      scanner                   Apex proximity        : 100% through triangle
+2026-04-03 10:02:08  INFO      scanner                   Breakout lag          : 1 candles (15 min after zone end)
+2026-04-03 10:02:08  INFO      scanner                   Volume ratio          : 24.2x zone avg
+2026-04-03 10:02:08  INFO      scanner                   Close vs upper line   : +0.79%
+2026-04-03 10:02:08  INFO      scanner                   Body strength         : 56% of candle range
+2026-04-03 10:02:08  INFO      scanner                   Close position        : 59% of range (top = bullish)
+2026-04-03 10:02:08  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 10:02:09  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 10:02:09  INFO      scanner                   BREAKOUT ALERT: NETWEB
+2026-04-03 10:02:09  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 10:02:09  INFO      scanner                   Timestamp    : 2026-01-19 09:15 IST
+2026-04-03 10:02:09  INFO      scanner                   Close        : 3652.85
+2026-04-03 10:02:09  INFO      scanner                   Triangle     : SYMMETRICAL
+2026-04-03 10:02:09  INFO      scanner                   Direction    : BULLISH
+2026-04-03 10:02:09  INFO      scanner                   Score        : 0.890  [ml]
+2026-04-03 10:02:09  INFO      scanner                   Volume       : 248909  (66.9x zone avg)
+2026-04-03 10:02:09  INFO      scanner                   Zone         : 800 candles  (32.0 trading days)
+2026-04-03 10:02:09  INFO      scanner                   Zone span    : 2025-12-02 09:15 → 2026-01-16 15:15
+2026-04-03 10:02:09  INFO      scanner                   Upper line   : 2025-12-02 09:15 (3227.95) → 2026-01-16 15:15 (3382.75)  [at breakout: 3432.53]
+2026-04-03 10:02:09  INFO      scanner                   Lower line   : 2025-12-02 10:30 (3131.00) → 2026-01-16 14:15 (3265.05)  [at breakout: 3289.68]
+2026-04-03 10:02:09  INFO      scanner                   ZigZag       : dev=2.5%  swings: 19 highs / 18 lows
+2026-04-03 10:02:09  INFO      scanner                 
+2026-04-03 10:02:09  INFO      scanner                   ML probability: 0.890  (threshold: 0.6)
+2026-04-03 10:02:09  INFO      scanner                   
+2026-04-03 10:02:09  INFO      scanner                   Upper trendline: 0.009%/candle
+2026-04-03 10:02:09  INFO      scanner                   Lower trendline slope : 0.011%/candle
+2026-04-03 10:02:09  INFO      scanner                   Zone width            : 800 candles (32.0 trading days)
+2026-04-03 10:02:09  INFO      scanner                   Apex proximity        : 31% through triangle
+2026-04-03 10:02:09  INFO      scanner                   Breakout lag          : 1 candles (15 min after zone end)
+2026-04-03 10:02:09  INFO      scanner                   Volume ratio          : 66.9x zone avg
+2026-04-03 10:02:09  INFO      scanner                   Close vs upper line   : +6.42%
+2026-04-03 10:02:09  INFO      scanner                   Body strength         : 39% of candle range
+2026-04-03 10:02:09  INFO      scanner                   Close position        : 30% of range (top = bullish)
+2026-04-03 10:02:09  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 10:02:12  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 10:02:12  INFO      scanner                   BREAKOUT ALERT: NETWEB
+2026-04-03 10:02:12  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 10:02:12  INFO      scanner                   Timestamp    : 2026-02-18 11:45 IST
+2026-04-03 10:02:12  INFO      scanner                   Close        : 3498.50
+2026-04-03 10:02:12  INFO      scanner                   Triangle     : ASCENDING
+2026-04-03 10:02:12  INFO      scanner                   Direction    : BULLISH
+2026-04-03 10:02:12  INFO      scanner                   Score        : 0.890  [ml]
+2026-04-03 10:02:12  INFO      scanner                   Volume       : 73678  (15.2x zone avg)
+2026-04-03 10:02:12  INFO      scanner                   Zone         : 1360 candles  (54.4 trading days)
+2026-04-03 10:02:12  INFO      scanner                   Zone span    : 2025-12-02 09:15 → 2026-02-18 11:30
+2026-04-03 10:02:12  INFO      scanner                   Upper line   : 2025-12-02 09:15 (3227.95) → 2026-02-18 11:30 (3531.70)  [at breakout: 3362.34]
+2026-04-03 10:02:12  INFO      scanner                   Lower line   : 2025-12-02 10:30 (3131.00) → 2026-02-18 10:30 (3132.55)  [at breakout: 3152.17]
+2026-04-03 10:02:12  INFO      scanner                   ZigZag       : dev=2.5%  swings: 34 highs / 33 lows
+2026-04-03 10:02:12  INFO      scanner                 
+2026-04-03 10:02:12  INFO      scanner                   ML probability: 0.890  (threshold: 0.6)
+2026-04-03 10:02:12  INFO      scanner                   
+2026-04-03 10:02:12  INFO      scanner                   Upper trendline flat (0.0016%/candle) — descending triangle
+2026-04-03 10:02:12  INFO      scanner                   Lower trendline slope : 0.001%/candle
+2026-04-03 10:02:12  INFO      scanner                   Zone width            : 1360 candles (54.4 trading days)
+2026-04-03 10:02:12  INFO      scanner                   Apex proximity        : 100% through triangle
+2026-04-03 10:02:12  INFO      scanner                   Breakout lag          : 1 candles (15 min after zone end)
+2026-04-03 10:02:12  INFO      scanner                   Volume ratio          : 15.2x zone avg
+2026-04-03 10:02:12  INFO      scanner                   Close vs upper line   : +4.05%
+2026-04-03 10:02:12  INFO      scanner                   Body strength         : 15% of candle range
+2026-04-03 10:02:12  INFO      scanner                   Close position        : 43% of range (top = bullish)
+2026-04-03 10:02:12  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 10:02:15  INFO      scanner                 NETWEB: continuous scan complete — 4 alert(s)
+2026-04-03 10:11:24  INFO      trainer                 Model loaded from models\triangle_breakout.pkl  (trained on 14 examples)
+2026-04-03 10:11:24  INFO      scanner                 NETWEB: continuous scan  2025-12-02 → 2026-03-18  (1835 candles, 73.4 trading days)
+2026-04-03 10:11:25  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 10:11:25  INFO      scanner                   BREAKOUT ALERT: NETWEB
+2026-04-03 10:11:25  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 10:11:25  INFO      scanner                   Timestamp    : 2025-12-15 09:45 IST
+2026-04-03 10:11:25  INFO      scanner                   Close        : 3229.40
+2026-04-03 10:11:25  INFO      scanner                   Triangle     : DESCENDING
+2026-04-03 10:11:25  INFO      scanner                   Direction    : BULLISH
+2026-04-03 10:11:25  INFO      scanner                   Score        : 0.915  [ml]
+2026-04-03 10:11:25  INFO      scanner                   Volume       : 7269  (2.7x zone avg)
+2026-04-03 10:11:25  INFO      scanner                   Zone         : 227 candles  (9.1 trading days)
+2026-04-03 10:11:25  INFO      scanner                   Zone span    : 2025-12-02 09:15 → 2025-12-15 09:30
+2026-04-03 10:11:25  INFO      scanner                   Upper line   : 2025-12-02 09:15 (3227.95) → 2025-12-15 09:15 (3219.90)  [at breakout: 3178.20]
+2026-04-03 10:11:25  INFO      scanner                   Lower line   : 2025-12-02 10:30 (3131.00) → 2025-12-11 09:15 (3033.15)  [at breakout: 2913.85]
+2026-04-03 10:11:25  INFO      scanner                   ZigZag       : dev=2.5%  swings: 6 highs / 5 lows
+2026-04-03 10:11:25  INFO      scanner                 
+2026-04-03 10:11:25  INFO      scanner                   ML probability: 0.915  (threshold: 0.6)
+2026-04-03 10:11:25  INFO      scanner                   
+2026-04-03 10:11:25  INFO      scanner                   Upper trendline: -0.008%/candle
+2026-04-03 10:11:25  INFO      scanner                   Lower trendline slope : -0.028%/candle
+2026-04-03 10:11:25  INFO      scanner                   Zone width            : 227 candles (9.1 trading days)
+2026-04-03 10:11:25  INFO      scanner                   Apex proximity        : 100% through triangle
+2026-04-03 10:11:25  INFO      scanner                   Breakout lag          : 1 candles (15 min after zone end)
+2026-04-03 10:11:25  INFO      scanner                   Volume ratio          : 2.7x zone avg
+2026-04-03 10:11:25  INFO      scanner                   Close vs upper line   : +1.61%
+2026-04-03 10:11:25  INFO      scanner                   Body strength         : 72% of candle range
+2026-04-03 10:11:25  INFO      scanner                   Close position        : 79% of range (top = bullish)
+2026-04-03 10:11:25  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 10:11:28  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 10:11:28  INFO      scanner                   BREAKOUT ALERT: NETWEB
+2026-04-03 10:11:28  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 10:11:28  INFO      scanner                   Timestamp    : 2026-01-05 09:45 IST
+2026-04-03 10:11:28  INFO      scanner                   Close        : 3144.00
+2026-04-03 10:11:28  INFO      scanner                   Triangle     : SYMMETRICAL
+2026-04-03 10:11:28  INFO      scanner                   Direction    : BULLISH
+2026-04-03 10:11:28  INFO      scanner                   Score        : 0.927  [ml]
+2026-04-03 10:11:28  INFO      scanner                   Volume       : 8213  (7.2x zone avg)
+2026-04-03 10:11:28  INFO      scanner                   Zone         : 293 candles  (11.7 trading days)
+2026-04-03 10:11:28  INFO      scanner                   Zone span    : 2025-12-17 11:30 → 2026-01-05 09:30
+2026-04-03 10:11:28  INFO      scanner                   Upper line   : 2025-12-17 11:30 (3245.40) → 2026-01-05 09:30 (3127.15)  [at breakout: 3126.22]
+2026-04-03 10:11:28  INFO      scanner                   Lower line   : 2025-12-18 15:15 (3113.20) → 2026-01-02 10:15 (3012.75)  [at breakout: 3009.77]
+2026-04-03 10:11:28  INFO      scanner                   ZigZag       : dev=2.5%  swings: 4 highs / 3 lows
+2026-04-03 10:11:28  INFO      scanner                 
+2026-04-03 10:11:28  INFO      scanner                   ML probability: 0.927  (threshold: 0.6)
+2026-04-03 10:11:28  INFO      scanner                   
+2026-04-03 10:11:28  INFO      scanner                   Upper trendline falling (-0.018%/candle) — symmetrical triangle
+2026-04-03 10:11:28  INFO      scanner                   Lower trendline slope : -0.013%/candle
+2026-04-03 10:11:28  INFO      scanner                   Zone width            : 293 candles (11.7 trading days)
+2026-04-03 10:11:28  INFO      scanner                   Apex proximity        : 30% through triangle
+2026-04-03 10:11:28  INFO      scanner                   Breakout lag          : 1 candles (15 min after zone end)
+2026-04-03 10:11:28  INFO      scanner                   Volume ratio          : 7.2x zone avg
+2026-04-03 10:11:28  INFO      scanner                   Close vs upper line   : +0.68%
+2026-04-03 10:11:28  INFO      scanner                   Body strength         : 65% of candle range
+2026-04-03 10:11:28  INFO      scanner                   Close position        : 100% of range (top = bullish)
+2026-04-03 10:11:28  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 10:11:28  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 10:11:28  INFO      scanner                   BREAKOUT ALERT: NETWEB
+2026-04-03 10:11:28  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 10:11:28  INFO      scanner                   Timestamp    : 2026-01-08 11:30 IST
+2026-04-03 10:11:28  INFO      scanner                   Close        : 3435.20
+2026-04-03 10:11:28  INFO      scanner                   Triangle     : SYMMETRICAL
+2026-04-03 10:11:28  INFO      scanner                   Direction    : BULLISH
+2026-04-03 10:11:28  INFO      scanner                   Score        : 0.930  [ml]
+2026-04-03 10:11:28  INFO      scanner                   Volume       : 8080  (1.6x zone avg)
+2026-04-03 10:11:28  INFO      scanner                   Zone         : 286 candles  (11.4 trading days)
+2026-04-03 10:11:28  INFO      scanner                   Zone span    : 2025-12-22 15:00 → 2026-01-08 11:15
+2026-04-03 10:11:28  INFO      scanner                   Upper line   : 2025-12-22 15:00 (3289.00) → 2026-01-08 11:15 (3410.00)  [at breakout: 3394.72]
+2026-04-03 10:11:28  INFO      scanner                   Lower line   : 2025-12-26 09:15 (3172.05) → 2026-01-08 10:30 (3333.20)  [at breakout: 3295.40]
+2026-04-03 10:11:28  INFO      scanner                   ZigZag       : dev=1.5%  swings: 10 highs / 9 lows
+2026-04-03 10:11:28  INFO      scanner                 
+2026-04-03 10:11:28  INFO      scanner                   ML probability: 0.930  (threshold: 0.6)
+2026-04-03 10:11:28  INFO      scanner                   
+2026-04-03 10:11:28  INFO      scanner                   Upper trendline: 0.025%/candle
+2026-04-03 10:11:28  INFO      scanner                   Lower trendline slope : 0.035%/candle
+2026-04-03 10:11:28  INFO      scanner                   Zone width            : 286 candles (11.4 trading days)
+2026-04-03 10:11:28  INFO      scanner                   Apex proximity        : 50% through triangle
+2026-04-03 10:11:28  INFO      scanner                   Breakout lag          : 1 candles (15 min after zone end)
+2026-04-03 10:11:28  INFO      scanner                   Volume ratio          : 1.6x zone avg
+2026-04-03 10:11:28  INFO      scanner                   Close vs upper line   : +0.88%
+2026-04-03 10:11:28  INFO      scanner                   Body strength         : 71% of candle range
+2026-04-03 10:11:28  INFO      scanner                   Close position        : 94% of range (top = bullish)
+2026-04-03 10:11:28  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 10:11:30  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 10:11:30  INFO      scanner                   BREAKOUT ALERT: NETWEB
+2026-04-03 10:11:30  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 10:11:30  INFO      scanner                   Timestamp    : 2026-01-30 09:15 IST
+2026-04-03 10:11:30  INFO      scanner                   Close        : 3125.00
+2026-04-03 10:11:30  INFO      scanner                   Triangle     : SYMMETRICAL
+2026-04-03 10:11:30  INFO      scanner                   Direction    : BULLISH
+2026-04-03 10:11:30  INFO      scanner                   Score        : 0.930  [ml]
+2026-04-03 10:11:30  INFO      scanner                   Volume       : 19496  (3.0x zone avg)
+2026-04-03 10:11:30  INFO      scanner                   Zone         : 299 candles  (12.0 trading days)
+2026-04-03 10:11:30  INFO      scanner                   Zone span    : 2026-01-12 09:30 → 2026-01-29 15:15
+2026-04-03 10:11:30  INFO      scanner                   Upper line   : 2026-01-12 09:30 (3418.70) → 2026-01-28 10:00 (3207.00)  [at breakout: 3101.56]
+2026-04-03 10:11:30  INFO      scanner                   Lower line   : 2026-01-12 11:30 (3270.45) → 2026-01-29 15:15 (3050.00)  [at breakout: 2990.90]
+2026-04-03 10:11:30  INFO      scanner                   ZigZag       : dev=2.0%  swings: 14 highs / 14 lows
+2026-04-03 10:11:30  INFO      scanner                 
+2026-04-03 10:11:30  INFO      scanner                   ML probability: 0.930  (threshold: 0.6)
+2026-04-03 10:11:30  INFO      scanner                   
+2026-04-03 10:11:30  INFO      scanner                   Upper trendline falling (-0.039%/candle) — symmetrical triangle
+2026-04-03 10:11:30  INFO      scanner                   Lower trendline slope : -0.036%/candle
+2026-04-03 10:11:30  INFO      scanner                   Zone width            : 299 candles (12.0 trading days)
+2026-04-03 10:11:30  INFO      scanner                   Apex proximity        : 25% through triangle
+2026-04-03 10:11:30  INFO      scanner                   Breakout lag          : 1 candles (15 min after zone end)
+2026-04-03 10:11:30  INFO      scanner                   Volume ratio          : 3.0x zone avg
+2026-04-03 10:11:30  INFO      scanner                   Close vs upper line   : +0.76%
+2026-04-03 10:11:30  INFO      scanner                   Body strength         : 74% of candle range
+2026-04-03 10:11:30  INFO      scanner                   Close position        : 96% of range (top = bullish)
+2026-04-03 10:11:30  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 10:11:32  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 10:11:32  INFO      scanner                   BREAKOUT ALERT: NETWEB
+2026-04-03 10:11:32  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 10:11:32  INFO      scanner                   Timestamp    : 2026-02-18 09:15 IST
+2026-04-03 10:11:32  INFO      scanner                   Close        : 3172.55
+2026-04-03 10:11:32  INFO      scanner                   Triangle     : SYMMETRICAL
+2026-04-03 10:11:32  INFO      scanner                   Direction    : BULLISH
+2026-04-03 10:11:32  INFO      scanner                   Score        : 0.890  [ml]
+2026-04-03 10:11:32  INFO      scanner                   Volume       : 55369  (13.2x zone avg)
+2026-04-03 10:11:32  INFO      scanner                   Zone         : 299 candles  (12.0 trading days)
+2026-04-03 10:11:32  INFO      scanner                   Zone span    : 2026-02-02 09:30 → 2026-02-17 15:15
+2026-04-03 10:11:32  INFO      scanner                   Upper line   : 2026-02-02 09:30 (3482.00) → 2026-02-17 13:15 (3109.70)  [at breakout: 3099.54]
+2026-04-03 10:11:32  INFO      scanner                   Lower line   : 2026-02-02 11:15 (3176.15) → 2026-02-17 10:45 (3062.00)  [at breakout: 3029.18]
+2026-04-03 10:11:32  INFO      scanner                   ZigZag       : dev=1.5%  swings: 14 highs / 13 lows
+2026-04-03 10:11:32  INFO      scanner                 
+2026-04-03 10:11:32  INFO      scanner                   ML probability: 0.890  (threshold: 0.6)
+2026-04-03 10:11:32  INFO      scanner                   
+2026-04-03 10:11:32  INFO      scanner                   Upper trendline falling (-0.022%/candle) — symmetrical triangle
+2026-04-03 10:11:32  INFO      scanner                   Lower trendline slope : -0.014%/candle
+2026-04-03 10:11:32  INFO      scanner                   Zone width            : 299 candles (12.0 trading days)
+2026-04-03 10:11:32  INFO      scanner                   Apex proximity        : 55% through triangle
+2026-04-03 10:11:32  INFO      scanner                   Breakout lag          : 1 candles (15 min after zone end)
+2026-04-03 10:11:32  INFO      scanner                   Volume ratio          : 13.2x zone avg
+2026-04-03 10:11:32  INFO      scanner                   Close vs upper line   : +2.36%
+2026-04-03 10:11:32  INFO      scanner                   Body strength         : 54% of candle range
+2026-04-03 10:11:32  INFO      scanner                   Close position        : 18% of range (top = bullish)
+2026-04-03 10:11:32  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 10:11:32  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 10:11:32  INFO      scanner                   BREAKOUT ALERT: NETWEB
+2026-04-03 10:11:32  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 10:11:32  INFO      scanner                   Timestamp    : 2026-02-23 09:15 IST
+2026-04-03 10:11:32  INFO      scanner                   Close        : 3658.05
+2026-04-03 10:11:32  INFO      scanner                   Triangle     : SYMMETRICAL
+2026-04-03 10:11:32  INFO      scanner                   Direction    : BULLISH
+2026-04-03 10:11:32  INFO      scanner                   Score        : 0.922  [ml]
+2026-04-03 10:11:32  INFO      scanner                   Volume       : 88459  (9.6x zone avg)
+2026-04-03 10:11:32  INFO      scanner                   Zone         : 299 candles  (12.0 trading days)
+2026-04-03 10:11:32  INFO      scanner                   Zone span    : 2026-02-05 09:30 → 2026-02-20 15:15
+2026-04-03 10:11:32  INFO      scanner                   Upper line   : 2026-02-05 09:30 (3159.40) → 2026-02-20 13:45 (3695.00)  [at breakout: 3620.46]
+2026-04-03 10:11:32  INFO      scanner                   Lower line   : 2026-02-06 10:45 (3051.00) → 2026-02-20 15:15 (3599.35)  [at breakout: 3490.72]
+2026-04-03 10:11:32  INFO      scanner                   ZigZag       : dev=1.5%  swings: 17 highs / 17 lows
+2026-04-03 10:11:32  INFO      scanner                 
+2026-04-03 10:11:32  INFO      scanner                   ML probability: 0.922  (threshold: 0.6)
+2026-04-03 10:11:32  INFO      scanner                   
+2026-04-03 10:11:32  INFO      scanner                   Upper trendline: 0.064%/candle
+2026-04-03 10:11:32  INFO      scanner                   Lower trendline slope : 0.070%/candle
+2026-04-03 10:11:32  INFO      scanner                   Zone width            : 299 candles (12.0 trading days)
+2026-04-03 10:11:32  INFO      scanner                   Apex proximity        : 25% through triangle
+2026-04-03 10:11:32  INFO      scanner                   Breakout lag          : 1 candles (15 min after zone end)
+2026-04-03 10:11:32  INFO      scanner                   Volume ratio          : 9.6x zone avg
+2026-04-03 10:11:32  INFO      scanner                   Close vs upper line   : +1.04%
+2026-04-03 10:11:32  INFO      scanner                   Body strength         : 9% of candle range
+2026-04-03 10:11:32  INFO      scanner                   Close position        : 81% of range (top = bullish)
+2026-04-03 10:11:32  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 10:11:33  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 10:11:33  INFO      scanner                   BREAKOUT ALERT: NETWEB
+2026-04-03 10:11:33  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 10:11:33  INFO      scanner                   Timestamp    : 2026-02-27 10:45 IST
+2026-04-03 10:11:33  INFO      scanner                   Close        : 3978.65
+2026-04-03 10:11:33  INFO      scanner                   Triangle     : SYMMETRICAL
+2026-04-03 10:11:33  INFO      scanner                   Direction    : BULLISH
+2026-04-03 10:11:33  INFO      scanner                   Score        : 0.930  [ml]
+2026-04-03 10:11:33  INFO      scanner                   Volume       : 155558  (13.6x zone avg)
+2026-04-03 10:11:33  INFO      scanner                   Zone         : 297 candles  (11.9 trading days)
+2026-04-03 10:11:33  INFO      scanner                   Zone span    : 2026-02-11 11:30 → 2026-02-27 10:30
+2026-04-03 10:11:33  INFO      scanner                   Upper line   : 2026-02-11 11:30 (3177.85) → 2026-02-27 10:30 (3795.55)  [at breakout: 3881.54]
+2026-04-03 10:11:33  INFO      scanner                   Lower line   : 2026-02-12 09:15 (3014.10) → 2026-02-27 09:45 (3688.10)  [at breakout: 3768.33]
+2026-04-03 10:11:33  INFO      scanner                   ZigZag       : dev=1.5%  swings: 22 highs / 21 lows
+2026-04-03 10:11:33  INFO      scanner                 
+2026-04-03 10:11:33  INFO      scanner                   ML probability: 0.930  (threshold: 0.6)
+2026-04-03 10:11:33  INFO      scanner                   
+2026-04-03 10:11:33  INFO      scanner                   Upper trendline: 0.082%/candle
+2026-04-03 10:11:33  INFO      scanner                   Lower trendline slope : 0.088%/candle
+2026-04-03 10:11:33  INFO      scanner                   Zone width            : 297 candles (11.9 trading days)
+2026-04-03 10:11:33  INFO      scanner                   Apex proximity        : 33% through triangle
+2026-04-03 10:11:33  INFO      scanner                   Breakout lag          : 1 candles (15 min after zone end)
+2026-04-03 10:11:33  INFO      scanner                   Volume ratio          : 13.6x zone avg
+2026-04-03 10:11:33  INFO      scanner                   Close vs upper line   : +2.37%
+2026-04-03 10:11:33  INFO      scanner                   Body strength         : 87% of candle range
+2026-04-03 10:11:33  INFO      scanner                   Close position        : 95% of range (top = bullish)
+2026-04-03 10:11:33  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 10:11:34  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 10:11:34  INFO      scanner                   BREAKOUT ALERT: NETWEB
+2026-04-03 10:11:34  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 10:11:34  INFO      scanner                   Timestamp    : 2026-03-16 09:15 IST
+2026-04-03 10:11:34  INFO      scanner                   Close        : 3145.25
+2026-04-03 10:11:34  INFO      scanner                   Triangle     : SYMMETRICAL
+2026-04-03 10:11:34  INFO      scanner                   Direction    : BULLISH
+2026-04-03 10:11:34  INFO      scanner                   Score        : 0.882  [ml]
+2026-04-03 10:11:34  INFO      scanner                   Volume       : 12172  (1.3x zone avg)
+2026-04-03 10:11:34  INFO      scanner                   Zone         : 297 candles  (11.9 trading days)
+2026-04-03 10:11:34  INFO      scanner                   Zone span    : 2026-02-25 10:00 → 2026-03-13 15:15
+2026-04-03 10:11:34  INFO      scanner                   Upper line   : 2026-02-25 10:00 (3728.00) → 2026-03-13 15:00 (3192.75)  [at breakout: 3107.46]
+2026-04-03 10:11:34  INFO      scanner                   Lower line   : 2026-02-25 13:15 (3584.05) → 2026-03-13 13:15 (3138.60)  [at breakout: 2997.56]
+2026-04-03 10:11:34  INFO      scanner                   ZigZag       : dev=1.5%  swings: 23 highs / 22 lows
+2026-04-03 10:11:34  INFO      scanner                 
+2026-04-03 10:11:34  INFO      scanner                   ML probability: 0.882  (threshold: 0.6)
+2026-04-03 10:11:34  INFO      scanner                   
+2026-04-03 10:11:34  INFO      scanner                   Upper trendline falling (-0.070%/candle) — symmetrical triangle
+2026-04-03 10:11:34  INFO      scanner                   Lower trendline slope : -0.068%/candle
+2026-04-03 10:11:34  INFO      scanner                   Zone width            : 297 candles (11.9 trading days)
+2026-04-03 10:11:34  INFO      scanner                   Apex proximity        : 27% through triangle
+2026-04-03 10:11:34  INFO      scanner                   Breakout lag          : 1 candles (15 min after zone end)
+2026-04-03 10:11:34  INFO      scanner                   Volume ratio          : 1.3x zone avg
+2026-04-03 10:11:34  INFO      scanner                   Close vs upper line   : +1.39%
+2026-04-03 10:11:34  INFO      scanner                   Body strength         : 64% of candle range
+2026-04-03 10:11:34  INFO      scanner                   Close position        : 22% of range (top = bullish)
+2026-04-03 10:11:34  INFO      scanner                 ────────────────────────────────────────────────────────────
+2026-04-03 10:11:34  INFO      scanner                 NETWEB: continuous scan complete — 8 alert(s)
+2026-04-03 10:37:30  INFO      trainer                 Model loaded from models\triangle_breakout.pkl  (trained on 14 examples)
+2026-04-03 10:37:30  INFO      scanner                 NETWEB: continuous scan  2025-12-02 → 2026-03-18  (1835 candles, 73.4 trading days)
+2026-04-03 10:37:30  INFO      scanner                 BREAKOUT ALERT
+{
+  "ticker": "NETWEB",
+  "breakout_ts": "2025-12-15 09:45 IST",
+  "breakout_close": 3229.4,
+  "breakout_volume": 7269.0,
+  "triangle_type": "descending",
+  "direction": "bullish",
+  "score": 0.9154,
+  "mode": "ml",
+  "volume_ratio": 2.655,
+  "zone": {
+    "start_ts": "2025-12-02 09:15 IST",
+    "end_ts": "2025-12-15 09:30 IST",
+    "candle_count": 227,
+    "trading_days": 9.1
+  },
+  "upper_trendline": {
+    "start_ts": "2025-12-02 09:15 IST",
+    "start_price": 3227.95,
+    "end_ts": "2025-12-15 09:15 IST",
+    "end_price": 3219.9,
+    "at_breakout": 3178.2
+  },
+  "lower_trendline": {
+    "start_ts": "2025-12-02 10:30 IST",
+    "start_price": 3131.0,
+    "end_ts": "2025-12-11 09:15 IST",
+    "end_price": 3033.15,
+    "at_breakout": 2913.85
+  },
+  "zigzag": {
+    "deviation_pct": 2.5,
+    "n_swing_highs": 6,
+    "n_swing_lows": 5
+  },
+  "features": {
+    "upper_slope_pct": -0.0075960739200857655,
+    "lower_slope_pct": -0.027832414485880638,
+    "slope_ratio": -0.27292183547415233,
+    "zone_width": 227.0,
+    "apex_proximity": 1.0,
+    "triangle_height_pct": 2.1302841960424033,
+    "breakout_close_vs_upper": 0.016109916674567133,
+    "breakout_body_pct": 0.71707317071422,
+    "breakout_wick_ratio": 0.20975609755585742,
+    "close_position": 0.7902439024197524,
+    "breakout_lag": 1.0,
+    "volume_ratio": 2.655421520000832,
+    "volume_trend": -0.0018391443362910137,
+    "zone_avg_volume_cv": 1.2181407712953936,
+    "zone_close_trend": -0.006600549278525852
+  },
+  "explanation": "ML probability: 0.915  (threshold: 0.6)\n\nUpper trendline: -0.008%/candle\nLower trendline slope : -0.028%/candle\nZone width            : 227 candles (9.1 trading days)\nApex proximity        : 100% through triangle\nBreakout lag          : 1 candles (15 min after zone end)\nVolume ratio          : 2.7x zone avg\nClose vs upper line   : +1.61%\nBody strength         : 72% of candle range\nClose position        : 79% of range (top = bullish)"
+}
+2026-04-03 10:37:32  INFO      scanner                 BREAKOUT ALERT
+{
+  "ticker": "NETWEB",
+  "breakout_ts": "2026-01-05 09:45 IST",
+  "breakout_close": 3144.0,
+  "breakout_volume": 8213.0,
+  "triangle_type": "symmetrical",
+  "direction": "bullish",
+  "score": 0.9268,
+  "mode": "ml",
+  "volume_ratio": 7.156,
+  "zone": {
+    "start_ts": "2025-12-17 11:30 IST",
+    "end_ts": "2026-01-05 09:30 IST",
+    "candle_count": 293,
+    "trading_days": 11.7
+  },
+  "upper_trendline": {
+    "start_ts": "2025-12-17 11:30 IST",
+    "start_price": 3245.4,
+    "end_ts": "2026-01-05 09:30 IST",
+    "end_price": 3127.15,
+    "at_breakout": 3126.22
+  },
+  "lower_trendline": {
+    "start_ts": "2025-12-18 15:15 IST",
+    "start_price": 3113.2,
+    "end_ts": "2026-01-02 10:15 IST",
+    "end_price": 3012.75,
+    "at_breakout": 3009.77
+  },
+  "zigzag": {
+    "deviation_pct": 2.5,
+    "n_swing_highs": 4,
+    "n_swing_lows": 3
+  },
+  "features": {
+    "upper_slope_pct": -0.018394779007252955,
+    "lower_slope_pct": -0.013267128297728074,
+    "slope_ratio": -1.386492781856205,
+    "zone_width": 293.0,
+    "apex_proximity": 0.30086595896152396,
+    "triangle_height_pct": 0.7870856225690513,
+    "breakout_close_vs_upper": 0.006839919521980986,
+    "breakout_body_pct": 0.6523668638860266,
+    "breakout_wick_ratio": 0.0,
+    "close_position": 0.9999999999704143,
+    "breakout_lag": 1.0,
+    "volume_ratio": 7.15620232610768,
+    "volume_trend": -0.0028758905114357482,
+    "zone_avg_volume_cv": 1.5408699077296704,
+    "zone_close_trend": -0.021059490778559224
+  },
+  "explanation": "ML probability: 0.927  (threshold: 0.6)\n\nUpper trendline falling (-0.018%/candle) \u2014 symmetrical triangle\nLower trendline slope : -0.013%/candle\nZone width            : 293 candles (11.7 trading days)\nApex proximity        : 30% through triangle\nBreakout lag          : 1 candles (15 min after zone end)\nVolume ratio          : 7.2x zone avg\nClose vs upper line   : +0.68%\nBody strength         : 65% of candle range\nClose position        : 100% of range (top = bullish)"
+}
+2026-04-03 10:37:32  INFO      scanner                 BREAKOUT ALERT
+{
+  "ticker": "NETWEB",
+  "breakout_ts": "2026-01-08 11:30 IST",
+  "breakout_close": 3435.2,
+  "breakout_volume": 8080.0,
+  "triangle_type": "symmetrical",
+  "direction": "bullish",
+  "score": 0.93,
+  "mode": "ml",
+  "volume_ratio": 1.564,
+  "zone": {
+    "start_ts": "2025-12-22 15:00 IST",
+    "end_ts": "2026-01-08 11:15 IST",
+    "candle_count": 286,
+    "trading_days": 11.4
+  },
+  "upper_trendline": {
+    "start_ts": "2025-12-22 15:00 IST",
+    "start_price": 3289.0,
+    "end_ts": "2026-01-08 11:15 IST",
+    "end_price": 3410.0,
+    "at_breakout": 3394.72
+  },
+  "lower_trendline": {
+    "start_ts": "2025-12-26 09:15 IST",
+    "start_price": 3172.05,
+    "end_ts": "2026-01-08 10:30 IST",
+    "end_price": 3333.2,
+    "at_breakout": 3295.4
+  },
+  "zigzag": {
+    "deviation_pct": 1.5,
+    "n_swing_highs": 10,
+    "n_swing_lows": 9
+  },
+  "features": {
+    "upper_slope_pct": 0.024569618228249965,
+    "lower_slope_pct": 0.034710179501176636,
+    "slope_ratio": 0.7078504886316302,
+    "zone_width": 286.0,
+    "apex_proximity": 0.49598680129692724,
+    "triangle_height_pct": 0.4687975646878357,
+    "breakout_close_vs_upper": 0.00880250926589651,
+    "breakout_body_pct": 0.7077625570646985,
+    "breakout_wick_ratio": 0.05662100456518252,
+    "close_position": 0.9433789954165527,
+    "breakout_lag": 1.0,
+    "volume_ratio": 1.5641183051952625,
+    "volume_trend": 0.009792003038186866,
+    "zone_avg_volume_cv": 2.277536607447275,
+    "zone_close_trend": 0.01614640520156409
+  },
+  "explanation": "ML probability: 0.930  (threshold: 0.6)\n\nUpper trendline: 0.025%/candle\nLower trendline slope : 0.035%/candle\nZone width            : 286 candles (11.4 trading days)\nApex proximity        : 50% through triangle\nBreakout lag          : 1 candles (15 min after zone end)\nVolume ratio          : 1.6x zone avg\nClose vs upper line   : +0.88%\nBody strength         : 71% of candle range\nClose position        : 94% of range (top = bullish)"
+}
+2026-04-03 10:37:33  INFO      scanner                 BREAKOUT ALERT
+{
+  "ticker": "NETWEB",
+  "breakout_ts": "2026-01-30 09:15 IST",
+  "breakout_close": 3125.0,
+  "breakout_volume": 19496.0,
+  "triangle_type": "symmetrical",
+  "direction": "bullish",
+  "score": 0.93,
+  "mode": "ml",
+  "volume_ratio": 3.033,
+  "zone": {
+    "start_ts": "2026-01-12 09:30 IST",
+    "end_ts": "2026-01-29 15:15 IST",
+    "candle_count": 299,
+    "trading_days": 12.0
+  },
+  "upper_trendline": {
+    "start_ts": "2026-01-12 09:30 IST",
+    "start_price": 3418.7,
+    "end_ts": "2026-01-28 10:00 IST",
+    "end_price": 3207.0,
+    "at_breakout": 3101.56
+  },
+  "lower_trendline": {
+    "start_ts": "2026-01-12 11:30 IST",
+    "start_price": 3270.45,
+    "end_ts": "2026-01-29 15:15 IST",
+    "end_price": 3050.0,
+    "at_breakout": 2990.9
+  },
+  "zigzag": {
+    "deviation_pct": 2.0,
+    "n_swing_highs": 14,
+    "n_swing_lows": 14
+  },
+  "features": {
+    "upper_slope_pct": -0.03852654691698331,
+    "lower_slope_pct": -0.03560673825724679,
+    "slope_ratio": -1.0820015457928311,
+    "zone_width": 299.0,
+    "apex_proximity": 0.2485067833215788,
+    "triangle_height_pct": 1.8887210025769892,
+    "breakout_close_vs_upper": 0.007558644104804508,
+    "breakout_body_pct": 0.743261157748622,
+    "breakout_wick_ratio": 0.04242156429481004,
+    "close_position": 0.9575784356963521,
+    "breakout_lag": 1.0,
+    "volume_ratio": 3.0334763001528326,
+    "volume_trend": -0.00289088531148892,
+    "zone_avg_volume_cv": 2.6297842558221673,
+    "zone_close_trend": -0.03409806767670882
+  },
+  "explanation": "ML probability: 0.930  (threshold: 0.6)\n\nUpper trendline falling (-0.039%/candle) \u2014 symmetrical triangle\nLower trendline slope : -0.036%/candle\nZone width            : 299 candles (12.0 trading days)\nApex proximity        : 25% through triangle\nBreakout lag          : 1 candles (15 min after zone end)\nVolume ratio          : 3.0x zone avg\nClose vs upper line   : +0.76%\nBody strength         : 74% of candle range\nClose position        : 96% of range (top = bullish)"
+}
+2026-04-03 10:37:34  INFO      scanner                 BREAKOUT ALERT
+{
+  "ticker": "NETWEB",
+  "breakout_ts": "2026-02-18 09:15 IST",
+  "breakout_close": 3172.55,
+  "breakout_volume": 55369.0,
+  "triangle_type": "symmetrical",
+  "direction": "bullish",
+  "score": 0.8904,
+  "mode": "ml",
+  "volume_ratio": 13.188,
+  "zone": {
+    "start_ts": "2026-02-02 09:30 IST",
+    "end_ts": "2026-02-17 15:15 IST",
+    "candle_count": 299,
+    "trading_days": 12.0
+  },
+  "upper_trendline": {
+    "start_ts": "2026-02-02 09:30 IST",
+    "start_price": 3482.0,
+    "end_ts": "2026-02-17 13:15 IST",
+    "end_price": 3109.7,
+    "at_breakout": 3099.54
+  },
+  "lower_trendline": {
+    "start_ts": "2026-02-02 11:15 IST",
+    "start_price": 3176.15,
+    "end_ts": "2026-02-17 10:45 IST",
+    "end_price": 3062.0,
+    "at_breakout": 3029.18
+  },
+  "zigzag": {
+    "deviation_pct": 1.5,
+    "n_swing_highs": 14,
+    "n_swing_lows": 13
+  },
+  "features": {
+    "upper_slope_pct": -0.022396256927366652,
+    "lower_slope_pct": -0.014396424807110854,
+    "slope_ratio": -1.5556817523627586,
+    "zone_width": 299.0,
+    "apex_proximity": 0.5529170359635889,
+    "triangle_height_pct": 2.747268628243618,
+    "breakout_close_vs_upper": 0.023554278989806922,
+    "breakout_body_pct": 0.5350500715231012,
+    "breakout_wick_ratio": 0.2861230329000569,
+    "close_position": 0.1788268955625356,
+    "breakout_lag": 1.0,
+    "volume_ratio": 13.18785244238928,
+    "volume_trend": -0.00180390915524407,
+    "zone_avg_volume_cv": 2.2873014281568556,
+    "zone_close_trend": -0.01240997604075997
+  },
+  "explanation": "ML probability: 0.890  (threshold: 0.6)\n\nUpper trendline falling (-0.022%/candle) \u2014 symmetrical triangle\nLower trendline slope : -0.014%/candle\nZone width            : 299 candles (12.0 trading days)\nApex proximity        : 55% through triangle\nBreakout lag          : 1 candles (15 min after zone end)\nVolume ratio          : 13.2x zone avg\nClose vs upper line   : +2.36%\nBody strength         : 54% of candle range\nClose position        : 18% of range (top = bullish)"
+}
+2026-04-03 10:37:34  INFO      scanner                 BREAKOUT ALERT
+{
+  "ticker": "NETWEB",
+  "breakout_ts": "2026-02-23 09:15 IST",
+  "breakout_close": 3658.05,
+  "breakout_volume": 88459.0,
+  "triangle_type": "symmetrical",
+  "direction": "bullish",
+  "score": 0.9217,
+  "mode": "ml",
+  "volume_ratio": 9.606,
+  "zone": {
+    "start_ts": "2026-02-05 09:30 IST",
+    "end_ts": "2026-02-20 15:15 IST",
+    "candle_count": 299,
+    "trading_days": 12.0
+  },
+  "upper_trendline": {
+    "start_ts": "2026-02-05 09:30 IST",
+    "start_price": 3159.4,
+    "end_ts": "2026-02-20 13:45 IST",
+    "end_price": 3695.0,
+    "at_breakout": 3620.46
+  },
+  "lower_trendline": {
+    "start_ts": "2026-02-06 10:45 IST",
+    "start_price": 3051.0,
+    "end_ts": "2026-02-20 15:15 IST",
+    "end_price": 3599.35,
+    "at_breakout": 3490.72
+  },
+  "zigzag": {
+    "deviation_pct": 1.5,
+    "n_swing_highs": 17,
+    "n_swing_lows": 17
+  },
+  "features": {
+    "upper_slope_pct": 0.06425344135159124,
+    "lower_slope_pct": 0.06952051820836727,
+    "slope_ratio": 0.9242370753735379,
+    "zone_width": 299.0,
+    "apex_proximity": 0.24715077878053154,
+    "triangle_height_pct": 1.0935679049789768,
+    "breakout_close_vs_upper": 0.010383911691066465,
+    "breakout_body_pct": 0.09328817733932476,
+    "breakout_wick_ratio": 0.09729064039349067,
+    "close_position": 0.809421182261027,
+    "breakout_lag": 1.0,
+    "volume_ratio": 9.605753666542265,
+    "volume_trend": 0.008299852488505942,
+    "zone_avg_volume_cv": 2.0243951941752654,
+    "zone_close_trend": 0.04517979738587981
+  },
+  "explanation": "ML probability: 0.922  (threshold: 0.6)\n\nUpper trendline: 0.064%/candle\nLower trendline slope : 0.070%/candle\nZone width            : 299 candles (12.0 trading days)\nApex proximity        : 25% through triangle\nBreakout lag          : 1 candles (15 min after zone end)\nVolume ratio          : 9.6x zone avg\nClose vs upper line   : +1.04%\nBody strength         : 9% of candle range\nClose position        : 81% of range (top = bullish)"
+}
+2026-04-03 10:37:34  INFO      scanner                 BREAKOUT ALERT
+{
+  "ticker": "NETWEB",
+  "breakout_ts": "2026-02-27 10:45 IST",
+  "breakout_close": 3978.65,
+  "breakout_volume": 155558.0,
+  "triangle_type": "symmetrical",
+  "direction": "bullish",
+  "score": 0.93,
+  "mode": "ml",
+  "volume_ratio": 13.572,
+  "zone": {
+    "start_ts": "2026-02-11 11:30 IST",
+    "end_ts": "2026-02-27 10:30 IST",
+    "candle_count": 297,
+    "trading_days": 11.9
+  },
+  "upper_trendline": {
+    "start_ts": "2026-02-11 11:30 IST",
+    "start_price": 3177.85,
+    "end_ts": "2026-02-27 10:30 IST",
+    "end_price": 3795.55,
+    "at_breakout": 3881.54
+  },
+  "lower_trendline": {
+    "start_ts": "2026-02-12 09:15 IST",
+    "start_price": 3014.1,
+    "end_ts": "2026-02-27 09:45 IST",
+    "end_price": 3688.1,
+    "at_breakout": 3768.33
+  },
+  "zigzag": {
+    "deviation_pct": 1.5,
+    "n_swing_highs": 22,
+    "n_swing_lows": 21
+  },
+  "features": {
+    "upper_slope_pct": 0.08158959036301482,
+    "lower_slope_pct": 0.08773983224119819,
+    "slope_ratio": 0.929903640672803,
+    "zone_width": 297.0,
+    "apex_proximity": 0.3305124853427808,
+    "triangle_height_pct": 0.2728792706393691,
+    "breakout_close_vs_upper": 0.023651431516008826,
+    "breakout_body_pct": 0.8653061224450561,
+    "breakout_wick_ratio": 0.05147392290226048,
+    "close_position": 0.9485260770932045,
+    "breakout_lag": 1.0,
+    "volume_ratio": 13.572154254802314,
+    "volume_trend": 0.0013679332907746702,
+    "zone_avg_volume_cv": 1.705188951263545,
+    "zone_close_trend": 0.07983614906194368
+  },
+  "explanation": "ML probability: 0.930  (threshold: 0.6)\n\nUpper trendline: 0.082%/candle\nLower trendline slope : 0.088%/candle\nZone width            : 297 candles (11.9 trading days)\nApex proximity        : 33% through triangle\nBreakout lag          : 1 candles (15 min after zone end)\nVolume ratio          : 13.6x zone avg\nClose vs upper line   : +2.37%\nBody strength         : 87% of candle range\nClose position        : 95% of range (top = bullish)"
+}
+2026-04-03 10:37:35  INFO      scanner                 BREAKOUT ALERT
+{
+  "ticker": "NETWEB",
+  "breakout_ts": "2026-03-16 09:15 IST",
+  "breakout_close": 3145.25,
+  "breakout_volume": 12172.0,
+  "triangle_type": "symmetrical",
+  "direction": "bullish",
+  "score": 0.8818,
+  "mode": "ml",
+  "volume_ratio": 1.324,
+  "zone": {
+    "start_ts": "2026-02-25 10:00 IST",
+    "end_ts": "2026-03-13 15:15 IST",
+    "candle_count": 297,
+    "trading_days": 11.9
+  },
+  "upper_trendline": {
+    "start_ts": "2026-02-25 10:00 IST",
+    "start_price": 3728.0,
+    "end_ts": "2026-03-13 15:00 IST",
+    "end_price": 3192.75,
+    "at_breakout": 3107.46
+  },
+  "lower_trendline": {
+    "start_ts": "2026-02-25 13:15 IST",
+    "start_price": 3584.05,
+    "end_ts": "2026-03-13 13:15 IST",
+    "end_price": 3138.6,
+    "at_breakout": 2997.56
+  },
+  "zigzag": {
+    "deviation_pct": 1.5,
+    "n_swing_highs": 23,
+    "n_swing_lows": 22
+  },
+  "features": {
+    "upper_slope_pct": -0.06996195665692839,
+    "lower_slope_pct": -0.06753867485031863,
+    "slope_ratio": -1.0358798980895083,
+    "zone_width": 297.0,
+    "apex_proximity": 0.26645130346247153,
+    "triangle_height_pct": 1.7679377685900648,
+    "breakout_close_vs_upper": 0.013863370784352232,
+    "breakout_body_pct": 0.6403033585993461,
+    "breakout_wick_ratio": 0.1397616468008677,
+    "close_position": 0.2199349945781178,
+    "breakout_lag": 1.0,
+    "volume_ratio": 1.324379296347658,
+    "volume_trend": -0.004324310023256735,
+    "zone_avg_volume_cv": 1.6085835055298139,
+    "zone_close_trend": -0.06618912358529196
+  },
+  "explanation": "ML probability: 0.882  (threshold: 0.6)\n\nUpper trendline falling (-0.070%/candle) \u2014 symmetrical triangle\nLower trendline slope : -0.068%/candle\nZone width            : 297 candles (11.9 trading days)\nApex proximity        : 27% through triangle\nBreakout lag          : 1 candles (15 min after zone end)\nVolume ratio          : 1.3x zone avg\nClose vs upper line   : +1.39%\nBody strength         : 64% of candle range\nClose position        : 22% of range (top = bullish)"
+}
+2026-04-03 10:37:35  INFO      scanner                 NETWEB: continuous scan complete — 8 alert(s)
+2026-04-04 08:15:08  INFO      traingle_breakout_training.trainer  Model loaded from models\triangle_breakout.pkl  (trained on 14 examples)
+2026-04-04 08:15:08  INFO      traingle_breakout_training.scanner  NETWEB: continuous scan  2025-12-02 → 2026-03-18  (1835 candles, 73.4 trading days)
+2026-04-04 08:15:09  INFO      traingle_breakout_training.scanner  BREAKOUT ALERT
+{
+  "ticker": "NETWEB",
+  "breakout_ts": "2025-12-15 09:45 IST",
+  "breakout_close": 3229.4,
+  "breakout_volume": 7269.0,
+  "triangle_type": "descending",
+  "direction": "bullish",
+  "score": 0.9154,
+  "mode": "ml",
+  "volume_ratio": 2.655,
+  "zone": {
+    "start_ts": "2025-12-02 09:15 IST",
+    "end_ts": "2025-12-15 09:30 IST",
+    "candle_count": 227,
+    "trading_days": 9.1
+  },
+  "upper_trendline": {
+    "start_ts": "2025-12-02 09:15 IST",
+    "start_price": 3227.95,
+    "end_ts": "2025-12-15 09:15 IST",
+    "end_price": 3219.9,
+    "at_breakout": 3178.2
+  },
+  "lower_trendline": {
+    "start_ts": "2025-12-02 10:30 IST",
+    "start_price": 3131.0,
+    "end_ts": "2025-12-11 09:15 IST",
+    "end_price": 3033.15,
+    "at_breakout": 2913.85
+  },
+  "zigzag": {
+    "deviation_pct": 2.5,
+    "n_swing_highs": 6,
+    "n_swing_lows": 5
+  },
+  "features": {
+    "upper_slope_pct": -0.0075960739200857655,
+    "lower_slope_pct": -0.027832414485880638,
+    "slope_ratio": -0.27292183547415233,
+    "zone_width": 227.0,
+    "apex_proximity": 1.0,
+    "triangle_height_pct": 2.1302841960424033,
+    "breakout_close_vs_upper": 0.016109916674567133,
+    "breakout_body_pct": 0.71707317071422,
+    "breakout_wick_ratio": 0.20975609755585742,
+    "close_position": 0.7902439024197524,
+    "breakout_lag": 1.0,
+    "volume_ratio": 2.655421520000832,
+    "volume_trend": -0.0018391443362910137,
+    "zone_avg_volume_cv": 1.2181407712953936,
+    "zone_close_trend": -0.006600549278525852
+  },
+  "explanation": "ML probability: 0.915  (threshold: 0.6)\n\nUpper trendline: -0.008%/candle\nLower trendline slope : -0.028%/candle\nZone width            : 227 candles (9.1 trading days)\nApex proximity        : 100% through triangle\nBreakout lag          : 1 candles (15 min after zone end)\nVolume ratio          : 2.7x zone avg\nClose vs upper line   : +1.61%\nBody strength         : 72% of candle range\nClose position        : 79% of range (top = bullish)"
+}
+2026-04-04 08:15:10  INFO      traingle_breakout_training.scanner  BREAKOUT ALERT
+{
+  "ticker": "NETWEB",
+  "breakout_ts": "2026-01-05 09:45 IST",
+  "breakout_close": 3144.0,
+  "breakout_volume": 8213.0,
+  "triangle_type": "symmetrical",
+  "direction": "bullish",
+  "score": 0.9268,
+  "mode": "ml",
+  "volume_ratio": 7.156,
+  "zone": {
+    "start_ts": "2025-12-17 11:30 IST",
+    "end_ts": "2026-01-05 09:30 IST",
+    "candle_count": 293,
+    "trading_days": 11.7
+  },
+  "upper_trendline": {
+    "start_ts": "2025-12-17 11:30 IST",
+    "start_price": 3245.4,
+    "end_ts": "2026-01-05 09:30 IST",
+    "end_price": 3127.15,
+    "at_breakout": 3126.22
+  },
+  "lower_trendline": {
+    "start_ts": "2025-12-18 15:15 IST",
+    "start_price": 3113.2,
+    "end_ts": "2026-01-02 10:15 IST",
+    "end_price": 3012.75,
+    "at_breakout": 3009.77
+  },
+  "zigzag": {
+    "deviation_pct": 2.5,
+    "n_swing_highs": 4,
+    "n_swing_lows": 3
+  },
+  "features": {
+    "upper_slope_pct": -0.018394779007252955,
+    "lower_slope_pct": -0.013267128297728074,
+    "slope_ratio": -1.386492781856205,
+    "zone_width": 293.0,
+    "apex_proximity": 0.30086595896152396,
+    "triangle_height_pct": 0.7870856225690513,
+    "breakout_close_vs_upper": 0.006839919521980986,
+    "breakout_body_pct": 0.6523668638860266,
+    "breakout_wick_ratio": 0.0,
+    "close_position": 0.9999999999704143,
+    "breakout_lag": 1.0,
+    "volume_ratio": 7.15620232610768,
+    "volume_trend": -0.0028758905114357482,
+    "zone_avg_volume_cv": 1.5408699077296704,
+    "zone_close_trend": -0.021059490778559224
+  },
+  "explanation": "ML probability: 0.927  (threshold: 0.6)\n\nUpper trendline falling (-0.018%/candle) \u2014 symmetrical triangle\nLower trendline slope : -0.013%/candle\nZone width            : 293 candles (11.7 trading days)\nApex proximity        : 30% through triangle\nBreakout lag          : 1 candles (15 min after zone end)\nVolume ratio          : 7.2x zone avg\nClose vs upper line   : +0.68%\nBody strength         : 65% of candle range\nClose position        : 100% of range (top = bullish)"
+}
+2026-04-04 08:15:10  INFO      traingle_breakout_training.scanner  BREAKOUT ALERT
+{
+  "ticker": "NETWEB",
+  "breakout_ts": "2026-01-08 11:30 IST",
+  "breakout_close": 3435.2,
+  "breakout_volume": 8080.0,
+  "triangle_type": "symmetrical",
+  "direction": "bullish",
+  "score": 0.93,
+  "mode": "ml",
+  "volume_ratio": 1.564,
+  "zone": {
+    "start_ts": "2025-12-22 15:00 IST",
+    "end_ts": "2026-01-08 11:15 IST",
+    "candle_count": 286,
+    "trading_days": 11.4
+  },
+  "upper_trendline": {
+    "start_ts": "2025-12-22 15:00 IST",
+    "start_price": 3289.0,
+    "end_ts": "2026-01-08 11:15 IST",
+    "end_price": 3410.0,
+    "at_breakout": 3394.72
+  },
+  "lower_trendline": {
+    "start_ts": "2025-12-26 09:15 IST",
+    "start_price": 3172.05,
+    "end_ts": "2026-01-08 10:30 IST",
+    "end_price": 3333.2,
+    "at_breakout": 3295.4
+  },
+  "zigzag": {
+    "deviation_pct": 1.5,
+    "n_swing_highs": 10,
+    "n_swing_lows": 9
+  },
+  "features": {
+    "upper_slope_pct": 0.024569618228249965,
+    "lower_slope_pct": 0.034710179501176636,
+    "slope_ratio": 0.7078504886316302,
+    "zone_width": 286.0,
+    "apex_proximity": 0.49598680129692724,
+    "triangle_height_pct": 0.4687975646878357,
+    "breakout_close_vs_upper": 0.00880250926589651,
+    "breakout_body_pct": 0.7077625570646985,
+    "breakout_wick_ratio": 0.05662100456518252,
+    "close_position": 0.9433789954165527,
+    "breakout_lag": 1.0,
+    "volume_ratio": 1.5641183051952625,
+    "volume_trend": 0.009792003038186866,
+    "zone_avg_volume_cv": 2.277536607447275,
+    "zone_close_trend": 0.01614640520156409
+  },
+  "explanation": "ML probability: 0.930  (threshold: 0.6)\n\nUpper trendline: 0.025%/candle\nLower trendline slope : 0.035%/candle\nZone width            : 286 candles (11.4 trading days)\nApex proximity        : 50% through triangle\nBreakout lag          : 1 candles (15 min after zone end)\nVolume ratio          : 1.6x zone avg\nClose vs upper line   : +0.88%\nBody strength         : 71% of candle range\nClose position        : 94% of range (top = bullish)"
+}
+2026-04-04 08:15:11  INFO      traingle_breakout_training.scanner  BREAKOUT ALERT
+{
+  "ticker": "NETWEB",
+  "breakout_ts": "2026-01-30 09:15 IST",
+  "breakout_close": 3125.0,
+  "breakout_volume": 19496.0,
+  "triangle_type": "symmetrical",
+  "direction": "bullish",
+  "score": 0.93,
+  "mode": "ml",
+  "volume_ratio": 3.033,
+  "zone": {
+    "start_ts": "2026-01-12 09:30 IST",
+    "end_ts": "2026-01-29 15:15 IST",
+    "candle_count": 299,
+    "trading_days": 12.0
+  },
+  "upper_trendline": {
+    "start_ts": "2026-01-12 09:30 IST",
+    "start_price": 3418.7,
+    "end_ts": "2026-01-28 10:00 IST",
+    "end_price": 3207.0,
+    "at_breakout": 3101.56
+  },
+  "lower_trendline": {
+    "start_ts": "2026-01-12 11:30 IST",
+    "start_price": 3270.45,
+    "end_ts": "2026-01-29 15:15 IST",
+    "end_price": 3050.0,
+    "at_breakout": 2990.9
+  },
+  "zigzag": {
+    "deviation_pct": 2.0,
+    "n_swing_highs": 14,
+    "n_swing_lows": 14
+  },
+  "features": {
+    "upper_slope_pct": -0.03852654691698331,
+    "lower_slope_pct": -0.03560673825724679,
+    "slope_ratio": -1.0820015457928311,
+    "zone_width": 299.0,
+    "apex_proximity": 0.2485067833215788,
+    "triangle_height_pct": 1.8887210025769892,
+    "breakout_close_vs_upper": 0.007558644104804508,
+    "breakout_body_pct": 0.743261157748622,
+    "breakout_wick_ratio": 0.04242156429481004,
+    "close_position": 0.9575784356963521,
+    "breakout_lag": 1.0,
+    "volume_ratio": 3.0334763001528326,
+    "volume_trend": -0.00289088531148892,
+    "zone_avg_volume_cv": 2.6297842558221673,
+    "zone_close_trend": -0.03409806767670882
+  },
+  "explanation": "ML probability: 0.930  (threshold: 0.6)\n\nUpper trendline falling (-0.039%/candle) \u2014 symmetrical triangle\nLower trendline slope : -0.036%/candle\nZone width            : 299 candles (12.0 trading days)\nApex proximity        : 25% through triangle\nBreakout lag          : 1 candles (15 min after zone end)\nVolume ratio          : 3.0x zone avg\nClose vs upper line   : +0.76%\nBody strength         : 74% of candle range\nClose position        : 96% of range (top = bullish)"
+}
+2026-04-04 08:15:12  INFO      traingle_breakout_training.scanner  BREAKOUT ALERT
+{
+  "ticker": "NETWEB",
+  "breakout_ts": "2026-02-18 09:15 IST",
+  "breakout_close": 3172.55,
+  "breakout_volume": 55369.0,
+  "triangle_type": "symmetrical",
+  "direction": "bullish",
+  "score": 0.8904,
+  "mode": "ml",
+  "volume_ratio": 13.188,
+  "zone": {
+    "start_ts": "2026-02-02 09:30 IST",
+    "end_ts": "2026-02-17 15:15 IST",
+    "candle_count": 299,
+    "trading_days": 12.0
+  },
+  "upper_trendline": {
+    "start_ts": "2026-02-02 09:30 IST",
+    "start_price": 3482.0,
+    "end_ts": "2026-02-17 13:15 IST",
+    "end_price": 3109.7,
+    "at_breakout": 3099.54
+  },
+  "lower_trendline": {
+    "start_ts": "2026-02-02 11:15 IST",
+    "start_price": 3176.15,
+    "end_ts": "2026-02-17 10:45 IST",
+    "end_price": 3062.0,
+    "at_breakout": 3029.18
+  },
+  "zigzag": {
+    "deviation_pct": 1.5,
+    "n_swing_highs": 14,
+    "n_swing_lows": 13
+  },
+  "features": {
+    "upper_slope_pct": -0.022396256927366652,
+    "lower_slope_pct": -0.014396424807110854,
+    "slope_ratio": -1.5556817523627586,
+    "zone_width": 299.0,
+    "apex_proximity": 0.5529170359635889,
+    "triangle_height_pct": 2.747268628243618,
+    "breakout_close_vs_upper": 0.023554278989806922,
+    "breakout_body_pct": 0.5350500715231012,
+    "breakout_wick_ratio": 0.2861230329000569,
+    "close_position": 0.1788268955625356,
+    "breakout_lag": 1.0,
+    "volume_ratio": 13.18785244238928,
+    "volume_trend": -0.00180390915524407,
+    "zone_avg_volume_cv": 2.2873014281568556,
+    "zone_close_trend": -0.01240997604075997
+  },
+  "explanation": "ML probability: 0.890  (threshold: 0.6)\n\nUpper trendline falling (-0.022%/candle) \u2014 symmetrical triangle\nLower trendline slope : -0.014%/candle\nZone width            : 299 candles (12.0 trading days)\nApex proximity        : 55% through triangle\nBreakout lag          : 1 candles (15 min after zone end)\nVolume ratio          : 13.2x zone avg\nClose vs upper line   : +2.36%\nBody strength         : 54% of candle range\nClose position        : 18% of range (top = bullish)"
+}
+2026-04-04 08:15:12  INFO      traingle_breakout_training.scanner  BREAKOUT ALERT
+{
+  "ticker": "NETWEB",
+  "breakout_ts": "2026-02-23 09:15 IST",
+  "breakout_close": 3658.05,
+  "breakout_volume": 88459.0,
+  "triangle_type": "symmetrical",
+  "direction": "bullish",
+  "score": 0.9217,
+  "mode": "ml",
+  "volume_ratio": 9.606,
+  "zone": {
+    "start_ts": "2026-02-05 09:30 IST",
+    "end_ts": "2026-02-20 15:15 IST",
+    "candle_count": 299,
+    "trading_days": 12.0
+  },
+  "upper_trendline": {
+    "start_ts": "2026-02-05 09:30 IST",
+    "start_price": 3159.4,
+    "end_ts": "2026-02-20 13:45 IST",
+    "end_price": 3695.0,
+    "at_breakout": 3620.46
+  },
+  "lower_trendline": {
+    "start_ts": "2026-02-06 10:45 IST",
+    "start_price": 3051.0,
+    "end_ts": "2026-02-20 15:15 IST",
+    "end_price": 3599.35,
+    "at_breakout": 3490.72
+  },
+  "zigzag": {
+    "deviation_pct": 1.5,
+    "n_swing_highs": 17,
+    "n_swing_lows": 17
+  },
+  "features": {
+    "upper_slope_pct": 0.06425344135159124,
+    "lower_slope_pct": 0.06952051820836727,
+    "slope_ratio": 0.9242370753735379,
+    "zone_width": 299.0,
+    "apex_proximity": 0.24715077878053154,
+    "triangle_height_pct": 1.0935679049789768,
+    "breakout_close_vs_upper": 0.010383911691066465,
+    "breakout_body_pct": 0.09328817733932476,
+    "breakout_wick_ratio": 0.09729064039349067,
+    "close_position": 0.809421182261027,
+    "breakout_lag": 1.0,
+    "volume_ratio": 9.605753666542265,
+    "volume_trend": 0.008299852488505942,
+    "zone_avg_volume_cv": 2.0243951941752654,
+    "zone_close_trend": 0.04517979738587981
+  },
+  "explanation": "ML probability: 0.922  (threshold: 0.6)\n\nUpper trendline: 0.064%/candle\nLower trendline slope : 0.070%/candle\nZone width            : 299 candles (12.0 trading days)\nApex proximity        : 25% through triangle\nBreakout lag          : 1 candles (15 min after zone end)\nVolume ratio          : 9.6x zone avg\nClose vs upper line   : +1.04%\nBody strength         : 9% of candle range\nClose position        : 81% of range (top = bullish)"
+}
+2026-04-04 08:15:12  INFO      traingle_breakout_training.scanner  BREAKOUT ALERT
+{
+  "ticker": "NETWEB",
+  "breakout_ts": "2026-02-27 10:45 IST",
+  "breakout_close": 3978.65,
+  "breakout_volume": 155558.0,
+  "triangle_type": "symmetrical",
+  "direction": "bullish",
+  "score": 0.93,
+  "mode": "ml",
+  "volume_ratio": 13.572,
+  "zone": {
+    "start_ts": "2026-02-11 11:30 IST",
+    "end_ts": "2026-02-27 10:30 IST",
+    "candle_count": 297,
+    "trading_days": 11.9
+  },
+  "upper_trendline": {
+    "start_ts": "2026-02-11 11:30 IST",
+    "start_price": 3177.85,
+    "end_ts": "2026-02-27 10:30 IST",
+    "end_price": 3795.55,
+    "at_breakout": 3881.54
+  },
+  "lower_trendline": {
+    "start_ts": "2026-02-12 09:15 IST",
+    "start_price": 3014.1,
+    "end_ts": "2026-02-27 09:45 IST",
+    "end_price": 3688.1,
+    "at_breakout": 3768.33
+  },
+  "zigzag": {
+    "deviation_pct": 1.5,
+    "n_swing_highs": 22,
+    "n_swing_lows": 21
+  },
+  "features": {
+    "upper_slope_pct": 0.08158959036301482,
+    "lower_slope_pct": 0.08773983224119819,
+    "slope_ratio": 0.929903640672803,
+    "zone_width": 297.0,
+    "apex_proximity": 0.3305124853427808,
+    "triangle_height_pct": 0.2728792706393691,
+    "breakout_close_vs_upper": 0.023651431516008826,
+    "breakout_body_pct": 0.8653061224450561,
+    "breakout_wick_ratio": 0.05147392290226048,
+    "close_position": 0.9485260770932045,
+    "breakout_lag": 1.0,
+    "volume_ratio": 13.572154254802314,
+    "volume_trend": 0.0013679332907746702,
+    "zone_avg_volume_cv": 1.705188951263545,
+    "zone_close_trend": 0.07983614906194368
+  },
+  "explanation": "ML probability: 0.930  (threshold: 0.6)\n\nUpper trendline: 0.082%/candle\nLower trendline slope : 0.088%/candle\nZone width            : 297 candles (11.9 trading days)\nApex proximity        : 33% through triangle\nBreakout lag          : 1 candles (15 min after zone end)\nVolume ratio          : 13.6x zone avg\nClose vs upper line   : +2.37%\nBody strength         : 87% of candle range\nClose position        : 95% of range (top = bullish)"
+}
+2026-04-04 08:15:13  INFO      traingle_breakout_training.scanner  BREAKOUT ALERT
+{
+  "ticker": "NETWEB",
+  "breakout_ts": "2026-03-16 09:15 IST",
+  "breakout_close": 3145.25,
+  "breakout_volume": 12172.0,
+  "triangle_type": "symmetrical",
+  "direction": "bullish",
+  "score": 0.8818,
+  "mode": "ml",
+  "volume_ratio": 1.324,
+  "zone": {
+    "start_ts": "2026-02-25 10:00 IST",
+    "end_ts": "2026-03-13 15:15 IST",
+    "candle_count": 297,
+    "trading_days": 11.9
+  },
+  "upper_trendline": {
+    "start_ts": "2026-02-25 10:00 IST",
+    "start_price": 3728.0,
+    "end_ts": "2026-03-13 15:00 IST",
+    "end_price": 3192.75,
+    "at_breakout": 3107.46
+  },
+  "lower_trendline": {
+    "start_ts": "2026-02-25 13:15 IST",
+    "start_price": 3584.05,
+    "end_ts": "2026-03-13 13:15 IST",
+    "end_price": 3138.6,
+    "at_breakout": 2997.56
+  },
+  "zigzag": {
+    "deviation_pct": 1.5,
+    "n_swing_highs": 23,
+    "n_swing_lows": 22
+  },
+  "features": {
+    "upper_slope_pct": -0.06996195665692839,
+    "lower_slope_pct": -0.06753867485031863,
+    "slope_ratio": -1.0358798980895083,
+    "zone_width": 297.0,
+    "apex_proximity": 0.26645130346247153,
+    "triangle_height_pct": 1.7679377685900648,
+    "breakout_close_vs_upper": 0.013863370784352232,
+    "breakout_body_pct": 0.6403033585993461,
+    "breakout_wick_ratio": 0.1397616468008677,
+    "close_position": 0.2199349945781178,
+    "breakout_lag": 1.0,
+    "volume_ratio": 1.324379296347658,
+    "volume_trend": -0.004324310023256735,
+    "zone_avg_volume_cv": 1.6085835055298139,
+    "zone_close_trend": -0.06618912358529196
+  },
+  "explanation": "ML probability: 0.882  (threshold: 0.6)\n\nUpper trendline falling (-0.070%/candle) \u2014 symmetrical triangle\nLower trendline slope : -0.068%/candle\nZone width            : 297 candles (11.9 trading days)\nApex proximity        : 27% through triangle\nBreakout lag          : 1 candles (15 min after zone end)\nVolume ratio          : 1.3x zone avg\nClose vs upper line   : +1.39%\nBody strength         : 64% of candle range\nClose position        : 22% of range (top = bullish)"
+}
+2026-04-04 08:15:13  INFO      traingle_breakout_training.scanner  NETWEB: continuous scan complete — 8 alert(s)
+2026-04-04 08:15:39  INFO      traingle_breakout_training.trainer  Model loaded from models\triangle_breakout.pkl  (trained on 14 examples)
+2026-04-04 08:15:39  INFO      traingle_breakout_training.scanner  NETWEB: continuous scan  2025-12-02 → 2026-03-18  (1835 candles, 73.4 trading days)
+2026-04-04 08:15:40  INFO      traingle_breakout_training.scanner  BREAKOUT ALERT
+{
+  "ticker": "NETWEB",
+  "breakout_ts": "2025-12-15 09:45 IST",
+  "breakout_close": 3229.4,
+  "breakout_volume": 7269.0,
+  "triangle_type": "descending",
+  "direction": "bullish",
+  "score": 0.9154,
+  "mode": "ml",
+  "volume_ratio": 2.655,
+  "zone": {
+    "start_ts": "2025-12-02 09:15 IST",
+    "end_ts": "2025-12-15 09:30 IST",
+    "candle_count": 227,
+    "trading_days": 9.1
+  },
+  "upper_trendline": {
+    "start_ts": "2025-12-02 09:15 IST",
+    "start_price": 3227.95,
+    "end_ts": "2025-12-15 09:15 IST",
+    "end_price": 3219.9,
+    "at_breakout": 3178.2
+  },
+  "lower_trendline": {
+    "start_ts": "2025-12-02 10:30 IST",
+    "start_price": 3131.0,
+    "end_ts": "2025-12-11 09:15 IST",
+    "end_price": 3033.15,
+    "at_breakout": 2913.85
+  },
+  "zigzag": {
+    "deviation_pct": 2.5,
+    "n_swing_highs": 6,
+    "n_swing_lows": 5
+  },
+  "features": {
+    "upper_slope_pct": -0.0075960739200857655,
+    "lower_slope_pct": -0.027832414485880638,
+    "slope_ratio": -0.27292183547415233,
+    "zone_width": 227.0,
+    "apex_proximity": 1.0,
+    "triangle_height_pct": 2.1302841960424033,
+    "breakout_close_vs_upper": 0.016109916674567133,
+    "breakout_body_pct": 0.71707317071422,
+    "breakout_wick_ratio": 0.20975609755585742,
+    "close_position": 0.7902439024197524,
+    "breakout_lag": 1.0,
+    "volume_ratio": 2.655421520000832,
+    "volume_trend": -0.0018391443362910137,
+    "zone_avg_volume_cv": 1.2181407712953936,
+    "zone_close_trend": -0.006600549278525852
+  },
+  "explanation": "ML probability: 0.915  (threshold: 0.6)\n\nUpper trendline: -0.008%/candle\nLower trendline slope : -0.028%/candle\nZone width            : 227 candles (9.1 trading days)\nApex proximity        : 100% through triangle\nBreakout lag          : 1 candles (15 min after zone end)\nVolume ratio          : 2.7x zone avg\nClose vs upper line   : +1.61%\nBody strength         : 72% of candle range\nClose position        : 79% of range (top = bullish)"
+}
+2026-04-04 08:15:41  INFO      traingle_breakout_training.scanner  BREAKOUT ALERT
+{
+  "ticker": "NETWEB",
+  "breakout_ts": "2026-01-05 09:45 IST",
+  "breakout_close": 3144.0,
+  "breakout_volume": 8213.0,
+  "triangle_type": "symmetrical",
+  "direction": "bullish",
+  "score": 0.9268,
+  "mode": "ml",
+  "volume_ratio": 7.156,
+  "zone": {
+    "start_ts": "2025-12-17 11:30 IST",
+    "end_ts": "2026-01-05 09:30 IST",
+    "candle_count": 293,
+    "trading_days": 11.7
+  },
+  "upper_trendline": {
+    "start_ts": "2025-12-17 11:30 IST",
+    "start_price": 3245.4,
+    "end_ts": "2026-01-05 09:30 IST",
+    "end_price": 3127.15,
+    "at_breakout": 3126.22
+  },
+  "lower_trendline": {
+    "start_ts": "2025-12-18 15:15 IST",
+    "start_price": 3113.2,
+    "end_ts": "2026-01-02 10:15 IST",
+    "end_price": 3012.75,
+    "at_breakout": 3009.77
+  },
+  "zigzag": {
+    "deviation_pct": 2.5,
+    "n_swing_highs": 4,
+    "n_swing_lows": 3
+  },
+  "features": {
+    "upper_slope_pct": -0.018394779007252955,
+    "lower_slope_pct": -0.013267128297728074,
+    "slope_ratio": -1.386492781856205,
+    "zone_width": 293.0,
+    "apex_proximity": 0.30086595896152396,
+    "triangle_height_pct": 0.7870856225690513,
+    "breakout_close_vs_upper": 0.006839919521980986,
+    "breakout_body_pct": 0.6523668638860266,
+    "breakout_wick_ratio": 0.0,
+    "close_position": 0.9999999999704143,
+    "breakout_lag": 1.0,
+    "volume_ratio": 7.15620232610768,
+    "volume_trend": -0.0028758905114357482,
+    "zone_avg_volume_cv": 1.5408699077296704,
+    "zone_close_trend": -0.021059490778559224
+  },
+  "explanation": "ML probability: 0.927  (threshold: 0.6)\n\nUpper trendline falling (-0.018%/candle) \u2014 symmetrical triangle\nLower trendline slope : -0.013%/candle\nZone width            : 293 candles (11.7 trading days)\nApex proximity        : 30% through triangle\nBreakout lag          : 1 candles (15 min after zone end)\nVolume ratio          : 7.2x zone avg\nClose vs upper line   : +0.68%\nBody strength         : 65% of candle range\nClose position        : 100% of range (top = bullish)"
+}
+2026-04-04 08:15:41  INFO      traingle_breakout_training.scanner  BREAKOUT ALERT
+{
+  "ticker": "NETWEB",
+  "breakout_ts": "2026-01-08 11:30 IST",
+  "breakout_close": 3435.2,
+  "breakout_volume": 8080.0,
+  "triangle_type": "symmetrical",
+  "direction": "bullish",
+  "score": 0.93,
+  "mode": "ml",
+  "volume_ratio": 1.564,
+  "zone": {
+    "start_ts": "2025-12-22 15:00 IST",
+    "end_ts": "2026-01-08 11:15 IST",
+    "candle_count": 286,
+    "trading_days": 11.4
+  },
+  "upper_trendline": {
+    "start_ts": "2025-12-22 15:00 IST",
+    "start_price": 3289.0,
+    "end_ts": "2026-01-08 11:15 IST",
+    "end_price": 3410.0,
+    "at_breakout": 3394.72
+  },
+  "lower_trendline": {
+    "start_ts": "2025-12-26 09:15 IST",
+    "start_price": 3172.05,
+    "end_ts": "2026-01-08 10:30 IST",
+    "end_price": 3333.2,
+    "at_breakout": 3295.4
+  },
+  "zigzag": {
+    "deviation_pct": 1.5,
+    "n_swing_highs": 10,
+    "n_swing_lows": 9
+  },
+  "features": {
+    "upper_slope_pct": 0.024569618228249965,
+    "lower_slope_pct": 0.034710179501176636,
+    "slope_ratio": 0.7078504886316302,
+    "zone_width": 286.0,
+    "apex_proximity": 0.49598680129692724,
+    "triangle_height_pct": 0.4687975646878357,
+    "breakout_close_vs_upper": 0.00880250926589651,
+    "breakout_body_pct": 0.7077625570646985,
+    "breakout_wick_ratio": 0.05662100456518252,
+    "close_position": 0.9433789954165527,
+    "breakout_lag": 1.0,
+    "volume_ratio": 1.5641183051952625,
+    "volume_trend": 0.009792003038186866,
+    "zone_avg_volume_cv": 2.277536607447275,
+    "zone_close_trend": 0.01614640520156409
+  },
+  "explanation": "ML probability: 0.930  (threshold: 0.6)\n\nUpper trendline: 0.025%/candle\nLower trendline slope : 0.035%/candle\nZone width            : 286 candles (11.4 trading days)\nApex proximity        : 50% through triangle\nBreakout lag          : 1 candles (15 min after zone end)\nVolume ratio          : 1.6x zone avg\nClose vs upper line   : +0.88%\nBody strength         : 71% of candle range\nClose position        : 94% of range (top = bullish)"
+}
+2026-04-04 08:15:42  INFO      traingle_breakout_training.scanner  BREAKOUT ALERT
+{
+  "ticker": "NETWEB",
+  "breakout_ts": "2026-01-30 09:15 IST",
+  "breakout_close": 3125.0,
+  "breakout_volume": 19496.0,
+  "triangle_type": "symmetrical",
+  "direction": "bullish",
+  "score": 0.93,
+  "mode": "ml",
+  "volume_ratio": 3.033,
+  "zone": {
+    "start_ts": "2026-01-12 09:30 IST",
+    "end_ts": "2026-01-29 15:15 IST",
+    "candle_count": 299,
+    "trading_days": 12.0
+  },
+  "upper_trendline": {
+    "start_ts": "2026-01-12 09:30 IST",
+    "start_price": 3418.7,
+    "end_ts": "2026-01-28 10:00 IST",
+    "end_price": 3207.0,
+    "at_breakout": 3101.56
+  },
+  "lower_trendline": {
+    "start_ts": "2026-01-12 11:30 IST",
+    "start_price": 3270.45,
+    "end_ts": "2026-01-29 15:15 IST",
+    "end_price": 3050.0,
+    "at_breakout": 2990.9
+  },
+  "zigzag": {
+    "deviation_pct": 2.0,
+    "n_swing_highs": 14,
+    "n_swing_lows": 14
+  },
+  "features": {
+    "upper_slope_pct": -0.03852654691698331,
+    "lower_slope_pct": -0.03560673825724679,
+    "slope_ratio": -1.0820015457928311,
+    "zone_width": 299.0,
+    "apex_proximity": 0.2485067833215788,
+    "triangle_height_pct": 1.8887210025769892,
+    "breakout_close_vs_upper": 0.007558644104804508,
+    "breakout_body_pct": 0.743261157748622,
+    "breakout_wick_ratio": 0.04242156429481004,
+    "close_position": 0.9575784356963521,
+    "breakout_lag": 1.0,
+    "volume_ratio": 3.0334763001528326,
+    "volume_trend": -0.00289088531148892,
+    "zone_avg_volume_cv": 2.6297842558221673,
+    "zone_close_trend": -0.03409806767670882
+  },
+  "explanation": "ML probability: 0.930  (threshold: 0.6)\n\nUpper trendline falling (-0.039%/candle) \u2014 symmetrical triangle\nLower trendline slope : -0.036%/candle\nZone width            : 299 candles (12.0 trading days)\nApex proximity        : 25% through triangle\nBreakout lag          : 1 candles (15 min after zone end)\nVolume ratio          : 3.0x zone avg\nClose vs upper line   : +0.76%\nBody strength         : 74% of candle range\nClose position        : 96% of range (top = bullish)"
+}
+2026-04-04 08:15:43  INFO      traingle_breakout_training.scanner  BREAKOUT ALERT
+{
+  "ticker": "NETWEB",
+  "breakout_ts": "2026-02-18 09:15 IST",
+  "breakout_close": 3172.55,
+  "breakout_volume": 55369.0,
+  "triangle_type": "symmetrical",
+  "direction": "bullish",
+  "score": 0.8904,
+  "mode": "ml",
+  "volume_ratio": 13.188,
+  "zone": {
+    "start_ts": "2026-02-02 09:30 IST",
+    "end_ts": "2026-02-17 15:15 IST",
+    "candle_count": 299,
+    "trading_days": 12.0
+  },
+  "upper_trendline": {
+    "start_ts": "2026-02-02 09:30 IST",
+    "start_price": 3482.0,
+    "end_ts": "2026-02-17 13:15 IST",
+    "end_price": 3109.7,
+    "at_breakout": 3099.54
+  },
+  "lower_trendline": {
+    "start_ts": "2026-02-02 11:15 IST",
+    "start_price": 3176.15,
+    "end_ts": "2026-02-17 10:45 IST",
+    "end_price": 3062.0,
+    "at_breakout": 3029.18
+  },
+  "zigzag": {
+    "deviation_pct": 1.5,
+    "n_swing_highs": 14,
+    "n_swing_lows": 13
+  },
+  "features": {
+    "upper_slope_pct": -0.022396256927366652,
+    "lower_slope_pct": -0.014396424807110854,
+    "slope_ratio": -1.5556817523627586,
+    "zone_width": 299.0,
+    "apex_proximity": 0.5529170359635889,
+    "triangle_height_pct": 2.747268628243618,
+    "breakout_close_vs_upper": 0.023554278989806922,
+    "breakout_body_pct": 0.5350500715231012,
+    "breakout_wick_ratio": 0.2861230329000569,
+    "close_position": 0.1788268955625356,
+    "breakout_lag": 1.0,
+    "volume_ratio": 13.18785244238928,
+    "volume_trend": -0.00180390915524407,
+    "zone_avg_volume_cv": 2.2873014281568556,
+    "zone_close_trend": -0.01240997604075997
+  },
+  "explanation": "ML probability: 0.890  (threshold: 0.6)\n\nUpper trendline falling (-0.022%/candle) \u2014 symmetrical triangle\nLower trendline slope : -0.014%/candle\nZone width            : 299 candles (12.0 trading days)\nApex proximity        : 55% through triangle\nBreakout lag          : 1 candles (15 min after zone end)\nVolume ratio          : 13.2x zone avg\nClose vs upper line   : +2.36%\nBody strength         : 54% of candle range\nClose position        : 18% of range (top = bullish)"
+}
+2026-04-04 08:15:43  INFO      traingle_breakout_training.scanner  BREAKOUT ALERT
+{
+  "ticker": "NETWEB",
+  "breakout_ts": "2026-02-23 09:15 IST",
+  "breakout_close": 3658.05,
+  "breakout_volume": 88459.0,
+  "triangle_type": "symmetrical",
+  "direction": "bullish",
+  "score": 0.9217,
+  "mode": "ml",
+  "volume_ratio": 9.606,
+  "zone": {
+    "start_ts": "2026-02-05 09:30 IST",
+    "end_ts": "2026-02-20 15:15 IST",
+    "candle_count": 299,
+    "trading_days": 12.0
+  },
+  "upper_trendline": {
+    "start_ts": "2026-02-05 09:30 IST",
+    "start_price": 3159.4,
+    "end_ts": "2026-02-20 13:45 IST",
+    "end_price": 3695.0,
+    "at_breakout": 3620.46
+  },
+  "lower_trendline": {
+    "start_ts": "2026-02-06 10:45 IST",
+    "start_price": 3051.0,
+    "end_ts": "2026-02-20 15:15 IST",
+    "end_price": 3599.35,
+    "at_breakout": 3490.72
+  },
+  "zigzag": {
+    "deviation_pct": 1.5,
+    "n_swing_highs": 17,
+    "n_swing_lows": 17
+  },
+  "features": {
+    "upper_slope_pct": 0.06425344135159124,
+    "lower_slope_pct": 0.06952051820836727,
+    "slope_ratio": 0.9242370753735379,
+    "zone_width": 299.0,
+    "apex_proximity": 0.24715077878053154,
+    "triangle_height_pct": 1.0935679049789768,
+    "breakout_close_vs_upper": 0.010383911691066465,
+    "breakout_body_pct": 0.09328817733932476,
+    "breakout_wick_ratio": 0.09729064039349067,
+    "close_position": 0.809421182261027,
+    "breakout_lag": 1.0,
+    "volume_ratio": 9.605753666542265,
+    "volume_trend": 0.008299852488505942,
+    "zone_avg_volume_cv": 2.0243951941752654,
+    "zone_close_trend": 0.04517979738587981
+  },
+  "explanation": "ML probability: 0.922  (threshold: 0.6)\n\nUpper trendline: 0.064%/candle\nLower trendline slope : 0.070%/candle\nZone width            : 299 candles (12.0 trading days)\nApex proximity        : 25% through triangle\nBreakout lag          : 1 candles (15 min after zone end)\nVolume ratio          : 9.6x zone avg\nClose vs upper line   : +1.04%\nBody strength         : 9% of candle range\nClose position        : 81% of range (top = bullish)"
+}
+2026-04-04 08:15:44  INFO      traingle_breakout_training.scanner  BREAKOUT ALERT
+{
+  "ticker": "NETWEB",
+  "breakout_ts": "2026-02-27 10:45 IST",
+  "breakout_close": 3978.65,
+  "breakout_volume": 155558.0,
+  "triangle_type": "symmetrical",
+  "direction": "bullish",
+  "score": 0.93,
+  "mode": "ml",
+  "volume_ratio": 13.572,
+  "zone": {
+    "start_ts": "2026-02-11 11:30 IST",
+    "end_ts": "2026-02-27 10:30 IST",
+    "candle_count": 297,
+    "trading_days": 11.9
+  },
+  "upper_trendline": {
+    "start_ts": "2026-02-11 11:30 IST",
+    "start_price": 3177.85,
+    "end_ts": "2026-02-27 10:30 IST",
+    "end_price": 3795.55,
+    "at_breakout": 3881.54
+  },
+  "lower_trendline": {
+    "start_ts": "2026-02-12 09:15 IST",
+    "start_price": 3014.1,
+    "end_ts": "2026-02-27 09:45 IST",
+    "end_price": 3688.1,
+    "at_breakout": 3768.33
+  },
+  "zigzag": {
+    "deviation_pct": 1.5,
+    "n_swing_highs": 22,
+    "n_swing_lows": 21
+  },
+  "features": {
+    "upper_slope_pct": 0.08158959036301482,
+    "lower_slope_pct": 0.08773983224119819,
+    "slope_ratio": 0.929903640672803,
+    "zone_width": 297.0,
+    "apex_proximity": 0.3305124853427808,
+    "triangle_height_pct": 0.2728792706393691,
+    "breakout_close_vs_upper": 0.023651431516008826,
+    "breakout_body_pct": 0.8653061224450561,
+    "breakout_wick_ratio": 0.05147392290226048,
+    "close_position": 0.9485260770932045,
+    "breakout_lag": 1.0,
+    "volume_ratio": 13.572154254802314,
+    "volume_trend": 0.0013679332907746702,
+    "zone_avg_volume_cv": 1.705188951263545,
+    "zone_close_trend": 0.07983614906194368
+  },
+  "explanation": "ML probability: 0.930  (threshold: 0.6)\n\nUpper trendline: 0.082%/candle\nLower trendline slope : 0.088%/candle\nZone width            : 297 candles (11.9 trading days)\nApex proximity        : 33% through triangle\nBreakout lag          : 1 candles (15 min after zone end)\nVolume ratio          : 13.6x zone avg\nClose vs upper line   : +2.37%\nBody strength         : 87% of candle range\nClose position        : 95% of range (top = bullish)"
+}
+2026-04-04 08:15:44  INFO      traingle_breakout_training.scanner  BREAKOUT ALERT
+{
+  "ticker": "NETWEB",
+  "breakout_ts": "2026-03-16 09:15 IST",
+  "breakout_close": 3145.25,
+  "breakout_volume": 12172.0,
+  "triangle_type": "symmetrical",
+  "direction": "bullish",
+  "score": 0.8818,
+  "mode": "ml",
+  "volume_ratio": 1.324,
+  "zone": {
+    "start_ts": "2026-02-25 10:00 IST",
+    "end_ts": "2026-03-13 15:15 IST",
+    "candle_count": 297,
+    "trading_days": 11.9
+  },
+  "upper_trendline": {
+    "start_ts": "2026-02-25 10:00 IST",
+    "start_price": 3728.0,
+    "end_ts": "2026-03-13 15:00 IST",
+    "end_price": 3192.75,
+    "at_breakout": 3107.46
+  },
+  "lower_trendline": {
+    "start_ts": "2026-02-25 13:15 IST",
+    "start_price": 3584.05,
+    "end_ts": "2026-03-13 13:15 IST",
+    "end_price": 3138.6,
+    "at_breakout": 2997.56
+  },
+  "zigzag": {
+    "deviation_pct": 1.5,
+    "n_swing_highs": 23,
+    "n_swing_lows": 22
+  },
+  "features": {
+    "upper_slope_pct": -0.06996195665692839,
+    "lower_slope_pct": -0.06753867485031863,
+    "slope_ratio": -1.0358798980895083,
+    "zone_width": 297.0,
+    "apex_proximity": 0.26645130346247153,
+    "triangle_height_pct": 1.7679377685900648,
+    "breakout_close_vs_upper": 0.013863370784352232,
+    "breakout_body_pct": 0.6403033585993461,
+    "breakout_wick_ratio": 0.1397616468008677,
+    "close_position": 0.2199349945781178,
+    "breakout_lag": 1.0,
+    "volume_ratio": 1.324379296347658,
+    "volume_trend": -0.004324310023256735,
+    "zone_avg_volume_cv": 1.6085835055298139,
+    "zone_close_trend": -0.06618912358529196
+  },
+  "explanation": "ML probability: 0.882  (threshold: 0.6)\n\nUpper trendline falling (-0.070%/candle) \u2014 symmetrical triangle\nLower trendline slope : -0.068%/candle\nZone width            : 297 candles (11.9 trading days)\nApex proximity        : 27% through triangle\nBreakout lag          : 1 candles (15 min after zone end)\nVolume ratio          : 1.3x zone avg\nClose vs upper line   : +1.39%\nBody strength         : 64% of candle range\nClose position        : 22% of range (top = bullish)"
+}
+2026-04-04 08:15:44  INFO      traingle_breakout_training.scanner  NETWEB: continuous scan complete — 8 alert(s)

@@ -22,10 +22,10 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 
-import logging_setup   # noqa — must be first, sets up handlers
+from traingle_breakout_training import logging_setup  # noqa — must be first, sets up handlers
 
-from config import MODEL_PATH, FEATURE_IMPORTANCE_PATH, SCAN_TICKERS, SCANNER_CRON
-from trainer import train, load_model
+from traingle_breakout_training.config import MODEL_PATH, FEATURE_IMPORTANCE_PATH, SCAN_TICKERS, SCANNER_CRON
+from traingle_breakout_training.trainer import train, load_model
 
 logger = logging.getLogger(__name__)
 
@@ -42,7 +42,7 @@ def run_scheduler(tickers: list[str]):
     Blocking hourly scheduler.
     Waits until HH:MM (SCANNER_CRON minute) and fires scan_all().
     """
-    from scanner import scan_all
+    from traingle_breakout_training.scanner import scan_all
 
     target_minute = _parse_cron_minute(SCANNER_CRON)
     logger.info("Scheduler started — will scan at HH:%02d each hour", target_minute)
@@ -142,7 +142,7 @@ def main():
 
     # ── Scan once ──────────────────────────────────────────────────────────
     if args.scan:
-        from scanner import scan_all, scan_ticker
+        from traingle_breakout_training.scanner import scan_all, scan_ticker
         model_bundle = load_model()
 
         if args.ticker:
@@ -158,7 +158,7 @@ def main():
             logger.error("--backtest requires both --from-date and --to-date")
             sys.exit(1)
 
-        from scanner import scan_all_continuous, scan_ticker_continuous
+        from traingle_breakout_training.scanner import scan_all_continuous, scan_ticker_continuous
         model_bundle = load_model()
 
         if args.ticker:
