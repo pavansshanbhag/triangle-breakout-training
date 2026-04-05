@@ -140,9 +140,48 @@ class BreakoutAlert:
         logger.info("BREAKOUT ALERT\n%s", json.dumps(self.to_dict(), indent=2))
 
 
+# ── Backtest configuration ────────────────────────────────────────────────────
+
+@dataclass
+class BacktestConfig:
+    """
+    Tunable parameters for a backtest run. All fields have defaults that match
+    the global config values so existing callers are unaffected.
+
+    Example::
+
+        from traangle_breakout_training.scanner import backtest, BacktestConfig
+
+        cfg = BacktestConfig(min_volume_ratio=0.8, max_window_days=20)
+        alerts = backtest("2024-06-01", "2024-09-30", ticker="ROTO", config=cfg)
+    """
+    # ── Zone detection ────────────────────────────────────────────────────────
+    min_zone_candles:   int   = MIN_ZONE_CANDLES       # 75  — shortest valid triangle
+    max_window_days:    int   = 12                     # 12  — sliding window cap (trading days)
+    min_swing_points:   int   = MIN_SWING_POINTS       # 3   — per trendline
+    zigzag_deviations:  list  = None                   # [1.5%, 2%, 2.5%] if None
+
+    # ── Breakout confirmation ─────────────────────────────────────────────────
+    min_volume_ratio:   float = MIN_VOLUME_RATIO       # 1.2 — breakout vol / zone avg vol
+    ml_threshold:       float = ML_ALERT_THRESHOLD     # 0.60
+    rule_threshold:     float = RULE_ALERT_THRESHOLD   # 0.55
+
+    # ── Triangle geometry ─────────────────────────────────────────────────────
+    flat_pct:           float = 0.02   # slope < this % of price over zone = "flat"
+    trend_pct:          float = 0.01   # slope > this % of price over zone = "trending"
+
+    def __post_init__(self):
+        if self.zigzag_deviations is None:
+            self.zigzag_deviations = list(ZIGZAG_DEVIATIONS)
+
+    @property
+    def max_window_candles(self) -> int:
+        return self.max_window_days * CANDLES_PER_DAY
+
+
 # ── Triangle detector (O(n) ZigZag-based) ─────────────────────────────────────
 
-def detect_triangle_zone(candles: pd.DataFrame) -> Optional[dict]:
+def detect_triangle_zone(candles: pd.DataFrame, cfg: BacktestConfig = None) -> Optional[dict]:
     """
     Detect a triangle zone in the candle window.
 
@@ -167,13 +206,15 @@ def detect_triangle_zone(candles: pd.DataFrame) -> Optional[dict]:
     zone_window = candles.iloc[:-1]
     n_window    = len(zone_window)
 
-    if n_window < MIN_ZONE_CANDLES:
+    cfg = cfg or BacktestConfig()
+
+    if n_window < cfg.min_zone_candles:
         return None
 
     avg_price = float(zone_window["close"].mean())
 
     dev, u_idx, u_prices, l_idx, l_prices, score = _best_zigzag(
-        zone_window, ZIGZAG_DEVIATIONS
+        zone_window, cfg.zigzag_deviations
     )
 
     if dev is None:
@@ -193,8 +234,8 @@ def detect_triangle_zone(candles: pd.DataFrame) -> Optional[dict]:
     #
     # Thresholds are expressed relative to avg_price / zone_len so they scale
     # correctly across different price levels and zone durations.
-    flat_thresh  = avg_price * 0.02 / n_window   # 2% total price drift = "flat"
-    trend_thresh = avg_price * 0.01 / n_window   # 1% total drift = "clearly trending"
+    flat_thresh  = avg_price * cfg.flat_pct  / n_window
+    trend_thresh = avg_price * cfg.trend_pct / n_window
 
     # For descending/ascending, also require a minimum *differential* between the
     # two slopes so that two parallel falling/rising lines don't qualify.
@@ -237,10 +278,10 @@ def detect_triangle_zone(candles: pd.DataFrame) -> Optional[dict]:
 
     # Zone must be at least MIN_ZONE_CANDLES long
     zone_len = n_window - zone_start_idx
-    if zone_len < MIN_ZONE_CANDLES:
+    if zone_len < cfg.min_zone_candles:
         logger.debug(
             "Zone too short: %d candles from idx %d (need %d)",
-            zone_len, zone_start_idx, MIN_ZONE_CANDLES,
+            zone_len, zone_start_idx, cfg.min_zone_candles,
         )
         return None
 
@@ -251,7 +292,7 @@ def detect_triangle_zone(candles: pd.DataFrame) -> Optional[dict]:
     # Keep only swing points within the zone (some may precede zone_start)
     u_mask = u_idx_rel >= 0
     l_mask = l_idx_rel >= 0
-    if u_mask.sum() < MIN_SWING_POINTS or l_mask.sum() < MIN_SWING_POINTS:
+    if u_mask.sum() < cfg.min_swing_points or l_mask.sum() < cfg.min_swing_points:
         logger.debug("Not enough swing points within zone after trimming")
         return None
 
@@ -290,6 +331,7 @@ def evaluate_breakout(
     candles: pd.DataFrame,
     zone_info: dict,
     model_bundle: Optional[dict],
+    cfg: BacktestConfig = None,
 ) -> Optional[BreakoutAlert]:
     """
     Given detected zone metadata and the latest (breakout candidate) candle,
@@ -299,12 +341,17 @@ def evaluate_breakout(
     zone_end    = zone_info["zone_end_idx"]
     tl          = zone_info["tl"]
 
+    cfg = cfg or BacktestConfig()
+
     zone_candles    = candles.iloc[zone_start:zone_end + 1].copy()
     breakout_candle = candles.iloc[-1]   # always the very last candle
 
-    # Project trendlines one candle beyond zone end (breakout position)
+    # Project trendlines to the breakout candle's position.
+    # The trendline x-coordinates are 0-based from the window start (absolute
+    # positions within zone_window). zone_end_idx is the last zone candle, so
+    # the breakout candle (one step beyond) sits at zone_end_idx + 1.
     n         = zone_info["zone_len"]
-    bo_x      = float(n + 1)
+    bo_x      = float(zone_end + 1)   # = n_window: absolute position of breakout
     upper_at_bo = tl["upper_intercept"] + tl["upper_slope"] * bo_x
     lower_at_bo = tl["lower_intercept"] + tl["lower_slope"] * bo_x
 
@@ -326,9 +373,9 @@ def evaluate_breakout(
         return None
 
     # ── Volume confirmation ───────────────────────────────────────────────────
-    if volume_ratio < MIN_VOLUME_RATIO:
+    if volume_ratio < cfg.min_volume_ratio:
         logger.debug(
-            "Volume not confirmed: ratio=%.2f < %.2f", volume_ratio, MIN_VOLUME_RATIO
+            "Volume not confirmed: ratio=%.2f < %.2f", volume_ratio, cfg.min_volume_ratio
         )
         return None
 
@@ -352,15 +399,16 @@ def evaluate_breakout(
         X = features_to_array(features).reshape(1, -1)
         X_scaled = scaler.transform(X)
         prob  = float(clf.predict_proba(X_scaled)[0][1])
-        fired = prob >= ML_ALERT_THRESHOLD
+        fired = prob >= cfg.ml_threshold
         score = prob
         mode  = "ml"
         explanation = (
-            f"ML probability: {prob:.3f}  (threshold: {ML_ALERT_THRESHOLD})\n\n"
+            f"ML probability: {prob:.3f}  (threshold: {cfg.ml_threshold})\n\n"
             + explain_features(features)
         )
     else:
-        fired, score, breakdown = rule_is_alert(features)
+        _, score, breakdown = rule_is_alert(features)
+        fired = score >= cfg.rule_threshold
         mode  = "rule_based"
         explanation = rule_explain(features, breakdown, score)
 
@@ -447,16 +495,13 @@ def scan_ticker(
 
 # ── Continuous (historical) window scan ───────────────────────────────────────
 
-# Max triangle zone = 12 trading days. Once the window exceeds this, the left
-# edge slides right to keep the window at this size.
-_MAX_WINDOW_CANDLES = CANDLES_PER_DAY * 12   # 300 candles
-
 
 def scan_ticker_continuous(
     ticker: str,
     model_bundle: Optional[dict],
     from_ts: datetime,
     to_ts: datetime,
+    cfg: BacktestConfig = None,
 ) -> list[BreakoutAlert]:
     """
     Slide a growing/sliding window from from_ts to to_ts, detecting all breakouts.
@@ -470,11 +515,13 @@ def scan_ticker_continuous(
       - After a breakout fires at position i, skip forward MIN_ZONE_CANDLES
         candles to avoid re-detecting the same event.
     """
+    cfg = cfg or BacktestConfig()
+
     all_candles = fetch_candles(ticker, interval=INTERVAL, from_ts=from_ts, to_ts=to_ts)
     n = len(all_candles)
 
-    if n < MIN_ZONE_CANDLES + 1:
-        logger.debug("%s: only %d candles in window — need %d", ticker, n, MIN_ZONE_CANDLES + 1)
+    if n < cfg.min_zone_candles + 1:
+        logger.debug("%s: only %d candles in window — need %d", ticker, n, cfg.min_zone_candles + 1)
         return []
 
     logger.info(
@@ -486,20 +533,20 @@ def scan_ticker_continuous(
     )
 
     alerts: list[BreakoutAlert] = []
-    left = 0          # inclusive left edge of the window
-    i    = MIN_ZONE_CANDLES   # right edge (breakout candidate index)
+    left = 0
+    i    = cfg.min_zone_candles   # right edge (breakout candidate index)
 
     while i < n:
         # Slide left edge if window exceeds max size
-        if (i - left + 1) > _MAX_WINDOW_CANDLES:
-            left = i - _MAX_WINDOW_CANDLES + 1
+        if (i - left + 1) > cfg.max_window_candles:
+            left = i - cfg.max_window_candles + 1
 
         window = all_candles.iloc[left : i + 1].reset_index(drop=True)
 
-        zone_info = detect_triangle_zone(window)
+        zone_info = detect_triangle_zone(window, cfg)
 
         if zone_info is not None:
-            alert = evaluate_breakout(window, zone_info, model_bundle)
+            alert = evaluate_breakout(window, zone_info, model_bundle, cfg)
             if alert:
                 alert.log_summary()
                 alerts.append(alert)
@@ -518,15 +565,18 @@ def scan_all_continuous(
     from_ts: datetime,
     to_ts: datetime,
     tickers: list[str] = None,
+    cfg: BacktestConfig = None,
 ) -> list[BreakoutAlert]:
     """Run continuous window scan across all configured tickers."""
+    cfg = cfg or BacktestConfig()
     if tickers is None:
         tickers = SCAN_TICKERS
 
     logger.info("═" * 60)
     logger.info("  Continuous scan : %s → %s", from_ts.strftime("%Y-%m-%d"), to_ts.strftime("%Y-%m-%d"))
-    logger.info("  Max window      : %d candles (%d trading days)", _MAX_WINDOW_CANDLES, _MAX_WINDOW_CANDLES // CANDLES_PER_DAY)
-
+    logger.info("  Max window      : %d candles (%d trading days)", cfg.max_window_candles, cfg.max_window_days)
+    logger.info("  Min volume ratio: %.2f", cfg.min_volume_ratio)
+    logger.info("  ML threshold    : %.2f", cfg.ml_threshold)
     logger.info("  Tickers         : %s", ", ".join(tickers))
     logger.info("═" * 60)
 
@@ -539,7 +589,7 @@ def scan_all_continuous(
     all_alerts: list[BreakoutAlert] = []
     for ticker in tickers:
         try:
-            alerts = scan_ticker_continuous(ticker, model_bundle, from_ts, to_ts)
+            alerts = scan_ticker_continuous(ticker, model_bundle, from_ts, to_ts, cfg)
             all_alerts.extend(alerts)
         except Exception as e:
             logger.error("Error scanning %s: %s", ticker, e, exc_info=True)
@@ -598,13 +648,40 @@ def scan_all(
 
 # ── Public library API ───────────────────────────────────────────────────────
 
-def _parse_date(d) -> Optional[datetime]:
-    """Accept a datetime (returned as-is) or a 'YYYY-MM-DD' string (parsed as UTC)."""
+_IST = timezone(timedelta(hours=5, minutes=30))
+
+def _parse_date(d, end_of_day: bool = False) -> Optional[datetime]:
+    """
+    Accept a datetime (returned as-is) or a string in one of these formats:
+      'YYYY-MM-DD'           — date only, interpreted as IST
+      'YYYY-MM-DD HH:MM'     — date + time, interpreted as IST
+      'YYYY-MM-DD HH:MM:SS'  — date + time + seconds, interpreted as IST
+
+    All string inputs are treated as IST (UTC+5:30) since candle data is
+    stored in QuestDB as UTC converted from IST Kite timestamps.
+
+    When end_of_day=True and a date-only string is given (no time component),
+    the time is set to 23:59:59 so the full day's candles are included.
+    When a time is explicitly provided it is always honoured as-is.
+    """
     if d is None:
         return None
     if isinstance(d, datetime):
-        return d if d.tzinfo else d.replace(tzinfo=timezone.utc)
-    return datetime.strptime(d, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+        return d if d.tzinfo else d.replace(tzinfo=_IST)
+    for fmt in ("%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M"):
+        try:
+            return datetime.strptime(d, fmt).replace(tzinfo=_IST)
+        except ValueError:
+            continue
+    # Date-only string — apply end_of_day if requested
+    try:
+        dt = datetime.strptime(d, "%Y-%m-%d")
+        if end_of_day:
+            dt = dt.replace(hour=23, minute=59, second=59)
+        return dt.replace(tzinfo=_IST)
+    except ValueError:
+        pass
+    raise ValueError(f"Unrecognised date format: {d!r}  (expected YYYY-MM-DD or YYYY-MM-DD HH:MM)")
 
 
 def scan(
@@ -635,7 +712,7 @@ def scan(
                                to_date="2024-09-30")       # historical snapshot
     """
     from_ts = _parse_date(from_date)
-    to_ts   = _parse_date(to_date)
+    to_ts   = _parse_date(to_date, end_of_day=True)
     tickers = [ticker.upper()] if ticker else None
     return scan_all(tickers, from_ts=from_ts, to_ts=to_ts)
 
@@ -644,6 +721,7 @@ def backtest(
     from_date,
     to_date,
     ticker: str = None,
+    config: BacktestConfig = None,
 ) -> list[BreakoutAlert]:
     """
     Sliding-window backtest — detect all breakouts between two dates.
@@ -664,9 +742,10 @@ def backtest(
         alerts = backtest("2024-06-01", "2024-09-30", ticker="ROTO")
     """
     from_ts = _parse_date(from_date)
-    to_ts   = _parse_date(to_date)
+    to_ts   = _parse_date(to_date, end_of_day=True)
     tickers = [ticker.upper()] if ticker else None
-    return scan_all_continuous(from_ts, to_ts, tickers)
+    logger.info("Received backtest request for ticker[%s] , fromdate[%s] , todate[%s] ", tickers, from_ts, to_ts)
+    return scan_all_continuous(from_ts, to_ts, tickers, config)
 
 
 # ── CLI ───────────────────────────────────────────────────────────────────────

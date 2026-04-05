@@ -117,8 +117,8 @@ def main():
     parser.add_argument("--schedule",   action="store_true", help="Start hourly scheduler (blocking)")
     parser.add_argument("--status",     action="store_true", help="Print model status")
     parser.add_argument("--ticker",     type=str,            help="Limit scan/backtest to one ticker")
-    parser.add_argument("--from-date",  type=str,            help="Start date (YYYY-MM-DD) for --scan or --backtest")
-    parser.add_argument("--to-date",    type=str,            help="End date   (YYYY-MM-DD) for --scan or --backtest")
+    parser.add_argument("--from-date",  type=str,            help="Start date/time for --scan or --backtest (YYYY-MM-DD or 'YYYY-MM-DD HH:MM')")
+    parser.add_argument("--to-date",    type=str,            help="End date/time   for --scan or --backtest (YYYY-MM-DD or 'YYYY-MM-DD HH:MM')")
 
     args = parser.parse_args()
 
@@ -128,8 +128,9 @@ def main():
 
     tickers = [args.ticker.upper()] if args.ticker else SCAN_TICKERS
 
-    from_ts = datetime.strptime(args.from_date, "%Y-%m-%d").replace(tzinfo=timezone.utc) if args.from_date else None
-    to_ts   = datetime.strptime(args.to_date,   "%Y-%m-%d").replace(tzinfo=timezone.utc) if args.to_date   else None
+    from traingle_breakout_training.scanner import _parse_date
+    from_ts = _parse_date(args.from_date)
+    to_ts   = _parse_date(args.to_date)
 
     # ── Train ──────────────────────────────────────────────────────────────
     if args.train:

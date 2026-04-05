@@ -73,11 +73,11 @@ def fetch_candles(
     ]
 
     if from_ts:
-        from_str = from_ts.strftime("%Y-%m-%dT%H:%M:%S.000000Z")
+        from_str = from_ts.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.000000Z")
         where_clauses.append(f"ts >= '{from_str}'")
 
     if to_ts:
-        to_str = to_ts.strftime("%Y-%m-%dT%H:%M:%S.000000Z")
+        to_str = to_ts.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.000000Z")
         where_clauses.append(f"ts <= '{to_str}'")
 
     where = " AND ".join(where_clauses)

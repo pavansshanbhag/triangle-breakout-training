@@ -454,7 +454,9 @@ def extract_features(
     # consistent with the direction check in evaluate_breakout). Fall back to
     # re-projecting here only during training / standalone calls.
     if upper_at_bo is None:
-        bo_x = float(n + breakout_lag)
+        # n = len(zone_candles); trendline x=0 is first zone candle, so the
+        # candle immediately after the zone is at x=n (not n+lag which skips ahead).
+        bo_x = float(n)
         upper_at_bo = tl["upper_intercept"] + tl["upper_slope"] * bo_x
     breakout_close_vs_upper = (bo_close - upper_at_bo) / (upper_at_bo + EPS)
 
