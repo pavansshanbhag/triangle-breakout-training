@@ -146,10 +146,11 @@ def detect_triangle_zone(candles: pd.DataFrame) -> Optional[dict]:
     """
     Detect a triangle zone in the candle window.
 
-    Accepts all three triangle types:
-      Descending  : upper flat,    lower falling
-      Ascending   : upper rising,  lower flat
-      Symmetrical : upper falling, lower rising
+    Accepts four triangle/wedge types:
+      Descending    : upper flat,    lower falling
+      Ascending     : upper rising,  lower flat
+      Symmetrical   : upper falling, lower rising
+      Falling wedge : upper falling, lower also falling but less steeply (converging)
 
     The one geometry property all three share: the two trendlines converge,
     i.e. upper_slope < lower_slope (upper line rising less / falling more
@@ -198,15 +199,20 @@ def detect_triangle_zone(candles: pd.DataFrame) -> Optional[dict]:
     # For descending/ascending, also require a minimum *differential* between the
     # two slopes so that two parallel falling/rising lines don't qualify.
     # The non-flat line must be moving at least 1% more than the flat line.
-    is_sym  = (lower_s - upper_s) > trend_thresh                           # symmetrical
-    is_desc = (abs(upper_s) <= flat_thresh                                  # upper flat
-               and lower_s < -trend_thresh                                  # lower clearly falling
-               and (lower_s - upper_s) < -trend_thresh)                    # lower more negative than upper
-    is_asc  = (abs(lower_s) <= flat_thresh                                  # lower flat
-               and upper_s > trend_thresh                                   # upper clearly rising
-               and (upper_s - lower_s) > trend_thresh)                     # upper more positive than lower
+    is_sym  = (upper_s < -trend_thresh                                        # upper clearly falling
+               and lower_s > trend_thresh                                     # lower clearly rising
+               and (lower_s - upper_s) > trend_thresh)                       # converging
+    is_desc = (abs(upper_s) <= flat_thresh                                    # upper flat
+               and lower_s < -trend_thresh                                    # lower clearly falling
+               and (lower_s - upper_s) < -trend_thresh)                      # lower more negative than upper
+    is_asc  = (abs(lower_s) <= flat_thresh                                    # lower flat
+               and upper_s > trend_thresh                                     # upper clearly rising
+               and (upper_s - lower_s) > trend_thresh)                       # upper more positive than lower
+    is_wedge = (upper_s < -trend_thresh                                       # upper clearly falling
+                and lower_s < -trend_thresh                                   # lower also falling
+                and (lower_s - upper_s) > trend_thresh)                      # but lower falls less → converging
 
-    if not (is_sym or is_desc or is_asc):
+    if not (is_sym or is_desc or is_asc or is_wedge):
         logger.debug(
             "Not a triangle: upper_slope=%.5f  lower_slope=%.5f  "
             "flat_thresh=%.5f  trend_thresh=%.5f  "
@@ -216,7 +222,10 @@ def detect_triangle_zone(candles: pd.DataFrame) -> Optional[dict]:
         )
         return None
 
-    triangle_type = "symmetrical" if is_sym else ("descending" if is_desc else "ascending")
+    triangle_type = ("symmetrical" if is_sym
+                     else "descending" if is_desc
+                     else "ascending" if is_asc
+                     else "falling_wedge")
 
     # For all types the apex position is informational only.
     # The slope conditions above are the authoritative type gate.
@@ -329,6 +338,7 @@ def evaluate_breakout(
         zone_candles=zone_candles,
         breakout_candle=breakout_candle,
         zone_to_ts=zone_to_ts,
+        upper_at_bo=upper_at_bo,
     )
 
     if features is None:
@@ -355,7 +365,12 @@ def evaluate_breakout(
         explanation = rule_explain(features, breakdown, score)
 
     if not fired:
-        logger.debug("Score %.3f below threshold — no alert", score)
+        logger.debug(
+            "Score %.3f below threshold — no alert\n"
+            "  Features:\n%s",
+            score,
+            "\n".join(f"    {k:<30s} {v:+.4f}" for k, v in features.items()),
+        )
         return None
 
     # ── Build alert ───────────────────────────────────────────────────────────

@@ -226,15 +226,20 @@ def _best_zigzag(
         flat_thresh  = avg_price * 0.02 / n_zone
         trend_thresh = avg_price * 0.01 / n_zone
 
-        is_sym  = (l_slope - u_slope) > trend_thresh
-        is_desc = (abs(u_slope) <= flat_thresh
-                   and l_slope < -trend_thresh
-                   and (l_slope - u_slope) < -trend_thresh)
-        is_asc  = (abs(l_slope) <= flat_thresh
-                   and u_slope > trend_thresh
-                   and (u_slope - l_slope) > trend_thresh)
+        is_sym   = (u_slope < -trend_thresh
+                    and l_slope > trend_thresh
+                    and (l_slope - u_slope) > trend_thresh)
+        is_desc  = (abs(u_slope) <= flat_thresh
+                    and l_slope < -trend_thresh
+                    and (l_slope - u_slope) < -trend_thresh)
+        is_asc   = (abs(l_slope) <= flat_thresh
+                    and u_slope > trend_thresh
+                    and (u_slope - l_slope) > trend_thresh)
+        is_wedge = (u_slope < -trend_thresh
+                    and l_slope < -trend_thresh
+                    and (l_slope - u_slope) > trend_thresh)
 
-        if is_sym or is_desc or is_asc:
+        if is_sym or is_desc or is_asc or is_wedge:
             # Clean triangle — full score
             convergence_score = 1.0
         else:
@@ -368,6 +373,7 @@ def extract_features(
     zone_candles: pd.DataFrame,
     breakout_candle: pd.Series,
     zone_to_ts=None,
+    upper_at_bo: float = None,
 ) -> Optional[dict]:
     """
     Extract the 15-feature vector for one (zone, breakout) pair.
@@ -375,6 +381,12 @@ def extract_features(
     zone_candles   : 15-min OHLCV DataFrame for the triangle zone
     breakout_candle: the candle that broke out (single row Series)
     zone_to_ts     : timestamp of the last candle in the zone (for lag calc)
+    upper_at_bo    : projected upper trendline value at the breakout candle,
+                     pre-computed by evaluate_breakout. When provided, this is
+                     used directly for breakout_close_vs_upper so that the
+                     feature is consistent with the direction check that already
+                     confirmed the breakout. When None, it is re-projected here
+                     (used during training where no direction check exists).
 
     Returns None if zone is too short or data is degenerate.
     """
@@ -438,9 +450,12 @@ def extract_features(
         breakout_lag = 1
 
     # ── 7. breakout_close_vs_upper ───────────────────────────────────────────
-    # Project upper trendline forward to the breakout candle's candle-index
-    bo_x = float(n + breakout_lag)
-    upper_at_bo = tl["upper_intercept"] + tl["upper_slope"] * bo_x
+    # Use the caller-supplied projection when available (keeps this feature
+    # consistent with the direction check in evaluate_breakout). Fall back to
+    # re-projecting here only during training / standalone calls.
+    if upper_at_bo is None:
+        bo_x = float(n + breakout_lag)
+        upper_at_bo = tl["upper_intercept"] + tl["upper_slope"] * bo_x
     breakout_close_vs_upper = (bo_close - upper_at_bo) / (upper_at_bo + EPS)
 
     # ── 8. breakout_body_pct ─────────────────────────────────────────────────
