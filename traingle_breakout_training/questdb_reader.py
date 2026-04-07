@@ -6,9 +6,11 @@ We use requests (no PG wire dependency) so it works with any QuestDB version.
 """
 
 import logging
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from typing import Optional
 from urllib.parse import urlencode
+
+IST = timezone(timedelta(hours=5, minutes=30))
 
 import pandas as pd
 import requests
@@ -44,10 +46,10 @@ def _query(sql: str) -> pd.DataFrame:
 
     df = pd.DataFrame(rows, columns=columns)
 
-    # Parse timestamp columns
+    # Parse timestamp columns and convert to IST (UTC+05:30)
     for col in df.columns:
         if col in ("ts", "from_ts", "to_ts", "created_at"):
-            df[col] = pd.to_datetime(df[col], utc=True)
+            df[col] = pd.to_datetime(df[col], utc=True).dt.tz_convert(IST)
 
     return df
 
