@@ -88,6 +88,8 @@ class BreakoutAlert:
     zigzag_deviation:    float
     n_swing_highs:       int
     n_swing_lows:        int
+    upper_swing_points:  list = field(repr=False)   # [{ts, price}, …] all swing highs
+    lower_swing_points:  list = field(repr=False)   # [{ts, price}, …] all swing lows
     features:            dict = field(repr=False)
     explanation:         str  = field(repr=False)
 
@@ -451,6 +453,14 @@ def evaluate_breakout(
         zigzag_deviation    = zone_info["deviation"],
         n_swing_highs       = zone_info["n_swing_highs"],
         n_swing_lows        = zone_info["n_swing_lows"],
+        upper_swing_points  = [
+            {"ts": candles.iloc[int(i)]["ts"].to_pydatetime().isoformat(), "price": round(float(p), 2)}
+            for i, p in zip(zone_info["u_idx"], zone_info["u_prices"])
+        ],
+        lower_swing_points  = [
+            {"ts": candles.iloc[int(i)]["ts"].to_pydatetime().isoformat(), "price": round(float(p), 2)}
+            for i, p in zip(zone_info["l_idx"], zone_info["l_prices"])
+        ],
         features            = features,
         explanation         = explanation,
     )
