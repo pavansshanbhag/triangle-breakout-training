@@ -280,6 +280,42 @@ def _linreg(x: np.ndarray, y: np.ndarray) -> tuple[float, float]:
     return float(slope), float(intercept)
 
 
+def _trim_breakout_swings(
+    idx: np.ndarray,
+    prices: np.ndarray,
+    min_points: int = MIN_SWING_POINTS,
+) -> tuple[np.ndarray, np.ndarray]:
+    """
+    Remove trailing swing points that have broken out of the trendline.
+
+    Breakout-phase candles (the rally/crash after the triangle resolves) show
+    up as the last few swing points with a large residual from the regression
+    line — the price has already left the channel.  Including them skews the
+    slope and intercept so the drawn trendline no longer represents the
+    triangle boundary.
+
+    Algorithm: fit → compute residuals → if the last point's |residual| exceeds
+    2 × residual std-dev, drop it and repeat.  Stops when the last point is
+    within 2σ or min_points is reached.
+    """
+    while len(prices) > min_points:
+        slope, intercept, *_ = linregress(idx.astype(float), prices)
+        predicted  = intercept + slope * idx.astype(float)
+        residuals  = prices - predicted
+        res_std    = float(np.std(residuals))
+
+        if res_std < EPS:
+            break
+
+        if abs(float(residuals[-1])) > 2.0 * res_std:
+            idx    = idx[:-1]
+            prices = prices[:-1]
+        else:
+            break
+
+    return idx, prices
+
+
 def fit_trendlines_from_swings(
     upper_idx: np.ndarray,
     upper_prices: np.ndarray,
@@ -332,6 +368,8 @@ def fit_trendlines(zone_candles: pd.DataFrame) -> dict:
     dev, u_idx, u_prices, l_idx, l_prices, r2 = _best_zigzag(zone_candles)
 
     if dev is not None:
+        u_idx, u_prices = _trim_breakout_swings(u_idx, u_prices)
+        l_idx, l_prices = _trim_breakout_swings(l_idx, l_prices)
         tl = fit_trendlines_from_swings(u_idx, u_prices, l_idx, l_prices, n)
         tl["used_zigzag"]  = True
         tl["deviation"]    = dev
@@ -374,6 +412,7 @@ def extract_features(
     breakout_candle: pd.Series,
     zone_to_ts=None,
     upper_at_bo: float = None,
+    candles_per_day: int = CANDLES_PER_DAY,
 ) -> Optional[dict]:
     """
     Extract the 15-feature vector for one (zone, breakout) pair.
@@ -417,8 +456,8 @@ def extract_features(
     # ── 3. slope_ratio ────────────────────────────────────────────────────────
     slope_ratio = upper_slope_pct / (abs(lower_slope_pct) + EPS)
 
-    # ── 4. zone_width (candles) ──────────────────────────────────────────────
-    zone_width = float(n)
+    # ── 4. zone_width (trading days) ─────────────────────────────────────────
+    zone_width = float(n) / candles_per_day
 
     # ── 5. apex_proximity ────────────────────────────────────────────────────
     apex_x = tl["apex_x"]
@@ -439,15 +478,16 @@ def extract_features(
     bo_low    = float(breakout_candle["low"])
     bo_volume = float(breakout_candle["volume"])
 
-    # ── 11. breakout_lag — in 15-min candles ─────────────────────────────────
+    # ── 11. breakout_lag — in trading days ───────────────────────────────────
     if zone_to_ts is not None and "ts" in breakout_candle.index:
         try:
             delta = breakout_candle["ts"] - pd.Timestamp(zone_to_ts, tz="UTC")
-            breakout_lag = max(0, int(delta.total_seconds() / (CANDLE_MINUTES * 60)))
+            lag_candles = max(0.0, delta.total_seconds() / (CANDLE_MINUTES * 60))
+            breakout_lag = lag_candles / candles_per_day
         except Exception:
-            breakout_lag = 1
+            breakout_lag = 1.0 / candles_per_day
     else:
-        breakout_lag = 1
+        breakout_lag = 1.0 / candles_per_day
 
     # ── 7. breakout_close_vs_upper ───────────────────────────────────────────
     # Use the caller-supplied projection when available (keeps this feature
@@ -525,10 +565,10 @@ def explain_features(features: dict) -> str:
     """Human-readable summary calibrated for 15-min multi-week triangles."""
     lines = []
 
-    upper_s = features["upper_slope_pct"]
-    lower_s = features["lower_slope_pct"]
-    days    = features["zone_width"] / CANDLES_PER_DAY
-    lag_min = int(features["breakout_lag"]) * CANDLE_MINUTES
+    upper_s  = features["upper_slope_pct"]
+    lower_s  = features["lower_slope_pct"]
+    days     = features["zone_width"]           # already in trading days
+    lag_days = features["breakout_lag"]         # already in trading days
 
     # Trendline character
     # At 15-min, a "flat" upper line has slope < 0.002%/candle
@@ -540,9 +580,9 @@ def explain_features(features: dict) -> str:
         lines.append(f"Upper trendline: {upper_s:.3f}%/candle")
 
     lines.append(f"Lower trendline slope : {lower_s:.3f}%/candle")
-    lines.append(f"Zone width            : {int(features['zone_width'])} candles ({days:.1f} trading days)")
+    lines.append(f"Zone width            : {days:.1f} trading days")
     lines.append(f"Apex proximity        : {features['apex_proximity']:.0%} through triangle")
-    lines.append(f"Breakout lag          : {int(features['breakout_lag'])} candles ({lag_min} min after zone end)")
+    lines.append(f"Breakout lag          : {lag_days:.2f} trading days after zone end")
     lines.append(f"Volume ratio          : {features['volume_ratio']:.1f}x zone avg")
     lines.append(f"Close vs upper line   : {features['breakout_close_vs_upper']*100:+.2f}%")
     lines.append(f"Body strength         : {features['breakout_body_pct']:.0%} of candle range")

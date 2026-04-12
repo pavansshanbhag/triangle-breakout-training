@@ -18,7 +18,7 @@ Rules
 
 import logging
 
-from .config import CANDLE_MINUTES, MIN_VOLUME_RATIO, RULE_ALERT_THRESHOLD
+from .config import CANDLE_MINUTES, CANDLES_PER_DAY, MAX_BREAKOUT_LAG_CANDLES, MIN_VOLUME_RATIO, RULE_ALERT_THRESHOLD
 from .feature_extractor import FEATURE_NAMES, extract_features, features_to_array
 
 logger = logging.getLogger(__name__)
@@ -105,10 +105,10 @@ def score(features: dict) -> tuple[float, dict]:
     breakdown["apex_proximity"] = rule_score * RULE_WEIGHTS["apex_proximity"]
 
     # ── 6. Breakout lag ───────────────────────────────────────────────────────
-    # Fewer candles between zone end and breakout = cleaner signal.
-    # 0–2 candles (0–30 min): full score. Degrades to 0 at MAX_BREAKOUT_LAG_CANDLES.
+    # lag is in trading days. Full score at 0, degrades to 0 at MAX_BREAKOUT_LAG_CANDLES.
     lag = features["breakout_lag"]
-    rule_score = max(0.0, 1.0 - lag / 8.0)   # 8 = MAX_BREAKOUT_LAG_CANDLES
+    max_lag_days = MAX_BREAKOUT_LAG_CANDLES / CANDLES_PER_DAY
+    rule_score = max(0.0, 1.0 - lag / max_lag_days)
     breakdown["breakout_lag"] = rule_score * RULE_WEIGHTS["breakout_lag"]
 
     total = sum(breakdown.values())

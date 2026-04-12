@@ -45,6 +45,7 @@ from .config import (
 )
 from .feature_extractor import (
     _best_zigzag,
+    _trim_breakout_swings,
     extract_features,
     explain_features,
     features_to_array,
@@ -172,13 +173,19 @@ class BacktestConfig:
     flat_pct:           float = 0.02   # slope < this % of price over zone = "flat"
     trend_pct:          float = 0.01   # slope > this % of price over zone = "trending"
 
+    # ── Candle interval ───────────────────────────────────────────────────────
+    # Override to run the backtest on a different interval (e.g. "1h", "1D").
+    # candles_per_day must match: 25 for 15m, 6 for 1h, 3 for 2h, 1 for 1D.
+    interval:           str   = INTERVAL           # "15m"
+    candles_per_day:    int   = CANDLES_PER_DAY    # 25
+
     def __post_init__(self):
         if self.zigzag_deviations is None:
             self.zigzag_deviations = list(ZIGZAG_DEVIATIONS)
 
     @property
     def max_window_candles(self) -> int:
-        return self.max_window_days * CANDLES_PER_DAY
+        return self.max_window_days * self.candles_per_day
 
 
 # ── Triangle detector (O(n) ZigZag-based) ─────────────────────────────────────
@@ -222,6 +229,9 @@ def detect_triangle_zone(candles: pd.DataFrame, cfg: BacktestConfig = None) -> O
     if dev is None:
         logger.debug("ZigZag produced no valid pivot set across all deviations")
         return None
+
+    u_idx, u_prices = _trim_breakout_swings(u_idx, u_prices)
+    l_idx, l_prices = _trim_breakout_swings(l_idx, l_prices)
 
     tl      = fit_trendlines_from_swings(u_idx, u_prices, l_idx, l_prices, n_window)
     upper_s = tl["upper_slope"]
@@ -298,7 +308,7 @@ def detect_triangle_zone(candles: pd.DataFrame, cfg: BacktestConfig = None) -> O
         logger.debug("Not enough swing points within zone after trimming")
         return None
 
-    trading_days = zone_len / CANDLES_PER_DAY
+    trading_days = zone_len / cfg.candles_per_day
 
     logger.debug(
         "Triangle found: %s  start_idx=%d  zone=%d candles (%.1f days)  "
@@ -388,6 +398,7 @@ def evaluate_breakout(
         breakout_candle=breakout_candle,
         zone_to_ts=zone_to_ts,
         upper_at_bo=upper_at_bo,
+        candles_per_day=cfg.candles_per_day,
     )
 
     if features is None:
@@ -443,10 +454,10 @@ def evaluate_breakout(
         upper_trendline_end_ts    = candles.iloc[int(zone_info["u_idx"][-1])]["ts"].to_pydatetime(),
         lower_trendline_start_ts  = candles.iloc[int(zone_info["l_idx"][0])]["ts"].to_pydatetime(),
         lower_trendline_end_ts    = candles.iloc[int(zone_info["l_idx"][-1])]["ts"].to_pydatetime(),
-        upper_trendline_start_val = float(zone_info["u_prices"][0]),
-        upper_trendline_end_val   = float(zone_info["u_prices"][-1]),
-        lower_trendline_start_val = float(zone_info["l_prices"][0]),
-        lower_trendline_end_val   = float(zone_info["l_prices"][-1]),
+        upper_trendline_start_val = float(tl["upper_intercept"] + tl["upper_slope"] * zone_info["u_idx"][0]),
+        upper_trendline_end_val   = float(tl["upper_intercept"] + tl["upper_slope"] * zone_info["u_idx"][-1]),
+        lower_trendline_start_val = float(tl["lower_intercept"] + tl["lower_slope"] * zone_info["l_idx"][0]),
+        lower_trendline_end_val   = float(tl["lower_intercept"] + tl["lower_slope"] * zone_info["l_idx"][-1]),
         upper_trendline_val       = upper_at_bo,
         lower_trendline_val       = lower_at_bo,
         volume_ratio        = volume_ratio,
@@ -527,7 +538,7 @@ def scan_ticker_continuous(
     """
     cfg = cfg or BacktestConfig()
 
-    all_candles = fetch_candles(ticker, interval=INTERVAL, from_ts=from_ts, to_ts=to_ts)
+    all_candles = fetch_candles(ticker, interval=cfg.interval, from_ts=from_ts, to_ts=to_ts)
     n = len(all_candles)
 
     if n < cfg.min_zone_candles + 1:
@@ -539,7 +550,7 @@ def scan_ticker_continuous(
         ticker,
         all_candles.iloc[0]["ts"].strftime("%Y-%m-%d"),
         all_candles.iloc[-1]["ts"].strftime("%Y-%m-%d"),
-        n, n / CANDLES_PER_DAY,
+        n, n / cfg.candles_per_day,
     )
 
     alerts: list[BreakoutAlert] = []

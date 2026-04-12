@@ -87,5 +87,5 @@ SCANNER_CRON = "2,17,32,47 * * * *"
 SCAN_LOOKBACK_CANDLES = 1750
 
 # ── Logging ───────────────────────────────────────────────────────────────────
-LOG_PATH = "logs/scanner.log"
-LOG_LEVEL = "INFO"
+LOG_PATH  = "logs/scanner.log"
+LOG_LEVEL = _os.getenv("SCANNER_LOG_LEVEL", "INFO")

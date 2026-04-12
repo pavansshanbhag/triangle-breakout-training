@@ -19,6 +19,14 @@ from .config import QUESTDB_BASE_URL, INTERVAL
 
 logger = logging.getLogger(__name__)
 
+# Maps backtest interval strings → (QuestDB SAMPLE BY unit, 15m candles per bar)
+_INTERVAL_SAMPLE = {
+    "15m": None,          # stored natively — no aggregation needed
+    "1h":  ("1h",   4),
+    "2h":  ("2h",   8),
+    "1D":  ("1d",  25),
+}
+
 
 # ── Low-level query helper ────────────────────────────────────────────────────
 
@@ -66,32 +74,63 @@ def fetch_candles(
     """
     Return OHLCV candles for a ticker/interval, sorted ascending by ts.
 
+    15m candles are fetched directly from the ohlcv table.
+    All other intervals (1h, 2h, 1D) are aggregated on-the-fly from 15m rows
+    using QuestDB SAMPLE BY so no separate table is needed.
+
     Columns: ts, ticker, interval, open, high, low, close, volume
     """
-    where_clauses = [
-        f"ticker = '{ticker}'",
-        f"interval = '{interval}'",
-        "ts IS NOT NULL",
-    ]
+    sample_info = _INTERVAL_SAMPLE.get(interval)
 
-    if from_ts:
-        from_str = from_ts.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.000000Z")
-        where_clauses.append(f"ts >= '{from_str}'")
-
-    if to_ts:
-        to_str = to_ts.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.000000Z")
-        where_clauses.append(f"ts <= '{to_str}'")
-
-    where = " AND ".join(where_clauses)
-    limit_clause = f"LIMIT {limit}" if limit else ""
-
-    sql = f"""
-        SELECT ts, ticker, interval, open, high, low, close, volume
-        FROM ohlcv
-        WHERE {where}
-        ORDER BY ts ASC
-        {limit_clause}
-    """.strip()
+    if sample_info is None:
+        # Native 15m — simple WHERE query
+        where_clauses = [
+            f"ticker = '{ticker}'",
+            f"interval = '15m'",
+            "ts IS NOT NULL",
+        ]
+        if from_ts:
+            where_clauses.append(f"ts >= '{from_ts.astimezone(timezone.utc).strftime('%Y-%m-%dT%H:%M:%S.000000Z')}'")
+        if to_ts:
+            where_clauses.append(f"ts <= '{to_ts.astimezone(timezone.utc).strftime('%Y-%m-%dT%H:%M:%S.000000Z')}'")
+        where = " AND ".join(where_clauses)
+        limit_clause = f"LIMIT {limit}" if limit else ""
+        sql = f"""
+            SELECT ts, ticker, interval, open, high, low, close, volume
+            FROM ohlcv
+            WHERE {where}
+            ORDER BY ts ASC
+            {limit_clause}
+        """.strip()
+    else:
+        sample_unit, _ = sample_info
+        # Aggregate 15m rows into the requested interval using SAMPLE BY
+        where_clauses = [
+            f"ticker = '{ticker}'",
+            f"interval = '15m'",
+            "ts IS NOT NULL",
+        ]
+        if from_ts:
+            where_clauses.append(f"ts >= '{from_ts.astimezone(timezone.utc).strftime('%Y-%m-%dT%H:%M:%S.000000Z')}'")
+        if to_ts:
+            where_clauses.append(f"ts <= '{to_ts.astimezone(timezone.utc).strftime('%Y-%m-%dT%H:%M:%S.000000Z')}'")
+        where = " AND ".join(where_clauses)
+        limit_clause = f"LIMIT {limit}" if limit else ""
+        sql = f"""
+            SELECT
+                ts,
+                '{ticker}' AS ticker,
+                '{interval}' AS interval,
+                first(open)  AS open,
+                max(high)    AS high,
+                min(low)     AS low,
+                last(close)  AS close,
+                sum(volume)  AS volume
+            FROM ohlcv
+            WHERE {where}
+            SAMPLE BY {sample_unit} ALIGN TO FIRST OBSERVATION
+            {limit_clause}
+        """.strip()
 
     df = _query(sql)
     logger.debug("fetch_candles(%s, %s): %d rows", ticker, interval, len(df))
@@ -103,16 +142,49 @@ def fetch_latest_candles(
     n: int,
     interval: str = INTERVAL,
 ) -> pd.DataFrame:
-    """Return the most recent N candles for a ticker (ascending order)."""
-    sql = f"""
-        SELECT ts, ticker, interval, open, high, low, close, volume
-        FROM ohlcv
-        WHERE ticker = '{ticker}' AND interval = '{interval}'
-        ORDER BY ts DESC
-        LIMIT {n}
+    """Return the most recent N candles for a ticker (ascending order).
+
+    For non-15m intervals the full history is aggregated then the last N bars
+    are returned — QuestDB does not support LIMIT inside SAMPLE BY subqueries.
     """
-    df = _query(sql)
-    return df.sort_values("ts").reset_index(drop=True)
+    sample_info = _INTERVAL_SAMPLE.get(interval)
+
+    if sample_info is None:
+        sql = f"""
+            SELECT ts, ticker, interval, open, high, low, close, volume
+            FROM ohlcv
+            WHERE ticker = '{ticker}' AND interval = '15m'
+            ORDER BY ts DESC
+            LIMIT {n}
+        """
+        df = _query(sql)
+        return df.sort_values("ts").reset_index(drop=True)
+    else:
+        sample_unit, candles_per_bar = sample_info
+        # Fetch enough 15m rows to cover N aggregated bars, then tail N
+        fetch_15m = n * candles_per_bar
+        sql = f"""
+            SELECT
+                ts,
+                '{ticker}' AS ticker,
+                '{interval}' AS interval,
+                first(open)  AS open,
+                max(high)    AS high,
+                min(low)     AS low,
+                last(close)  AS close,
+                sum(volume)  AS volume
+            FROM (
+                SELECT ts, open, high, low, close, volume
+                FROM ohlcv
+                WHERE ticker = '{ticker}' AND interval = '15m'
+                ORDER BY ts DESC
+                LIMIT {fetch_15m}
+            )
+            SAMPLE BY {sample_unit} ALIGN TO FIRST OBSERVATION
+        """.strip()
+        df = _query(sql)
+        df = df.sort_values("ts").reset_index(drop=True)
+        return df.tail(n).reset_index(drop=True)
 
 
 # ── Annotation fetcher ────────────────────────────────────────────────────────
