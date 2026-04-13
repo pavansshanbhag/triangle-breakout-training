@@ -160,7 +160,7 @@ class BacktestConfig:
     """
     # ── Zone detection ────────────────────────────────────────────────────────
     min_zone_candles:   int   = MIN_ZONE_CANDLES       # 75  — shortest valid triangle
-    max_window_days:    int   = 12                     # 12  — sliding window cap (trading days)
+    max_window_days:    int   = 70                     # 70  — sliding window cap (trading days)
     min_swing_points:   int   = MIN_SWING_POINTS       # 3   — per trendline
     zigzag_deviations:  list  = None                   # [1.5%, 2%, 2.5%] if None
 
@@ -269,9 +269,11 @@ def detect_triangle_zone(candles: pd.DataFrame, cfg: BacktestConfig = None) -> O
         logger.debug(
             "Not a triangle: upper_slope=%.5f  lower_slope=%.5f  "
             "flat_thresh=%.5f  trend_thresh=%.5f  "
-            "(sym=%s desc=%s asc=%s)",
+            "(sym=%s desc=%s asc=%s)  window=[%s → %s]",
             upper_s, lower_s, flat_thresh, trend_thresh,
             is_sym, is_desc, is_asc,
+            zone_window.iloc[0]["ts"].strftime("%d-%b %H:%M"),
+            zone_window.iloc[-1]["ts"].strftime("%d-%b %H:%M"),
         )
         return None
 
@@ -292,8 +294,11 @@ def detect_triangle_zone(candles: pd.DataFrame, cfg: BacktestConfig = None) -> O
     zone_len = n_window - zone_start_idx
     if zone_len < cfg.min_zone_candles:
         logger.debug(
-            "Zone too short: %d candles from idx %d (need %d)",
-            zone_len, zone_start_idx, cfg.min_zone_candles,
+            "Zone too short: %d candles from %s idx=%d (need %d)",
+            zone_len,
+            zone_window.iloc[zone_start_idx]["ts"].strftime("%d-%b %H:%M"),
+            zone_start_idx,
+            cfg.min_zone_candles,
         )
         return None
 
@@ -311,9 +316,12 @@ def detect_triangle_zone(candles: pd.DataFrame, cfg: BacktestConfig = None) -> O
     trading_days = zone_len / cfg.candles_per_day
 
     logger.debug(
-        "Triangle found: %s  start_idx=%d  zone=%d candles (%.1f days)  "
+        "Triangle found: %s  [%s → %s]  zone=%d candles (%.1f days)  "
         "dev=%.1f%%  apex_x=%.0f  score=%.3f  swings: %dH/%dL",
-        triangle_type, zone_start_idx, zone_len, trading_days,
+        triangle_type,
+        zone_window.iloc[zone_start_idx]["ts"].strftime("%d-%b %H:%M"),
+        zone_window.iloc[-1]["ts"].strftime("%d-%b %H:%M"),
+        zone_len, trading_days,
         dev * 100, apex_x, score,
         u_mask.sum(), l_mask.sum(),
     )
@@ -379,7 +387,8 @@ def evaluate_breakout(
         direction = "bearish"
     else:
         logger.debug(
-            "Candle inside triangle — not a breakout  close=%.2f  upper=%.2f  lower=%.2f",
+            "Candle inside triangle — not a breakout  ts=%s  close=%.2f  upper=%.2f  lower=%.2f",
+            breakout_candle["ts"].strftime("%d-%b %H:%M"),
             bo_close, upper_at_bo, lower_at_bo,
         )
         return None
@@ -387,7 +396,9 @@ def evaluate_breakout(
     # ── Volume confirmation ───────────────────────────────────────────────────
     if volume_ratio < cfg.min_volume_ratio:
         logger.debug(
-            "Volume not confirmed: ratio=%.2f < %.2f", volume_ratio, cfg.min_volume_ratio
+            "Volume not confirmed: ts=%s  ratio=%.2f < %.2f",
+            breakout_candle["ts"].strftime("%d-%b %H:%M"),
+            volume_ratio, cfg.min_volume_ratio,
         )
         return None
 
@@ -427,9 +438,10 @@ def evaluate_breakout(
 
     if not fired:
         logger.debug(
-            "Score %.3f below threshold — no alert\n"
+            "Score %.3f below threshold — no alert  ts=%s\n"
             "  Features:\n%s",
             score,
+            breakout_candle["ts"].strftime("%d-%b %H:%M"),
             "\n".join(f"    {k:<30s} {v:+.4f}" for k, v in features.items()),
         )
         return None
