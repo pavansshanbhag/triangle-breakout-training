@@ -45,6 +45,7 @@ Volume features (computed on raw candles — not swing points)
 """
 
 import logging
+from itertools import combinations
 from typing import Optional
 
 import numpy as np
@@ -280,6 +281,105 @@ def _linreg(x: np.ndarray, y: np.ndarray) -> tuple[float, float]:
     return float(slope), float(intercept)
 
 
+def _best_subset_line(
+    idx: np.ndarray,
+    prices: np.ndarray,
+    min_points: int = MIN_SWING_POINTS,
+    inlier_pct: float = 0.008,
+) -> tuple[float, float, int, float]:
+    """
+    Exhaustive subset search: find the line through ≥ min_points swing points
+    that maximises inlier count, then minimises RMSE among those inliers.
+
+    For each subset of size k (k = min_points … N), an OLS line is fit and
+    then tested against ALL swing points — a point is an inlier if its
+    distance from the line is within inlier_pct of the average price
+    (default 0.5%).  The best (inlier_count, -rmse) wins.
+
+    Anchor enumeration is capped at 8 swing points regardless of N, keeping
+    the worst-case subset count at C(8, 3..8) = 219.  Inliers are still
+    counted against all N swing points so no information is lost.
+
+    Returns
+    -------
+    slope, intercept, inlier_count, inlier_rmse
+    """
+    n = len(idx)
+    if n < 2:
+        s, b = _linreg(idx.astype(float), prices)
+        return s, b, n, 0.0
+
+    x         = idx.astype(float)
+    avg_price = float(np.mean(prices))
+    eps_price = inlier_pct * avg_price
+
+    # Cap anchor pool to 8 points — limits subsets to ≤ 219 regardless of N.
+    # Lines are still scored against all N swing points for inlier counting.
+    anchor_n = min(n, 8)
+
+    # Batch OLS across all subsets of the same size in one numpy pass.
+    # Avoids 219 individual scipy.linregress calls (which compute r/p/stderr
+    # we discard) — replaces them with vectorised closed-form OLS formulas.
+    all_slopes:     list[np.ndarray] = []
+    all_intercepts: list[np.ndarray] = []
+    all_counts:     list[np.ndarray] = []
+    all_rmses:      list[np.ndarray] = []
+
+    for size in range(min_points, anchor_n + 1):
+        # idx_sets: (n_subsets, size) — all anchor-pool index combinations
+        idx_sets = np.array(list(combinations(range(anchor_n), size)), dtype=np.intp)
+
+        sub_x = x[idx_sets]        # (n_subsets, size)
+        sub_y = prices[idx_sets]   # (n_subsets, size)
+
+        # Closed-form OLS: s = (n·Σxy − Σx·Σy) / (n·Σx² − (Σx)²)
+        sx   = sub_x.sum(axis=1)
+        sy   = sub_y.sum(axis=1)
+        sxy  = (sub_x * sub_y).sum(axis=1)
+        sx2  = (sub_x * sub_x).sum(axis=1)
+        denom = size * sx2 - sx * sx
+
+        ok    = np.abs(denom) > 1e-12
+        d     = np.where(ok, denom, 1.0)
+        slopes     = (size * sxy - sx * sy) / d
+        intercepts = (sy - slopes * sx) / size
+
+        # Score each candidate line against ALL n swing points: (n_subsets, n)
+        predicted   = intercepts[:, None] + slopes[:, None] * x[None, :]
+        abs_res     = np.abs(prices[None, :] - predicted)
+        inlier_mask = abs_res <= eps_price
+        counts      = inlier_mask.sum(axis=1)
+
+        # Vectorised RMSE: zero non-inlier residuals, divide by inlier count
+        sq_sum = (abs_res ** 2 * inlier_mask).sum(axis=1)
+        rmses  = np.sqrt(sq_sum / np.maximum(counts, 1))
+
+        keep = ok & (counts >= min_points)
+        if keep.any():
+            all_slopes.append(slopes[keep])
+            all_intercepts.append(intercepts[keep])
+            all_counts.append(counts[keep])
+            all_rmses.append(rmses[keep])
+
+    if not all_counts:
+        s, b = _linreg(x, prices)
+        return s, b, n, 0.0
+
+    slopes_all     = np.concatenate(all_slopes)
+    intercepts_all = np.concatenate(all_intercepts)
+    counts_all     = np.concatenate(all_counts)
+    rmses_all      = np.concatenate(all_rmses)
+
+    # Lexsort: primary = maximise inlier count, secondary = minimise RMSE
+    best = np.lexsort((rmses_all, -counts_all))[0]
+    return (
+        float(slopes_all[best]),
+        float(intercepts_all[best]),
+        int(counts_all[best]),
+        float(rmses_all[best]),
+    )
+
+
 def _trim_breakout_swings(
     idx: np.ndarray,
     prices: np.ndarray,
@@ -326,14 +426,27 @@ def fit_trendlines_from_swings(
     """
     Fit trendlines through ZigZag pivot points (not raw candles).
 
+    Uses exhaustive subset search (_best_subset_line) to find the line that
+    touches the most swing points within 0.5% of price, breaking ties by RMSE.
+
     Indices are candle positions (0-based) within the zone.
     n_candles is the total candle count of the zone.
     """
-    upper_slope, upper_intercept = _linreg(upper_idx.astype(float), upper_prices)
-    lower_slope, lower_intercept = _linreg(lower_idx.astype(float), lower_prices)
+    upper_slope, upper_intercept, u_inliers, u_rmse = _best_subset_line(
+        upper_idx, upper_prices
+    )
+    lower_slope, lower_intercept, l_inliers, l_rmse = _best_subset_line(
+        lower_idx, lower_prices
+    )
+
+    logger.debug(
+        "Trendline fit — upper: %d/%d inliers rmse=%.3f  lower: %d/%d inliers rmse=%.3f",
+        u_inliers, len(upper_prices), u_rmse,
+        l_inliers, len(lower_prices), l_rmse,
+    )
 
     # Project both lines at every candle position in the zone
-    x_all    = np.arange(n_candles, dtype=float)
+    x_all      = np.arange(n_candles, dtype=float)
     upper_line = upper_intercept + upper_slope * x_all
     lower_line = lower_intercept + lower_slope * x_all
 
@@ -354,6 +467,10 @@ def fit_trendlines_from_swings(
         "apex_x":          apex_x,
         "n":               n_candles,
         "x":               x_all,
+        "upper_inliers":   u_inliers,
+        "upper_rmse":      u_rmse,
+        "lower_inliers":   l_inliers,
+        "lower_rmse":      l_rmse,
     }
 
 

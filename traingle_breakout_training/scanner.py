@@ -23,6 +23,7 @@ Or call scan_all() from main.py on a schedule.
 import argparse
 import json
 import logging
+import time
 from dataclasses import dataclass, field
 from datetime import datetime, timezone, timedelta
 from typing import Optional
@@ -45,6 +46,7 @@ from .config import (
 )
 from .feature_extractor import (
     _best_zigzag,
+    _linreg,
     _trim_breakout_swings,
     extract_features,
     explain_features,
@@ -190,7 +192,11 @@ class BacktestConfig:
 
 # ── Triangle detector (O(n) ZigZag-based) ─────────────────────────────────────
 
-def detect_triangle_zone(candles: pd.DataFrame, cfg: BacktestConfig = None) -> Optional[dict]:
+def detect_triangle_zone(
+    candles: pd.DataFrame,
+    cfg: BacktestConfig = None,
+    _stats: dict = None,
+) -> Optional[dict]:
     """
     Detect a triangle zone in the candle window.
 
@@ -210,32 +216,51 @@ def detect_triangle_zone(candles: pd.DataFrame, cfg: BacktestConfig = None) -> O
       3. Verify convergence: upper_slope < lower_slope AND apex in the future
       4. Verify zone width >= MIN_ZONE_CANDLES
 
+    _stats: optional dict updated in-place with cumulative timing counters.
+            Intended for backtest callers that log a single summary after the loop.
+            Keys: n_calls, n_short, n_zigzag_none, n_not_triangle,
+                  n_zone_short, n_swing_too_few, n_confirmed,
+                  t_zigzag, t_trim, t_slope_check, t_subset_fit.
+
     Returns dict with zone metadata, or None if no triangle found.
     """
+    def _s(key, val=1):
+        if _stats is not None:
+            _stats[key] = _stats.get(key, 0) + val
+
     zone_window = candles.iloc[:-1]
     n_window    = len(zone_window)
 
     cfg = cfg or BacktestConfig()
 
+    _s("n_calls")
+
     if n_window < cfg.min_zone_candles:
+        _s("n_short")
         return None
 
     avg_price = float(zone_window["close"].mean())
 
+    _t = time.perf_counter()
     dev, u_idx, u_prices, l_idx, l_prices, score = _best_zigzag(
         zone_window, cfg.zigzag_deviations
     )
+    _s("t_zigzag", time.perf_counter() - _t)
 
     if dev is None:
         logger.debug("ZigZag produced no valid pivot set across all deviations")
+        _s("n_zigzag_none")
         return None
 
+    _t = time.perf_counter()
     u_idx, u_prices = _trim_breakout_swings(u_idx, u_prices)
     l_idx, l_prices = _trim_breakout_swings(l_idx, l_prices)
+    _s("t_trim", time.perf_counter() - _t)
 
-    tl      = fit_trendlines_from_swings(u_idx, u_prices, l_idx, l_prices, n_window)
-    upper_s = tl["upper_slope"]
-    lower_s = tl["lower_slope"]
+    # Cheap OLS slope check — avoid expensive subset search on non-triangles
+    _t = time.perf_counter()
+    upper_s, _ = _linreg(u_idx.astype(float), u_prices)
+    lower_s, _ = _linreg(l_idx.astype(float), l_prices)
 
     # ── Universal three-type triangle check ──────────────────────────────────
     # Three valid patterns, each with a distinct slope signature:
@@ -264,6 +289,7 @@ def detect_triangle_zone(candles: pd.DataFrame, cfg: BacktestConfig = None) -> O
     is_wedge = (upper_s < -trend_thresh                                       # upper clearly falling
                 and lower_s < -trend_thresh                                   # lower also falling
                 and (lower_s - upper_s) > trend_thresh)                      # but lower falls less → converging
+    _s("t_slope_check", time.perf_counter() - _t)
 
     if not (is_sym or is_desc or is_asc or is_wedge):
         logger.debug(
@@ -275,6 +301,7 @@ def detect_triangle_zone(candles: pd.DataFrame, cfg: BacktestConfig = None) -> O
             zone_window.iloc[0]["ts"].strftime("%d-%b %H:%M"),
             zone_window.iloc[-1]["ts"].strftime("%d-%b %H:%M"),
         )
+        _s("n_not_triangle")
         return None
 
     triangle_type = ("symmetrical" if is_sym
@@ -282,8 +309,10 @@ def detect_triangle_zone(candles: pd.DataFrame, cfg: BacktestConfig = None) -> O
                      else "ascending" if is_asc
                      else "falling_wedge")
 
-    # For all types the apex position is informational only.
-    # The slope conditions above are the authoritative type gate.
+    # Triangle confirmed — now run the expensive best-subset fit
+    _t = time.perf_counter()
+    tl     = fit_trendlines_from_swings(u_idx, u_prices, l_idx, l_prices, n_window)
+    _s("t_subset_fit", time.perf_counter() - _t)
     apex_x = tl["apex_x"]
 
     # ── Find zone start candle ────────────────────────────────────────────────
@@ -300,6 +329,7 @@ def detect_triangle_zone(candles: pd.DataFrame, cfg: BacktestConfig = None) -> O
             zone_start_idx,
             cfg.min_zone_candles,
         )
+        _s("n_zone_short")
         return None
 
     # Re-express swing indices relative to zone start for feature extraction
@@ -311,8 +341,10 @@ def detect_triangle_zone(candles: pd.DataFrame, cfg: BacktestConfig = None) -> O
     l_mask = l_idx_rel >= 0
     if u_mask.sum() < cfg.min_swing_points or l_mask.sum() < cfg.min_swing_points:
         logger.debug("Not enough swing points within zone after trimming")
+        _s("n_swing_too_few")
         return None
 
+    _s("n_confirmed")
     trading_days = zone_len / cfg.candles_per_day
 
     logger.debug(
@@ -550,7 +582,10 @@ def scan_ticker_continuous(
     """
     cfg = cfg or BacktestConfig()
 
+    t0_fetch = time.perf_counter()
     all_candles = fetch_candles(ticker, interval=cfg.interval, from_ts=from_ts, to_ts=to_ts)
+    t_fetch = time.perf_counter() - t0_fetch
+
     n = len(all_candles)
 
     if n < cfg.min_zone_candles + 1:
@@ -558,16 +593,21 @@ def scan_ticker_continuous(
         return []
 
     logger.info(
-        "%s: continuous scan  %s → %s  (%d candles, %.1f trading days)",
+        "%s: continuous scan  %s → %s  (%d candles, %.1f trading days)  fetch=%.2fs",
         ticker,
         all_candles.iloc[0]["ts"].strftime("%Y-%m-%d"),
         all_candles.iloc[-1]["ts"].strftime("%Y-%m-%d"),
         n, n / cfg.candles_per_day,
+        t_fetch,
     )
 
     alerts: list[BreakoutAlert] = []
     left = 0
     i    = cfg.min_zone_candles   # right edge (breakout candidate index)
+
+    detect_stats: dict = {}
+    t_eval        = 0.0
+    n_iterations  = 0
 
     while i < n:
         # Slide left edge if window exceeds max size
@@ -576,10 +616,13 @@ def scan_ticker_continuous(
 
         window = all_candles.iloc[left : i + 1].reset_index(drop=True)
 
-        zone_info = detect_triangle_zone(window, cfg)
+        zone_info = detect_triangle_zone(window, cfg, _stats=detect_stats)
+        n_iterations += 1
 
         if zone_info is not None:
+            _t = time.perf_counter()
             alert = evaluate_breakout(window, zone_info, model_bundle, cfg)
+            t_eval += time.perf_counter() - _t
             if alert:
                 alert.log_summary()
                 alerts.append(alert)
@@ -590,7 +633,37 @@ def scan_ticker_continuous(
 
         i += 1
 
-    logger.info("%s: continuous scan complete — %d alert(s)", ticker, len(alerts))
+    t_detect = (detect_stats.get("t_zigzag", 0) + detect_stats.get("t_trim", 0)
+                + detect_stats.get("t_slope_check", 0) + detect_stats.get("t_subset_fit", 0))
+    t_total  = t_fetch + t_detect + t_eval
+
+    n_confirmed   = detect_stats.get("n_confirmed", 0)
+    n_not_tri     = detect_stats.get("n_not_triangle", 0)
+    n_zigzag_none = detect_stats.get("n_zigzag_none", 0)
+
+    logger.info(
+        "%s: scan complete — %d alert(s) | %d iters"
+        " | fetch=%.2fs  detect=%.2fs (%.2fms/iter)  eval=%.2fs  total=%.2fs",
+        ticker, len(alerts), n_iterations,
+        t_fetch,
+        t_detect, (t_detect / n_iterations * 1000) if n_iterations else 0,
+        t_eval,
+        t_total,
+    )
+    logger.info(
+        "%s: detect breakdown — zigzag=%.2fs  trim=%.2fs  slope_check=%.2fs  subset_fit=%.2fs"
+        " | exits: zigzag_none=%d  not_triangle=%d  zone_short=%d  swing_few=%d  confirmed=%d",
+        ticker,
+        detect_stats.get("t_zigzag", 0),
+        detect_stats.get("t_trim", 0),
+        detect_stats.get("t_slope_check", 0),
+        detect_stats.get("t_subset_fit", 0),
+        n_zigzag_none,
+        n_not_tri,
+        detect_stats.get("n_zone_short", 0),
+        detect_stats.get("n_swing_too_few", 0),
+        n_confirmed,
+    )
     return alerts
 
 
@@ -620,13 +693,25 @@ def scan_all_continuous(
         logger.info("Mode: RULE-BASED  (no trained model — run --train first)")
 
     all_alerts: list[BreakoutAlert] = []
+    ticker_times: list[tuple[str, float, int]] = []
+    t0_all = time.perf_counter()
+
     for ticker in tickers:
         try:
+            t0 = time.perf_counter()
             alerts = scan_ticker_continuous(ticker, model_bundle, from_ts, to_ts, cfg)
+            elapsed = time.perf_counter() - t0
+            ticker_times.append((ticker, elapsed, len(alerts)))
             all_alerts.extend(alerts)
         except Exception as e:
             logger.error("Error scanning %s: %s", ticker, e, exc_info=True)
 
+    t_all = time.perf_counter() - t0_all
+    logger.info("─" * 60)
+    logger.info("Backtest timing summary (%.2fs total):", t_all)
+    for tkr, elapsed, n_alerts in sorted(ticker_times, key=lambda x: x[1], reverse=True):
+        logger.info("  %-12s  %5.2fs  %d alert(s)", tkr, elapsed, n_alerts)
+    logger.info("─" * 60)
     logger.info("Continuous scan complete. %d total alert(s) across %d ticker(s).", len(all_alerts), len(tickers))
     return all_alerts
 
