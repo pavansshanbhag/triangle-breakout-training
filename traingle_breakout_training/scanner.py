@@ -30,6 +30,7 @@ from typing import Optional
 
 import numpy as np
 import pandas as pd
+import xgboost as xgb
 
 from .config import (
     CANDLE_MINUTES,
@@ -311,7 +312,8 @@ def detect_triangle_zone(
 
     # Triangle confirmed — now run the expensive best-subset fit
     _t = time.perf_counter()
-    tl     = fit_trendlines_from_swings(u_idx, u_prices, l_idx, l_prices, n_window)
+    tl     = fit_trendlines_from_swings(u_idx, u_prices, l_idx, l_prices, n_window,
+                                        zone_closes=zone_window["close"].values)
     _s("t_subset_fit", time.perf_counter() - _t)
     apex_x = tl["apex_x"]
 

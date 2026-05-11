@@ -286,6 +286,10 @@ def _best_subset_line(
     prices: np.ndarray,
     min_points: int = MIN_SWING_POINTS,
     inlier_pct: float = 0.008,
+    candle_x: np.ndarray = None,
+    candle_closes: np.ndarray = None,
+    violation_side: int = 1,
+    max_violation_pct: float = 0.10,
 ) -> tuple[float, float, int, float]:
     """
     Exhaustive subset search: find the line through ≥ min_points swing points
@@ -294,11 +298,17 @@ def _best_subset_line(
     For each subset of size k (k = min_points … N), an OLS line is fit and
     then tested against ALL swing points — a point is an inlier if its
     distance from the line is within inlier_pct of the average price
-    (default 0.5%).  The best (inlier_count, -rmse) wins.
+    (default 0.8%).  The best (inlier_count, -rmse) wins.
 
     Anchor enumeration is capped at 8 swing points regardless of N, keeping
     the worst-case subset count at C(8, 3..8) = 219.  Inliers are still
     counted against all N swing points so no information is lost.
+
+    Optional candle_closes / candle_x filter:
+      If provided, any candidate line where more than max_violation_pct of
+      zone candles close on the wrong side is excluded.  violation_side=+1
+      means the line is an upper bound (closes above it are violations);
+      violation_side=-1 means a lower bound (closes below it are violations).
 
     Returns
     -------
@@ -314,23 +324,33 @@ def _best_subset_line(
     eps_price = inlier_pct * avg_price
 
     # Cap anchor pool to 8 points — limits subsets to ≤ 219 regardless of N.
-    # Lines are still scored against all N swing points for inlier counting.
-    anchor_n = min(n, 8)
+    # When N > 8 distribute slots evenly across the full range (always
+    # including the last swing high) so late swing points can appear in
+    # candidate subsets.  Lines are still scored against all N swing points.
+    if n <= 8:
+        anchor_pool = np.arange(n, dtype=np.intp)
+    else:
+        anchor_pool = np.unique(
+            np.round(np.linspace(0, n - 1, 8)).astype(np.intp)
+        )
+    anchor_n = len(anchor_pool)
 
     # Batch OLS across all subsets of the same size in one numpy pass.
     # Avoids 219 individual scipy.linregress calls (which compute r/p/stderr
     # we discard) — replaces them with vectorised closed-form OLS formulas.
-    all_slopes:     list[np.ndarray] = []
-    all_intercepts: list[np.ndarray] = []
-    all_counts:     list[np.ndarray] = []
-    all_rmses:      list[np.ndarray] = []
+    all_slopes:      list[np.ndarray] = []
+    all_intercepts:  list[np.ndarray] = []
+    all_counts:      list[np.ndarray] = []
+    all_rmses:       list[np.ndarray] = []
+    all_max_x:       list[np.ndarray] = []
+    all_last_inlier: list[np.ndarray] = []
 
     for size in range(min_points, anchor_n + 1):
-        # idx_sets: (n_subsets, size) — all anchor-pool index combinations
+        # idx_sets: (n_subsets, size) — pool-relative indices → map via anchor_pool
         idx_sets = np.array(list(combinations(range(anchor_n), size)), dtype=np.intp)
 
-        sub_x = x[idx_sets]        # (n_subsets, size)
-        sub_y = prices[idx_sets]   # (n_subsets, size)
+        sub_x = x[anchor_pool[idx_sets]]        # (n_subsets, size)
+        sub_y = prices[anchor_pool[idx_sets]]   # (n_subsets, size)
 
         # Closed-form OLS: s = (n·Σxy − Σx·Σy) / (n·Σx² − (Σx)²)
         sx   = sub_x.sum(axis=1)
@@ -354,24 +374,64 @@ def _best_subset_line(
         sq_sum = (abs_res ** 2 * inlier_mask).sum(axis=1)
         rmses  = np.sqrt(sq_sum / np.maximum(counts, 1))
 
-        keep = ok & (counts >= min_points)
+        # Max x-position of inliers: -1 sentinel for non-inliers so they
+        # don't artificially inflate the max.
+        x_inlier = np.where(inlier_mask, x[None, :], -1.0)
+        max_x    = x_inlier.max(axis=1)
+
+        # Whether the most recent swing high (x[-1]) is an inlier — used to
+        # ensure the selected line reflects the current boundary, not just the
+        # tightest historical cluster.
+        last_inlier = inlier_mask[:, -1]
+
+        # Candle violation filter: reject lines where too many zone candles
+        # close on the wrong side (upper line cut below price, or lower line
+        # cut above price).  Computed in a single vectorised pass.
+        if candle_x is not None and candle_closes is not None:
+            tl_c   = intercepts[:, None] + slopes[:, None] * candle_x[None, :]
+            if violation_side > 0:
+                viol = (candle_closes[None, :] > tl_c).sum(axis=1)
+            else:
+                viol = (candle_closes[None, :] < tl_c).sum(axis=1)
+            viol_ok = viol <= int(max_violation_pct * len(candle_closes))
+        else:
+            viol_ok = np.ones(len(slopes), dtype=bool)
+
+        keep = ok & (counts >= min_points) & viol_ok
         if keep.any():
             all_slopes.append(slopes[keep])
             all_intercepts.append(intercepts[keep])
             all_counts.append(counts[keep])
             all_rmses.append(rmses[keep])
+            all_max_x.append(max_x[keep])
+            all_last_inlier.append(last_inlier[keep])
 
     if not all_counts:
         s, b = _linreg(x, prices)
         return s, b, n, 0.0
 
-    slopes_all     = np.concatenate(all_slopes)
-    intercepts_all = np.concatenate(all_intercepts)
-    counts_all     = np.concatenate(all_counts)
-    rmses_all      = np.concatenate(all_rmses)
+    slopes_all      = np.concatenate(all_slopes)
+    intercepts_all  = np.concatenate(all_intercepts)
+    counts_all      = np.concatenate(all_counts)
+    rmses_all       = np.concatenate(all_rmses)
+    max_x_all       = np.concatenate(all_max_x)
+    last_inlier_all = np.concatenate(all_last_inlier)
 
-    # Lexsort: primary = maximise inlier count, secondary = minimise RMSE
-    best = np.lexsort((rmses_all, -counts_all))[0]
+    # Selection strategy:
+    # Prefer candidates where the most recent swing high is an inlier — a
+    # trendline that doesn't reach the last swing high doesn't represent
+    # where the boundary actually is.  Only if no such candidate exists
+    # (e.g. the last point is a genuine outlier not caught by _trim) do we
+    # fall back to the unconstrained pool.
+    # Within the chosen pool, sort by: max inliers → most recent inliers → min RMSE.
+    candidate_mask = last_inlier_all if last_inlier_all.any() else np.ones(len(counts_all), dtype=bool)
+    sub_idx = np.where(candidate_mask)[0]
+    sub_best = np.lexsort((
+        rmses_all[candidate_mask],
+        -max_x_all[candidate_mask],
+        -counts_all[candidate_mask],
+    ))[0]
+    best = sub_idx[sub_best]
     return (
         float(slopes_all[best]),
         float(intercepts_all[best]),
@@ -422,21 +482,28 @@ def fit_trendlines_from_swings(
     lower_idx: np.ndarray,
     lower_prices: np.ndarray,
     n_candles: int,
+    zone_closes: np.ndarray = None,
 ) -> dict:
     """
     Fit trendlines through ZigZag pivot points (not raw candles).
 
     Uses exhaustive subset search (_best_subset_line) to find the line that
-    touches the most swing points within 0.5% of price, breaking ties by RMSE.
+    touches the most swing points within 0.8% of price, breaking ties by RMSE.
 
     Indices are candle positions (0-based) within the zone.
     n_candles is the total candle count of the zone.
+    zone_closes, if provided, enables the candle violation filter: subsets
+    where >10% of closes breach the trendline are excluded.
     """
+    candle_x = np.arange(n_candles, dtype=float) if zone_closes is not None else None
+
     upper_slope, upper_intercept, u_inliers, u_rmse = _best_subset_line(
-        upper_idx, upper_prices
+        upper_idx, upper_prices,
+        candle_x=candle_x, candle_closes=zone_closes, violation_side=1,
     )
     lower_slope, lower_intercept, l_inliers, l_rmse = _best_subset_line(
-        lower_idx, lower_prices
+        lower_idx, lower_prices,
+        candle_x=candle_x, candle_closes=zone_closes, violation_side=-1,
     )
 
     logger.debug(
@@ -487,7 +554,8 @@ def fit_trendlines(zone_candles: pd.DataFrame) -> dict:
     if dev is not None:
         u_idx, u_prices = _trim_breakout_swings(u_idx, u_prices)
         l_idx, l_prices = _trim_breakout_swings(l_idx, l_prices)
-        tl = fit_trendlines_from_swings(u_idx, u_prices, l_idx, l_prices, n)
+        tl = fit_trendlines_from_swings(u_idx, u_prices, l_idx, l_prices, n,
+                                        zone_closes=zone_candles["close"].values)
         tl["used_zigzag"]  = True
         tl["deviation"]    = dev
         tl["swing_r2"]     = r2
