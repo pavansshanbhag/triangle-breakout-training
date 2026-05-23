@@ -290,15 +290,18 @@ def detect_triangle_zone(
     is_wedge = (upper_s < -trend_thresh                                       # upper clearly falling
                 and lower_s < -trend_thresh                                   # lower also falling
                 and (lower_s - upper_s) > trend_thresh)                      # but lower falls less → converging
+    is_rising_wedge = (upper_s > trend_thresh                                # upper clearly rising
+                       and lower_s > trend_thresh                            # lower also rising
+                       and (lower_s - upper_s) > trend_thresh)              # lower rises more → converging
     _s("t_slope_check", time.perf_counter() - _t)
 
-    if not (is_sym or is_desc or is_asc or is_wedge):
+    if not (is_sym or is_desc or is_asc or is_wedge or is_rising_wedge):
         logger.debug(
             "Not a triangle: upper_slope=%.5f  lower_slope=%.5f  "
             "flat_thresh=%.5f  trend_thresh=%.5f  "
-            "(sym=%s desc=%s asc=%s)  window=[%s → %s]",
+            "(sym=%s desc=%s asc=%s wedge=%s rising_wedge=%s)  window=[%s → %s]",
             upper_s, lower_s, flat_thresh, trend_thresh,
-            is_sym, is_desc, is_asc,
+            is_sym, is_desc, is_asc, is_wedge, is_rising_wedge,
             zone_window.iloc[0]["ts"].strftime("%d-%b %H:%M"),
             zone_window.iloc[-1]["ts"].strftime("%d-%b %H:%M"),
         )
@@ -308,7 +311,8 @@ def detect_triangle_zone(
     triangle_type = ("symmetrical" if is_sym
                      else "descending" if is_desc
                      else "ascending" if is_asc
-                     else "falling_wedge")
+                     else "falling_wedge" if is_wedge
+                     else "rising_wedge")
 
     # Triangle confirmed — now run the expensive best-subset fit
     _t = time.perf_counter()
@@ -425,6 +429,11 @@ def evaluate_breakout(
             breakout_candle["ts"].strftime("%d-%b %H:%M"),
             bo_close, upper_at_bo, lower_at_bo,
         )
+        return None
+
+    # Rising wedge only fires on bullish breakouts (price accelerates above
+    # the upper rising line); bearish breakouts are always skipped.
+    if direction == "bearish" and zone_info.get("triangle_type") == "rising_wedge":
         return None
 
     # ── Volume confirmation ───────────────────────────────────────────────────
