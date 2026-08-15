@@ -43,11 +43,11 @@ from .config import (
     RULE_ALERT_THRESHOLD,
     SCAN_LOOKBACK_CANDLES,
     SCAN_TICKERS,
+    TL_CACHE_THRESH,
     ZIGZAG_DEVIATIONS,
 )
 from .feature_extractor import (
     _best_zigzag,
-    _linreg,
     _trim_breakout_swings,
     extract_features,
     explain_features,
@@ -176,6 +176,11 @@ class BacktestConfig:
     flat_pct:           float = 0.02   # slope < this % of price over zone = "flat"
     trend_pct:          float = 0.01   # slope > this % of price over zone = "trending"
 
+    # ── Trendline cache ───────────────────────────────────────────────────────
+    # A swing point deviating more than this fraction from the cached trendline
+    # triggers a full best-subset refit.  Env: SCANNER_TL_CACHE_THRESH (default 0.02).
+    tl_cache_thresh:    float = TL_CACHE_THRESH
+
     # ── Candle interval ───────────────────────────────────────────────────────
     # Override to run the backtest on a different interval (e.g. "1h", "1D").
     # candles_per_day must match: 25 for 15m, 6 for 1h, 3 for 2h, 1 for 1D.
@@ -191,12 +196,111 @@ class BacktestConfig:
         return self.max_window_days * self.candles_per_day
 
 
+# ── Trendline cache helpers ───────────────────────────────────────────────────
+
+_EPS_DENOM = 1e-12
+
+
+def _tl_cache_check(
+    cache: dict | None,
+    u_idx: np.ndarray, u_prices: np.ndarray,
+    l_idx: np.ndarray, l_prices: np.ndarray,
+    thresh: float,
+) -> bool:
+    """
+    Returns True when the cached best-subset trendline is still valid for the
+    current swing points: the earliest anchor price is present in the cached
+    set AND every new swing point lies within `thresh` of the cached lines.
+
+    Mutates cache['valid'] = False when the earliest anchor drops out.
+    Does NOT invalidate on a threshold breach — the caller (_tl_cache_get)
+    will overwrite the cache on the ensuing recompute.
+    """
+    if not (cache and cache.get('valid')):
+        return False
+    if (u_prices[0] not in cache['u_price_set'] or
+            l_prices[0] not in cache['l_price_set']):
+        cache['valid'] = False
+        return False
+    cu_s, cu_i = cache['upper_slope'], cache['upper_intercept']
+    cl_s, cl_i = cache['lower_slope'], cache['lower_intercept']
+    for ix, p in zip(u_idx, u_prices):
+        if p not in cache['u_price_set']:
+            if abs(p - (cu_s * float(ix) + cu_i)) / p > thresh:
+                return False
+    for ix, p in zip(l_idx, l_prices):
+        if p not in cache['l_price_set']:
+            if abs(p - (cl_s * float(ix) + cl_i)) / p > thresh:
+                return False
+    return True
+
+
+def _tl_cache_get(
+    cache: dict | None,
+    u_idx: np.ndarray, u_prices: np.ndarray,
+    l_idx: np.ndarray, l_prices: np.ndarray,
+    n_window: int,
+    zone_closes: np.ndarray,
+    thresh: float,
+) -> dict:
+    """
+    Return a trendline dict, reusing the cached fit when _tl_cache_check passes.
+    Falls back to a full fit_trendlines_from_swings call on any invalidation.
+    Adds '_cache_hit': True/False consumed by the stats counter in detect_triangle_zone.
+    """
+    if _tl_cache_check(cache, u_idx, u_prices, l_idx, l_prices, thresh):
+        # Cache hit — re-project at current window length
+        x_all  = np.arange(n_window, dtype=float)
+        cu_s, cu_i = cache['upper_slope'], cache['upper_intercept']
+        cl_s, cl_i = cache['lower_slope'], cache['lower_intercept']
+        denom  = cu_s - cl_s
+        apex_x = (cl_i - cu_i) / denom if abs(denom) > _EPS_DENOM else float(n_window) * 2
+        return {
+            'upper_slope':     cu_s,
+            'upper_intercept': cu_i,
+            'lower_slope':     cl_s,
+            'lower_intercept': cl_i,
+            'upper_line':      cu_i + cu_s * x_all,
+            'lower_line':      cl_i + cl_s * x_all,
+            'apex_x':          apex_x,
+            'n':               n_window,
+            'x':               x_all,
+            'upper_inliers':   cache['upper_inliers'],
+            'upper_rmse':      cache['upper_rmse'],
+            'lower_inliers':   cache['lower_inliers'],
+            'lower_rmse':      cache['lower_rmse'],
+            '_cache_hit':      True,
+        }
+
+    # Cache miss — full recompute
+    tl = fit_trendlines_from_swings(
+        u_idx, u_prices, l_idx, l_prices, n_window, zone_closes=zone_closes,
+    )
+    if cache is not None:
+        cache.update({
+            'valid':           True,
+            'upper_slope':     tl['upper_slope'],
+            'upper_intercept': tl['upper_intercept'],
+            'lower_slope':     tl['lower_slope'],
+            'lower_intercept': tl['lower_intercept'],
+            'upper_inliers':   tl['upper_inliers'],
+            'upper_rmse':      tl['upper_rmse'],
+            'lower_inliers':   tl['lower_inliers'],
+            'lower_rmse':      tl['lower_rmse'],
+            'u_price_set':     frozenset(u_prices),
+            'l_price_set':     frozenset(l_prices),
+        })
+    tl['_cache_hit'] = False
+    return tl
+
+
 # ── Triangle detector (O(n) ZigZag-based) ─────────────────────────────────────
 
 def detect_triangle_zone(
     candles: pd.DataFrame,
     cfg: BacktestConfig = None,
     _stats: dict = None,
+    _tl_cache: dict = None,
 ) -> Optional[dict]:
     """
     Detect a triangle zone in the candle window.
@@ -221,7 +325,7 @@ def detect_triangle_zone(
             Intended for backtest callers that log a single summary after the loop.
             Keys: n_calls, n_short, n_zigzag_none, n_not_triangle,
                   n_zone_short, n_swing_too_few, n_confirmed,
-                  t_zigzag, t_trim, t_slope_check, t_subset_fit.
+                  t_zigzag, t_trim, t_subset_fit.
 
     Returns dict with zone metadata, or None if no triangle found.
     """
@@ -243,7 +347,7 @@ def detect_triangle_zone(
     avg_price = float(zone_window["close"].mean())
 
     _t = time.perf_counter()
-    dev, u_idx, u_prices, l_idx, l_prices, score = _best_zigzag(
+    dev, u_idx, u_prices, l_idx, l_prices = _best_zigzag(
         zone_window, cfg.zigzag_deviations
     )
     _s("t_zigzag", time.perf_counter() - _t)
@@ -258,10 +362,36 @@ def detect_triangle_zone(
     l_idx, l_prices = _trim_breakout_swings(l_idx, l_prices)
     _s("t_trim", time.perf_counter() - _t)
 
-    # Cheap OLS slope check — avoid expensive subset search on non-triangles
+    # Slope + trendline fit — one step, no separate pre-filter.
+    # Cache hit: slopes from cache, re-project only (O(k)).
+    # Cache miss: best-subset fit once; result is reused below, no second compute.
     _t = time.perf_counter()
-    upper_s, _ = _linreg(u_idx.astype(float), u_prices)
-    lower_s, _ = _linreg(l_idx.astype(float), l_prices)
+    if _tl_cache_check(_tl_cache, u_idx, u_prices, l_idx, l_prices, cfg.tl_cache_thresh):
+        upper_s = _tl_cache['upper_slope']
+        lower_s = _tl_cache['lower_slope']
+        _pre_tl = None
+    else:
+        _pre_tl = fit_trendlines_from_swings(
+            u_idx, u_prices, l_idx, l_prices, n_window,
+            zone_closes=zone_window["close"].values,
+        )
+        if _tl_cache is not None:
+            _tl_cache.update({
+                'valid':           True,
+                'upper_slope':     _pre_tl['upper_slope'],
+                'upper_intercept': _pre_tl['upper_intercept'],
+                'lower_slope':     _pre_tl['lower_slope'],
+                'lower_intercept': _pre_tl['lower_intercept'],
+                'upper_inliers':   _pre_tl['upper_inliers'],
+                'upper_rmse':      _pre_tl['upper_rmse'],
+                'lower_inliers':   _pre_tl['lower_inliers'],
+                'lower_rmse':      _pre_tl['lower_rmse'],
+                'u_price_set':     frozenset(u_prices),
+                'l_price_set':     frozenset(l_prices),
+            })
+        upper_s = _pre_tl['upper_slope']
+        lower_s = _pre_tl['lower_slope']
+    _s("t_subset_fit", time.perf_counter() - _t)
 
     # ── Universal three-type triangle check ──────────────────────────────────
     # Three valid patterns, each with a distinct slope signature:
@@ -278,9 +408,9 @@ def detect_triangle_zone(
     # For descending/ascending, also require a minimum *differential* between the
     # two slopes so that two parallel falling/rising lines don't qualify.
     # The non-flat line must be moving at least 1% more than the flat line.
-    is_sym  = (upper_s < -trend_thresh                                        # upper clearly falling
-               and lower_s > trend_thresh                                     # lower clearly rising
-               and (lower_s - upper_s) > trend_thresh)                       # converging
+    is_sym  = (upper_s < 0                                                    # upper falling
+               and lower_s > 0                                               # lower rising
+               and (lower_s - upper_s) > 2 * trend_thresh)                  # combined convergence is strong
     is_desc = (abs(upper_s) <= flat_thresh                                    # upper flat
                and lower_s < -trend_thresh                                    # lower clearly falling
                and (lower_s - upper_s) < -trend_thresh)                      # lower more negative than upper
@@ -293,7 +423,6 @@ def detect_triangle_zone(
     is_rising_wedge = (upper_s > trend_thresh                                # upper clearly rising
                        and lower_s > trend_thresh                            # lower also rising
                        and (lower_s - upper_s) > trend_thresh)              # lower rises more → converging
-    _s("t_slope_check", time.perf_counter() - _t)
 
     if not (is_sym or is_desc or is_asc or is_wedge or is_rising_wedge):
         logger.debug(
@@ -314,11 +443,39 @@ def detect_triangle_zone(
                      else "falling_wedge" if is_wedge
                      else "rising_wedge")
 
-    # Triangle confirmed — now run the expensive best-subset fit
+    # Triangle confirmed — get full trendline dict (re-project from cache, or
+    # reuse the pre-computed fit from the cache-miss path above).
     _t = time.perf_counter()
-    tl     = fit_trendlines_from_swings(u_idx, u_prices, l_idx, l_prices, n_window,
-                                        zone_closes=zone_window["close"].values)
-    _s("t_subset_fit", time.perf_counter() - _t)
+    _cache_hit = False
+    if _pre_tl is not None:
+        tl = _pre_tl
+    else:
+        tl = _tl_cache_get(
+            _tl_cache, u_idx, u_prices, l_idx, l_prices,
+            n_window, zone_window["close"].values, cfg.tl_cache_thresh,
+        )
+        _cache_hit = tl.pop("_cache_hit", False)
+        if _cache_hit:
+            _s("n_cache_hit")
+
+    if logger.isEnabledFor(logging.DEBUG):
+        u_devs = [abs(p - (tl['upper_slope'] * float(ix) + tl['upper_intercept'])) / p
+                  for ix, p in zip(u_idx, u_prices)]
+        l_devs = [abs(p - (tl['lower_slope'] * float(ix) + tl['lower_intercept'])) / p
+                  for ix, p in zip(l_idx, l_prices)]
+        logger.debug(
+            "Trendline (%s) upper_slope=%.5f  max_u_dev=%.2f%%  max_l_dev=%.2f%%"
+            "  u_inliers=%d/%d  l_inliers=%d/%d  window=[%s → %s]",
+            "cache" if _cache_hit else "fit",
+            tl['upper_slope'],
+            max(u_devs) * 100,
+            max(l_devs) * 100,
+            tl['upper_inliers'], len(u_prices),
+            tl['lower_inliers'], len(l_prices),
+            zone_window.iloc[0]["ts"].strftime("%d-%b %H:%M"),
+            zone_window.iloc[-1]["ts"].strftime("%d-%b %H:%M"),
+        )
+
     apex_x = tl["apex_x"]
 
     # ── Find zone start candle ────────────────────────────────────────────────
@@ -346,7 +503,12 @@ def detect_triangle_zone(
     u_mask = u_idx_rel >= 0
     l_mask = l_idx_rel >= 0
     if u_mask.sum() < cfg.min_swing_points or l_mask.sum() < cfg.min_swing_points:
-        logger.debug("Not enough swing points within zone after trimming")
+        logger.debug(
+            "Not enough swing points within zone after trimming: "
+            "zone_start=%d  u_mask=%d  l_mask=%d  u_idx[0]=%d  l_idx[0]=%d  n_window=%d",
+            zone_start_idx, int(u_mask.sum()), int(l_mask.sum()),
+            int(u_idx[0]), int(l_idx[0]), n_window,
+        )
         _s("n_swing_too_few")
         return None
 
@@ -355,12 +517,12 @@ def detect_triangle_zone(
 
     logger.debug(
         "Triangle found: %s  [%s → %s]  zone=%d candles (%.1f days)  "
-        "dev=%.1f%%  apex_x=%.0f  score=%.3f  swings: %dH/%dL",
+        "dev=%.1f%%  apex_x=%.0f  swings: %dH/%dL",
         triangle_type,
         zone_window.iloc[zone_start_idx]["ts"].strftime("%d-%b %H:%M"),
         zone_window.iloc[-1]["ts"].strftime("%d-%b %H:%M"),
         zone_len, trading_days,
-        dev * 100, apex_x, score,
+        dev * 100, apex_x,
         u_mask.sum(), l_mask.sum(),
     )
 
@@ -372,7 +534,6 @@ def detect_triangle_zone(
         "triangle_type":   triangle_type,
         "tl":              tl,
         "deviation":       dev,
-        "zigzag_score":    score,
         "u_idx":           u_idx[u_mask],
         "u_prices":        u_prices[u_mask],
         "l_idx":           l_idx[l_mask],
@@ -381,6 +542,58 @@ def detect_triangle_zone(
         "n_swing_lows":    int(l_mask.sum()),
         "apex_x":          apex_x,
     }
+
+
+# ── Carry-forward trendline projection ───────────────────────────────────────
+
+def _carry_forward_zone(
+    last_zone_info: dict,
+    window_len: int,
+    avg_price: float,
+) -> Optional[dict]:
+    """
+    Project a previously-confirmed zone's trendlines to cover the current window.
+
+    Called when detect_triangle_zone returns None but a valid zone was recently
+    confirmed.  Two geometric guard conditions are checked here:
+
+      Guard 2 — apex expiry: the current candle position has passed the
+                trendline intersection; the triangle is geometrically expired.
+      Guard 3 — quality gate: both trendlines must have ≥3 inlier touches
+                and RMSE/avg_price < 1.2 % — low-quality fits are not projected.
+
+    Guard 1 (consecutive closes 2 % below the lower line) is handled in the
+    caller because it requires a cross-iteration counter.
+
+    Returns a shallow copy of last_zone_info with updated zone_end_idx,
+    zone_len, and trading_days, or None if any guard fails.
+    """
+    tl = last_zone_info["tl"]
+
+    # Guard 3: quality gate — don't project noisy or sparse trendlines
+    if (tl["upper_inliers"] < 3
+            or tl["lower_inliers"] < 3
+            or tl["upper_rmse"] / (avg_price + 1e-9) >= 0.012
+            or tl["lower_rmse"] / (avg_price + 1e-9) >= 0.012):
+        return None
+
+    # Guard 2: apex expiry — breakout candidate sits at window_len - 1 in the
+    # same 0-based coordinate system as the stored trendline intercepts.
+    current_x = float(window_len - 1)
+    if current_x > last_zone_info["apex_x"]:
+        return None
+
+    # zone_window = window[:-1], so zone end is one candle before the breakout.
+    new_zone_end   = window_len - 2
+    new_zone_start = last_zone_info["zone_start_idx"]
+    new_zone_len   = new_zone_end - new_zone_start + 1
+
+    projected = dict(last_zone_info)   # shallow copy — tl dict is reused read-only
+    projected["zone_end_idx"]   = new_zone_end
+    projected["zone_len"]       = new_zone_len
+    projected["trading_days"]   = new_zone_len / 25.0   # approx; 25 candles/day
+    projected["_carry_forward"] = True
+    return projected
 
 
 # ── Breakout evaluator ────────────────────────────────────────────────────────
@@ -613,22 +826,82 @@ def scan_ticker_continuous(
     )
 
     alerts: list[BreakoutAlert] = []
-    left = 0
-    i    = cfg.min_zone_candles   # right edge (breakout candidate index)
+    left     = 0
+    i        = cfg.min_zone_candles   # right edge (breakout candidate index)
+    tl_cache: dict = {}               # shared trendline cache across iterations
+
+    # Carry-forward state: when detect_triangle_zone returns None, project the
+    # last confirmed zone's trendlines forward for up to 4 trading days.
+    # left == last_zone_left guards against using zone indices after the window
+    # base has shifted (which would make them wrong in the new coordinate system).
+    CARRY_FORWARD_CANDLES = 4 * cfg.candles_per_day   # ~100 candles at 15 min
+    last_zone_info    = None   # zone_info from the most recent confirmed zone
+    last_zone_i       = -1     # scan index i at which that zone was confirmed
+    last_zone_left    = -1     # value of left when that zone was confirmed
+    consecutive_below = 0      # consecutive candles that closed >2% below lower line
 
     detect_stats: dict = {}
     t_eval        = 0.0
     n_iterations  = 0
 
     while i < n:
-        # Slide left edge if window exceeds max size
+        # Slide left edge if window exceeds max size.
+        # When left advances, all window-relative indices shift down by delta.
+        # Correct the cached intercepts so the stored lines stay aligned to
+        # the new index space: intercept += slope * delta.
         if (i - left + 1) > cfg.max_window_candles:
-            left = i - cfg.max_window_candles + 1
+            new_left = i - cfg.max_window_candles + 1
+            delta = new_left - left
+            if delta > 0 and tl_cache.get('valid'):
+                tl_cache['upper_intercept'] += tl_cache['upper_slope'] * delta
+                tl_cache['lower_intercept'] += tl_cache['lower_slope'] * delta
+            left = new_left
 
         window = all_candles.iloc[left : i + 1].reset_index(drop=True)
 
-        zone_info = detect_triangle_zone(window, cfg, _stats=detect_stats)
+        zone_info = detect_triangle_zone(window, cfg, _stats=detect_stats, _tl_cache=tl_cache)
         n_iterations += 1
+
+        # ── Carry-forward: project last zone when detection fails ─────────────
+        if zone_info is not None:
+            # Fresh detection succeeded — update carry-forward anchor.
+            last_zone_info    = zone_info
+            last_zone_i       = i
+            last_zone_left    = left
+            consecutive_below = 0
+        elif (last_zone_info is not None
+              and left == last_zone_left
+              and (i - last_zone_i) <= CARRY_FORWARD_CANDLES):
+            # Guard 1: two consecutive closes >2% below the projected lower
+            # trendline signal pattern collapse, not a temporary pierce.
+            tl_cf = last_zone_info["tl"]
+            current_x_cf = float(i - left)
+            lower_proj = (tl_cf["lower_intercept"]
+                          + tl_cf["lower_slope"] * current_x_cf)
+            if window.iloc[-1]["close"] < lower_proj * 0.98:
+                consecutive_below += 1
+                if consecutive_below >= 2:
+                    logger.debug(
+                        "Carry-forward invalidated: 2+ consecutive closes >2%% below "
+                        "projected lower trendline at i=%d  ts=%s",
+                        i,
+                        window.iloc[-1]["ts"].strftime("%d-%b %H:%M"),
+                    )
+                    last_zone_info    = None
+                    consecutive_below = 0
+            else:
+                consecutive_below = 0
+
+            if last_zone_info is not None:
+                avg_price = float(window["close"].mean())
+                zone_info = _carry_forward_zone(last_zone_info, len(window), avg_price)
+                if zone_info is not None:
+                    logger.debug(
+                        "Carry-forward zone: projecting from i=%d to i=%d "
+                        "(%d candles elapsed)  ts=%s",
+                        last_zone_i, i, i - last_zone_i,
+                        window.iloc[-1]["ts"].strftime("%d-%b %H:%M"),
+                    )
 
         if zone_info is not None:
             _t = time.perf_counter()
@@ -641,11 +914,14 @@ def scan_ticker_continuous(
                 # but advance only 1 candle so a reversal breakout nearby
                 # (e.g. bullish after a fake bearish) is not missed.
                 left = i
+                tl_cache.clear()   # window reset — cached trendline no longer valid
+                last_zone_info    = None   # retire carry-forward state too
+                consecutive_below = 0
 
         i += 1
 
     t_detect = (detect_stats.get("t_zigzag", 0) + detect_stats.get("t_trim", 0)
-                + detect_stats.get("t_slope_check", 0) + detect_stats.get("t_subset_fit", 0))
+                + detect_stats.get("t_subset_fit", 0))
     t_total  = t_fetch + t_detect + t_eval
 
     n_confirmed   = detect_stats.get("n_confirmed", 0)
@@ -661,19 +937,21 @@ def scan_ticker_continuous(
         t_eval,
         t_total,
     )
+    n_cache_hit = detect_stats.get("n_cache_hit", 0)
     logger.info(
-        "%s: detect breakdown — zigzag=%.2fs  trim=%.2fs  slope_check=%.2fs  subset_fit=%.2fs"
-        " | exits: zigzag_none=%d  not_triangle=%d  zone_short=%d  swing_few=%d  confirmed=%d",
+        "%s: detect breakdown — zigzag=%.2fs  trim=%.2fs  subset_fit=%.2fs"
+        " | exits: zigzag_none=%d  not_triangle=%d  zone_short=%d  swing_few=%d  confirmed=%d"
+        " | tl_cache: hits=%d",
         ticker,
         detect_stats.get("t_zigzag", 0),
         detect_stats.get("t_trim", 0),
-        detect_stats.get("t_slope_check", 0),
         detect_stats.get("t_subset_fit", 0),
         n_zigzag_none,
         n_not_tri,
         detect_stats.get("n_zone_short", 0),
         detect_stats.get("n_swing_too_few", 0),
         n_confirmed,
+        n_cache_hit,
     )
     return alerts
 

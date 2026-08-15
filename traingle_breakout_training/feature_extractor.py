@@ -173,7 +173,7 @@ def extract_swing_points(
 def _best_zigzag(
     candles: pd.DataFrame,
     deviations: list[float] = None,
-) -> tuple[float, np.ndarray, np.ndarray, np.ndarray, np.ndarray, float]:
+) -> tuple[float, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """
     Try each ZigZag deviation and pick the one with the best composite score.
 
@@ -182,16 +182,12 @@ def _best_zigzag(
       35% - Pivot density     : how many swing points (more = more reliable)
       25% - Convergence       : are the two lines actually squeezing together?
 
-    Convergence (upper_slope < lower_slope) is the one geometry property shared
-    by ALL triangle types - descending, ascending, and symmetrical - so this
-    criterion accepts all three without biasing toward any one.
-
-    Note: maximising R2 alone biases toward large deviations because fewer pivot
-    points always produce a tighter line fit. The density term counteracts this.
+    Slopes are extracted from the same linregress call used for R², avoiding a
+    redundant second regression pass per deviation.
 
     Returns
     -------
-    best_deviation, upper_idx, upper_prices, lower_idx, lower_prices, best_score
+    best_deviation, upper_idx, upper_prices, lower_idx, lower_prices
     """
     if deviations is None:
         deviations = ZIGZAG_DEVIATIONS
@@ -199,6 +195,9 @@ def _best_zigzag(
     best_score = -np.inf
     best       = None
     avg_price  = float(candles["close"].mean())
+    n_zone     = len(candles)
+    flat_thresh  = avg_price * 0.02 / n_zone
+    trend_thresh = avg_price * 0.01 / n_zone
 
     TARGET_PIVOTS = 12  # benchmark pivot count per line for a 55-day zone
 
@@ -208,25 +207,18 @@ def _best_zigzag(
         if len(u_prices) < MIN_SWING_POINTS or len(l_prices) < MIN_SWING_POINTS:
             continue
 
+        # Single linregress per trendline — yields both slope (for convergence
+        # check) and r (for R² score), avoiding a second _linreg call.
+        u_slope, _, r_upper, _, _ = linregress(u_idx.astype(float), u_prices)
+        l_slope, _, r_lower, _, _ = linregress(l_idx.astype(float), l_prices)
+
         # 1. Trendline quality (R2) - 40%
-        _, _, r_upper, _, _ = linregress(u_idx.astype(float), u_prices)
-        _, _, r_lower, _, _ = linregress(l_idx.astype(float), l_prices)
-        r2_score = (r_upper ** 2 + r_lower ** 2) / 2.0   # avg, 0-1
+        r2_score = (r_upper ** 2 + r_lower ** 2) / 2.0
 
         # 2. Pivot density - 35%
-        avg_pivots    = (len(u_prices) + len(l_prices)) / 2.0
-        density_score = min(1.0, avg_pivots / TARGET_PIVOTS)
+        density_score = min(1.0, (len(u_prices) + len(l_prices)) / 2.0 / TARGET_PIVOTS)
 
         # 3. Convergence / triangle shape — 25%
-        # Mirror the same three-type check used in detect_triangle_zone.
-        # Score 1.0 for a clean pattern, partial credit for borderline cases.
-        u_slope, _ = _linreg(u_idx.astype(float), u_prices)
-        l_slope, _ = _linreg(l_idx.astype(float), l_prices)
-        n_zone      = len(candles)
-
-        flat_thresh  = avg_price * 0.02 / n_zone
-        trend_thresh = avg_price * 0.01 / n_zone
-
         is_sym   = (u_slope < -trend_thresh
                     and l_slope > trend_thresh
                     and (l_slope - u_slope) > trend_thresh)
@@ -241,34 +233,24 @@ def _best_zigzag(
                     and (l_slope - u_slope) > trend_thresh)
 
         if is_sym or is_desc or is_asc or is_wedge:
-            # Clean triangle — full score
             convergence_score = 1.0
         else:
-            # Partial credit: how close are we to meeting any condition?
-            # Score based on best near-miss
-            # Near-desc: upper nearly flat
             desc_closeness = max(0.0, 1.0 - abs(u_slope) / (flat_thresh + EPS))
-            # Near-asc: lower nearly flat
             asc_closeness  = max(0.0, 1.0 - abs(l_slope) / (flat_thresh + EPS))
-            # Near-sym: how close are slopes to converging
             sym_closeness  = max(0.0, 1.0 - max(0.0, l_slope - u_slope) / (trend_thresh + EPS)) \
                              if l_slope > u_slope else 0.0
             convergence_score = max(desc_closeness, asc_closeness, sym_closeness) * 0.4
 
-        composite = (
-            0.40 * r2_score +
-            0.35 * density_score +
-            0.25 * convergence_score
-        )
+        composite = 0.40 * r2_score + 0.35 * density_score + 0.25 * convergence_score
 
         if composite > best_score:
             best_score = composite
             best       = (dev, u_idx, u_prices, l_idx, l_prices)
 
     if best is None:
-        return None, None, None, None, None, -np.inf
+        return None, None, None, None, None
 
-    return (*best, best_score)
+    return best
 
 
 # ── Trendline fitter (swing-point aware) ──────────────────────────────────────
@@ -476,6 +458,54 @@ def _trim_breakout_swings(
     return idx, prices
 
 
+def _trim_slope_discontinuity(
+    idx: np.ndarray,
+    prices: np.ndarray,
+    min_points: int = MIN_SWING_POINTS,
+    deviation_threshold: float = 0.016,
+) -> tuple[np.ndarray, np.ndarray]:
+    """
+    Trim trailing swing points that signal a structural break from the main trend.
+
+    A trailing point is removed when BOTH conditions hold:
+    1. It deviates from the OLS line by > deviation_threshold × avg_price (default 1.6%).
+    2. The local slope of the last segment (penultimate → last) has the same sign as
+       the deviation — meaning the price is actively moving away from the trendline,
+       not reverting toward it.
+
+    The sign-agreement test distinguishes a genuine slope break from a point that is
+    temporarily off the line but heading back.  A spike followed by a declining high
+    would have deviation > 0 but local_slope < 0, so condition 2 fails and it is kept.
+
+    These trailing points belong to a new price structure forming at the end of the
+    triangle.  Removing them lets the triangle trendline fit the consistent majority.
+    The new structure is detected later once the scanner window advances.
+    """
+    while len(prices) > min_points:
+        slope, intercept, *_ = linregress(idx.astype(float), prices)
+        avg_price = float(np.mean(prices))
+
+        last_predicted = slope * float(idx[-1]) + intercept
+        deviation = float(prices[-1]) - last_predicted
+
+        if abs(deviation) / avg_price <= deviation_threshold:
+            break
+
+        dx = float(idx[-1]) - float(idx[-2])
+        if abs(dx) < EPS:
+            break
+        local_slope = (float(prices[-1]) - float(prices[-2])) / dx
+
+        # Trim only when the last segment is actively diverging from the trend
+        if deviation * local_slope > 0:
+            idx    = idx[:-1]
+            prices = prices[:-1]
+        else:
+            break
+
+    return idx, prices
+
+
 def fit_trendlines_from_swings(
     upper_idx: np.ndarray,
     upper_prices: np.ndarray,
@@ -496,6 +526,21 @@ def fit_trendlines_from_swings(
     where >10% of closes breach the trendline are excluded.
     """
     candle_x = np.arange(n_candles, dtype=float) if zone_closes is not None else None
+
+    # Trim trailing points that represent a new structure breaking away from the triangle.
+    # Must happen before _best_subset_line so "last inlier preferred" anchors to the
+    # correct boundary point, not an outlier from a forming breakout/new pattern.
+    u_trimmed = len(upper_prices)
+    l_trimmed = len(lower_prices)
+    upper_idx, upper_prices = _trim_slope_discontinuity(upper_idx, upper_prices)
+    lower_idx, lower_prices = _trim_slope_discontinuity(lower_idx, lower_prices)
+    u_trimmed -= len(upper_prices)
+    l_trimmed -= len(lower_prices)
+    if u_trimmed or l_trimmed:
+        logger.debug(
+            "Slope-discontinuity trim: removed %d upper / %d lower trailing swing point(s)",
+            u_trimmed, l_trimmed,
+        )
 
     upper_slope, upper_intercept, u_inliers, u_rmse = _best_subset_line(
         upper_idx, upper_prices,
@@ -549,7 +594,7 @@ def fit_trendlines(zone_candles: pd.DataFrame) -> dict:
     """
     n = len(zone_candles)
 
-    dev, u_idx, u_prices, l_idx, l_prices, r2 = _best_zigzag(zone_candles)
+    dev, u_idx, u_prices, l_idx, l_prices = _best_zigzag(zone_candles)
 
     if dev is not None:
         u_idx, u_prices = _trim_breakout_swings(u_idx, u_prices)
@@ -558,7 +603,6 @@ def fit_trendlines(zone_candles: pd.DataFrame) -> dict:
                                         zone_closes=zone_candles["close"].values)
         tl["used_zigzag"]  = True
         tl["deviation"]    = dev
-        tl["swing_r2"]     = r2
         tl["highs"] = zone_candles["high"].values.astype(float)
         tl["lows"]  = zone_candles["low"].values.astype(float)
         tl["closes"]= zone_candles["close"].values.astype(float)
@@ -586,7 +630,6 @@ def fit_trendlines(zone_candles: pd.DataFrame) -> dict:
         "x":           x,           "highs":           highs,
         "lows":        lows,        "closes":          closes,
         "used_zigzag": False,       "deviation":       None,
-        "swing_r2":    None,
     }
 
 
@@ -734,8 +777,8 @@ def extract_features(
     }
 
     logger.debug(
-        "Features extracted: zone=%d candles, zigzag=%s dev=%.1f%% r2=%.3f",
-        n, tl.get("used_zigzag"), (tl.get("deviation") or 0) * 100, tl.get("swing_r2") or 0,
+        "Features extracted: zone=%d candles, zigzag=%s dev=%.1f%%",
+        n, tl.get("used_zigzag"), (tl.get("deviation") or 0) * 100,
     )
 
     return features

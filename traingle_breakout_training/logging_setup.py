@@ -50,17 +50,31 @@ def setup(level: str = None):
     level = level or LOG_LEVEL
     numeric = getattr(logging, level.upper(), logging.INFO)
 
+    # Attach the file handler to the package-level logger, not the root logger.
+    # When running inside FastAPI, main.py sets propagate=False on this logger
+    # (to avoid double console output via uvicorn), which means scanner messages
+    # never reach the root logger.  Handlers on the package logger fire regardless
+    # of propagate, so attaching here works in both standalone and FastAPI modes.
+    pkg_logger = logging.getLogger(__name__.split('.')[0])  # "traingle_breakout_training"
+
+    # Guard: skip if our file handler is already attached.
+    target_path = str(Path(LOG_PATH).resolve())
+    for h in pkg_logger.handlers:
+        if (isinstance(h, logging.handlers.BaseRotatingHandler)
+                and getattr(h, 'baseFilename', None) == target_path):
+            return
+
+    pkg_logger.setLevel(numeric)
+
+    # Console handler on root — only in standalone mode (no other framework running).
+    # In FastAPI mode uvicorn owns the console; we leave root alone.
     root = logging.getLogger()
-    if root.handlers:
-        return   # already configured
-
-    root.setLevel(numeric)
-
-    # Console handler
-    console = logging.StreamHandler(sys.stdout)
-    console.setLevel(numeric)
-    console.setFormatter(_ColourFormatter())
-    root.addHandler(console)
+    if not root.handlers:
+        root.setLevel(numeric)
+        console = logging.StreamHandler(sys.stdout)
+        console.setLevel(numeric)
+        console.setFormatter(_ColourFormatter())
+        root.addHandler(console)
 
     # File handler (rotating, 5 MB × 3 files)
     log_path = Path(LOG_PATH)
@@ -74,7 +88,7 @@ def setup(level: str = None):
         fmt    = "%(asctime)s  %(levelname)-8s  %(name)-22s  %(message)s",
         datefmt= "%Y-%m-%d %H:%M:%S",
     ))
-    root.addHandler(file_handler)
+    pkg_logger.addHandler(file_handler)
 
     # Suppress noisy third-party loggers
     for noisy in ("urllib3", "requests", "xgboost"):
