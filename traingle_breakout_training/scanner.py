@@ -43,6 +43,7 @@ from .config import (
     RULE_ALERT_THRESHOLD,
     SCAN_LOOKBACK_CANDLES,
     SCAN_TICKERS,
+    SLOPE_FILTER,
     TL_CACHE_THRESH,
     TRIANGLE_CONFIRM_LOOKBACK_DAYS,
     TRIANGLE_CONFIRM_MAX_CANDLES,
@@ -209,6 +210,10 @@ class BacktestConfig:
     flat_pct:           float = 0.02   # slope < this % of price over zone = "flat"
     trend_pct:          float = 0.01   # slope > this % of price over zone = "trending"
 
+    # Restrict detection to upward-biased ("positive"), downward-biased
+    # ("negative"), or all ("both") triangle geometries. See config.SLOPE_FILTER.
+    slope_filter:       str   = SLOPE_FILTER   # "positive" | "negative" | "both"
+
     # ── Trendline cache ───────────────────────────────────────────────────────
     # A swing point deviating more than this fraction from the cached trendline
     # triggers a full best-subset refit.  Env: SCANNER_TL_CACHE_THRESH (default 0.02).
@@ -228,6 +233,10 @@ class BacktestConfig:
     def __post_init__(self):
         if self.zigzag_deviations is None:
             self.zigzag_deviations = list(ZIGZAG_DEVIATIONS)
+        if self.slope_filter not in ("positive", "negative", "both"):
+            raise ValueError(
+                f"slope_filter must be 'positive', 'negative', or 'both' — got {self.slope_filter!r}"
+            )
 
     @property
     def max_window_candles(self) -> int:
@@ -334,6 +343,13 @@ def _tl_cache_get(
 
 # ── Triangle detector (O(n) ZigZag-based) ─────────────────────────────────────
 
+# Net trendline direction per triangle type, used by BacktestConfig.slope_filter.
+# symmetrical has no consistent net direction (upper falling, lower rising) so
+# it belongs to neither set — it only ever passes slope_filter="both".
+_POSITIVE_SLOPE_TYPES = {"ascending", "rising_wedge"}
+_NEGATIVE_SLOPE_TYPES = {"descending", "falling_wedge"}
+
+
 def detect_triangle_zone(
     candles: pd.DataFrame,
     cfg: BacktestConfig = None,
@@ -362,7 +378,7 @@ def detect_triangle_zone(
     _stats: optional dict updated in-place with cumulative timing counters.
             Intended for backtest callers that log a single summary after the loop.
             Keys: n_calls, n_short, n_zigzag_none, n_not_triangle,
-                  n_zone_short, n_swing_too_few, n_confirmed,
+                  n_slope_filtered, n_zone_short, n_swing_too_few, n_confirmed,
                   t_zigzag, t_trim, t_subset_fit.
 
     Returns dict with zone metadata, or None if no triangle found.
@@ -480,6 +496,20 @@ def detect_triangle_zone(
                      else "ascending" if is_asc
                      else "falling_wedge" if is_wedge
                      else "rising_wedge")
+
+    # ── Slope filter ──────────────────────────────────────────────────────────
+    # symmetrical has no consistent net direction, so it only passes "both".
+    if cfg.slope_filter != "both":
+        allowed = _POSITIVE_SLOPE_TYPES if cfg.slope_filter == "positive" else _NEGATIVE_SLOPE_TYPES
+        if triangle_type not in allowed:
+            logger.debug(
+                "Slope filter '%s' excludes %s pattern  window=[%s → %s]",
+                cfg.slope_filter, triangle_type,
+                zone_window.iloc[0]["ts"].strftime("%d-%b %H:%M"),
+                zone_window.iloc[-1]["ts"].strftime("%d-%b %H:%M"),
+            )
+            _s("n_slope_filtered")
+            return None
 
     # Triangle confirmed — get full trendline dict (re-project from cache, or
     # reuse the pre-computed fit from the cache-miss path above).
@@ -1172,7 +1202,7 @@ def scan_ticker_continuous(
     n_cache_hit = detect_stats.get("n_cache_hit", 0)
     logger.info(
         "%s: detect breakdown — zigzag=%.2fs  trim=%.2fs  subset_fit=%.2fs"
-        " | exits: zigzag_none=%d  not_triangle=%d  zone_short=%d  swing_few=%d  confirmed=%d"
+        " | exits: zigzag_none=%d  not_triangle=%d  slope_filtered=%d  zone_short=%d  swing_few=%d  confirmed=%d"
         " | tl_cache: hits=%d",
         ticker,
         detect_stats.get("t_zigzag", 0),
@@ -1180,6 +1210,7 @@ def scan_ticker_continuous(
         detect_stats.get("t_subset_fit", 0),
         n_zigzag_none,
         n_not_tri,
+        detect_stats.get("n_slope_filtered", 0),
         detect_stats.get("n_zone_short", 0),
         detect_stats.get("n_swing_too_few", 0),
         n_confirmed,
@@ -1204,6 +1235,7 @@ def scan_all_continuous(
     logger.info("  Max window      : %d candles (%d trading days)", cfg.max_window_candles, cfg.max_window_days)
     logger.info("  Min volume ratio: %.2f", cfg.min_volume_ratio)
     logger.info("  ML threshold    : %.2f", cfg.ml_threshold)
+    logger.info("  Slope filter    : %s", cfg.slope_filter)
     logger.info("  Tickers         : %s", ", ".join(tickers))
     logger.info("═" * 60)
 
