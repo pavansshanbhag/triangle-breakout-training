@@ -86,16 +86,6 @@ SCANNER_CRON = "2,17,32,47 * * * *"
 # with 15 days of headroom for detecting the zone start cleanly.
 SCAN_LOOKBACK_CANDLES = 1750
 
-# ── Slope filter ──────────────────────────────────────────────────────────────
-# Restrict which triangle geometries detect_triangle_zone will return, by the
-# net direction of their trendlines:
-#   "positive" — only ascending / rising_wedge (upward-biased) patterns
-#   "negative" — only descending / falling_wedge (downward-biased) patterns
-#   "both"     — all five types, including symmetrical (default, current behavior)
-# symmetrical has no consistent net direction (upper falling, lower rising), so
-# it is only ever returned when slope_filter == "both".
-SLOPE_FILTER = _os.getenv("SCANNER_SLOPE_FILTER", "both")
-
 # ── Trendline cache ───────────────────────────────────────────────────────────
 # A post-trim swing point deviating more than this fraction from the cached
 # best-subset trendline forces a full refit.  Lower = more aggressive refit;
