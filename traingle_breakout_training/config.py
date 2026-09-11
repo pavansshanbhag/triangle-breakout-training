@@ -92,6 +92,19 @@ SCAN_LOOKBACK_CANDLES = 1750
 # higher = more cache hits but potentially staler lines.
 TL_CACHE_THRESH = float(_os.getenv("SCANNER_TL_CACHE_THRESH", "0.02"))
 
+# ── Triangle confirmation alert ───────────────────────────────────────────────
+# Second-stage check on top of an already-fired BreakoutAlert: confirms price
+# is still above the breakout price AND got there via a sharp move (not a slow
+# grind) within this many days of the original breakout.
+TRIANGLE_CONFIRM_LOOKBACK_DAYS = int(_os.getenv("SCANNER_TRIANGLE_CONFIRM_LOOKBACK_DAYS", "7"))
+
+# "Sharp move" target: price must reach this fraction above the breakout price...
+TRIANGLE_CONFIRM_MOVE_PCT = float(_os.getenv("SCANNER_TRIANGLE_CONFIRM_MOVE_PCT", "0.02"))
+
+# ...within at most this many consecutive candles counted back from the most
+# recent candle whose close was still at/below the breakout price.
+TRIANGLE_CONFIRM_MAX_CANDLES = int(_os.getenv("SCANNER_TRIANGLE_CONFIRM_MAX_CANDLES", "2"))
+
 # ── Logging ───────────────────────────────────────────────────────────────────
 LOG_PATH  = "logs/scanner.log"
 LOG_LEVEL = _os.getenv("SCANNER_LOG_LEVEL", "INFO")

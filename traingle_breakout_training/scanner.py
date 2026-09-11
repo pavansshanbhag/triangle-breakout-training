@@ -24,7 +24,7 @@ import argparse
 import json
 import logging
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import datetime, timezone, timedelta
 from typing import Optional
 
@@ -44,6 +44,9 @@ from .config import (
     SCAN_LOOKBACK_CANDLES,
     SCAN_TICKERS,
     TL_CACHE_THRESH,
+    TRIANGLE_CONFIRM_LOOKBACK_DAYS,
+    TRIANGLE_CONFIRM_MAX_CANDLES,
+    TRIANGLE_CONFIRM_MOVE_PCT,
     ZIGZAG_DEVIATIONS,
 )
 from .feature_extractor import (
@@ -97,14 +100,31 @@ class BreakoutAlert:
     features:            dict = field(repr=False)
     explanation:         str  = field(repr=False)
 
+    # ── Triangle confirmation (follow-up alert) ───────────────────────────────
+    # alert_kind distinguishes a freshly-detected breakout from a follow-up
+    # confirmation of one. A "confirmation" alert must never itself be treated
+    # as an "original" breakout eligible for its own follow-up check (guarded
+    # in scan_triangle_alerts) — it always carries the *original* breakout's
+    # breakout_ts/breakout_close; the fields below describe the follow-up move.
+    alert_kind:          str                = "original"   # "original" | "confirmation"
+    confirm_ts:          Optional[datetime] = None   # candle used for "close above breakout price now"
+    confirm_close:       Optional[float]    = None
+    move_start_ts:       Optional[datetime] = None   # None = sharp move started at the breakout candle itself
+    move_end_ts:         Optional[datetime] = None   # candle that first closed >= target
+    move_candles:        Optional[int]      = None   # span of the sharp move
+    days_since_breakout: Optional[float]    = None
+
     def to_dict(self) -> dict:
         IST = timezone(timedelta(hours=5, minutes=30))
 
-        def fmt(ts: datetime) -> str:
+        def fmt(ts: Optional[datetime]) -> Optional[str]:
+            if ts is None:
+                return None
             return ts.astimezone(IST).strftime("%Y-%m-%d %H:%M IST")
 
-        return {
+        d = {
             "ticker":        self.ticker,
+            "alert_kind":    self.alert_kind,
             "breakout_ts":   fmt(self.breakout_ts),
             "breakout_close": self.breakout_close,
             "breakout_volume": self.breakout_volume,
@@ -142,8 +162,21 @@ class BreakoutAlert:
             "explanation": self.explanation,
         }
 
+        if self.alert_kind == "confirmation":
+            d["triangle_confirmation"] = {
+                "confirm_ts":          fmt(self.confirm_ts),
+                "confirm_close":       round(self.confirm_close, 2) if self.confirm_close is not None else None,
+                "move_start_ts":       fmt(self.move_start_ts),
+                "move_end_ts":         fmt(self.move_end_ts),
+                "move_candles":        self.move_candles,
+                "days_since_breakout": round(self.days_since_breakout, 2) if self.days_since_breakout is not None else None,
+            }
+
+        return d
+
     def log_summary(self):
-        logger.info("BREAKOUT ALERT\n%s", json.dumps(self.to_dict(), indent=2))
+        label = "TRIANGLE ALERT" if self.alert_kind == "confirmation" else "BREAKOUT ALERT"
+        logger.info("%s\n%s", label, json.dumps(self.to_dict(), indent=2))
 
 
 # ── Backtest configuration ────────────────────────────────────────────────────
@@ -180,6 +213,11 @@ class BacktestConfig:
     # A swing point deviating more than this fraction from the cached trendline
     # triggers a full best-subset refit.  Env: SCANNER_TL_CACHE_THRESH (default 0.02).
     tl_cache_thresh:    float = TL_CACHE_THRESH
+
+    # ── Triangle confirmation alert ───────────────────────────────────────────
+    triangle_confirm_lookback_days: int   = TRIANGLE_CONFIRM_LOOKBACK_DAYS  # 7
+    triangle_confirm_move_pct:      float = TRIANGLE_CONFIRM_MOVE_PCT      # 0.02
+    triangle_confirm_max_candles:   int   = TRIANGLE_CONFIRM_MAX_CANDLES   # 2
 
     # ── Candle interval ───────────────────────────────────────────────────────
     # Override to run the backtest on a different interval (e.g. "1h", "1D").
@@ -647,6 +685,12 @@ def evaluate_breakout(
     # Rising wedge only fires on bullish breakouts (price accelerates above
     # the upper rising line); bearish breakouts are always skipped.
     if direction == "bearish" and zone_info.get("triangle_type") == "rising_wedge":
+        logger.debug(
+            "Rising wedge bearish breakout skipped (bullish-only pattern)  ts=%s"
+            "  close=%.2f  upper=%.2f  lower=%.2f",
+            breakout_candle["ts"].strftime("%d-%b %H:%M"),
+            bo_close, upper_at_bo, lower_at_bo,
+        )
         return None
 
     # ── Volume confirmation ───────────────────────────────────────────────────
@@ -745,6 +789,188 @@ def evaluate_breakout(
     )
 
 
+# ── Triangle confirmation (second-stage alert) ────────────────────────────────
+
+def _find_sharp_move(
+    candles: pd.DataFrame,
+    baseline_price: float,
+    target_pct: float,
+    max_candles: int,
+) -> Optional[dict]:
+    """
+    Scan `candles` (chronological, all strictly after the breakout candle) for
+    a stretch of at most `max_candles` consecutive candles that carries the
+    close from at/below `baseline_price` up to `baseline_price * (1+target_pct)`.
+
+    A "reset point" is the most recent candle (or the breakout candle itself,
+    reset_idx=-1) whose close was still <= baseline_price. Every time price
+    closes >= target, the span since that reset point is checked — so a slow
+    first climb can be disqualified while a later sharp move (after price
+    pulls back to baseline) still counts as a confirming move.
+
+    Returns None if no qualifying move is found, else a dict:
+      {"span": int, "start_ts": Timestamp|None, "end_ts": Timestamp, "end_close": float}
+    start_ts is None when the move started at the breakout candle itself.
+    """
+    target    = baseline_price * (1.0 + target_pct)
+    reset_idx = -1
+
+    for i, close in enumerate(candles["close"].to_numpy(dtype=float)):
+        if close >= target and (i - reset_idx) <= max_candles:
+            return {
+                "span":      i - reset_idx,
+                "start_ts":  candles.iloc[reset_idx]["ts"] if reset_idx >= 0 else None,
+                "end_ts":    candles.iloc[i]["ts"],
+                "end_close": float(close),
+            }
+        if close <= baseline_price:
+            reset_idx = i
+
+    return None
+
+
+def check_triangle_confirmation(
+    ticker: str,
+    direction: str,
+    breakout_ts: datetime,
+    breakout_close: float,
+    now: datetime,
+    cfg: BacktestConfig = None,
+) -> Optional[dict]:
+    """
+    Check whether a breakout qualifies, as of `now`, as a confirmed triangle alert:
+
+      1. The breakout happened within cfg.triangle_confirm_lookback_days of `now`.
+      2. The latest candle close is still above the breakout price.
+      3. Somewhere since the breakout, price made a sharp move to
+         cfg.triangle_confirm_move_pct above the breakout price within at most
+         cfg.triangle_confirm_max_candles consecutive candles.
+
+    Only bullish breakouts are considered — this check is defined in terms of
+    price moving *above* the breakout price.
+
+    Takes plain breakout fields rather than a BreakoutAlert so callers that
+    only have those fields on hand (e.g. a caller reading its own persisted
+    alert store, which may not carry every BreakoutAlert field) can call this
+    directly. Returns the confirming-move facts as a plain dict, or None if
+    any condition fails — no new alert class.
+    """
+    cfg = cfg or BacktestConfig()
+
+    if direction != "bullish":
+        return None
+
+    days_since = (now - breakout_ts).total_seconds() / 86400.0
+    if days_since < 0 or days_since > cfg.triangle_confirm_lookback_days:
+        return None
+
+    post_candles = fetch_candles(
+        ticker, interval=cfg.interval,
+        from_ts=breakout_ts, to_ts=now,
+    )
+    post_candles = post_candles[post_candles["ts"] > breakout_ts].reset_index(drop=True)
+
+    if post_candles.empty:
+        return None
+
+    confirm_candle = post_candles.iloc[-1]
+    confirm_close  = float(confirm_candle["close"])
+
+    if confirm_close <= breakout_close:
+        return None
+
+    move = _find_sharp_move(
+        post_candles, breakout_close,
+        cfg.triangle_confirm_move_pct, cfg.triangle_confirm_max_candles,
+    )
+    if move is None:
+        return None
+
+    return {
+        "confirm_ts":          confirm_candle["ts"].to_pydatetime(),
+        "confirm_close":       confirm_close,
+        "move_start_ts":       move["start_ts"],
+        "move_end_ts":         move["end_ts"],
+        "move_candles":        move["span"],
+        "days_since_breakout": days_since,
+    }
+
+
+def scan_triangle_alerts(
+    tickers: list[str] = None,
+    now: Optional[datetime] = None,
+    cfg: BacktestConfig = None,
+) -> list[BreakoutAlert]:
+    """
+    Second-stage scan: for each ticker, re-derive bullish breakouts from the
+    last cfg.triangle_confirm_lookback_days days and check each against
+    check_triangle_confirmation.
+
+    Stateless — no dedup, no persistence, same as backtest()/scan_ticker_continuous()
+    for original alerts. Calling this repeatedly (e.g. every scheduler tick) will
+    re-derive and re-return/re-log the same confirmation for as long as the
+    originating breakout stays inside the lookback window. This library has no
+    Postgres access; alert history and dedup already live entirely on the
+    caller's side (e.g. ohlcv-system's `alerts` table + its own "already
+    alerted" check) — exactly how it already works for original breakout
+    alerts today, so the caller must apply the same pattern here: check its
+    own store before calling / before saving a returned confirmation.
+
+    alert.alert_kind is only ever "original" here (see the `recent` filter
+    below) — check_triangle_confirmation always builds the returned alert as
+    a fresh "confirmation"-tagged copy, so a follow-up alert can never itself
+    seed another follow-up check.
+
+    Note: breakouts are re-detected from candle data (there is no "original
+    breakout" store), so the underlying continuous scan would otherwise re-log
+    every BREAKOUT ALERT on every tick it's re-derived — suppressed here via
+    scan_ticker_continuous(..., log_alerts=False).
+    """
+    cfg = cfg or BacktestConfig()
+    if tickers is None:
+        tickers = SCAN_TICKERS
+    now = now or datetime.now(timezone.utc)
+
+    model_bundle = load_model()
+
+    # Look back far enough to catch triangle formation *and* a breakout that
+    # occurred up to triangle_confirm_lookback_days ago.
+    from_ts = now - timedelta(days=cfg.max_window_days + cfg.triangle_confirm_lookback_days)
+
+    confirmed: list[BreakoutAlert] = []
+
+    for ticker in tickers:
+        try:
+            breakout_alerts = scan_ticker_continuous(
+                ticker, model_bundle, from_ts, now, cfg, log_alerts=False,
+            )
+        except Exception as e:
+            logger.error("Error scanning %s for triangle confirmation: %s", ticker, e, exc_info=True)
+            continue
+
+        recent = [
+            a for a in breakout_alerts
+            if a.alert_kind == "original"
+            and a.direction == "bullish"
+            and 0 <= (now - a.breakout_ts).total_seconds() / 86400.0 <= cfg.triangle_confirm_lookback_days
+        ]
+
+        for alert in recent:
+            confirmation = check_triangle_confirmation(
+                ticker, alert.direction, alert.breakout_ts, alert.breakout_close, now, cfg,
+            )
+            if confirmation is None:
+                continue
+
+            confirmation_alert = replace(alert, alert_kind="confirmation", **confirmation)
+            confirmation_alert.log_summary()
+            confirmed.append(confirmation_alert)
+
+    logger.info("Triangle-alert scan complete. %d confirmed alert(s) across %d ticker(s).",
+                len(confirmed), len(tickers))
+    return confirmed
+
+
 # ── Single ticker scan ────────────────────────────────────────────────────────
 
 def scan_ticker(
@@ -791,6 +1017,7 @@ def scan_ticker_continuous(
     from_ts: datetime,
     to_ts: datetime,
     cfg: BacktestConfig = None,
+    log_alerts: bool = True,
 ) -> list[BreakoutAlert]:
     """
     Slide a growing/sliding window from from_ts to to_ts, detecting all breakouts.
@@ -803,6 +1030,10 @@ def scan_ticker_continuous(
         advances so the window stays at exactly 300 candles.
       - After a breakout fires at position i, skip forward MIN_ZONE_CANDLES
         candles to avoid re-detecting the same event.
+
+    log_alerts: set False to suppress each BreakoutAlert's own BREAKOUT ALERT
+    log line — used by callers (e.g. scan_triangle_alerts) that re-derive the
+    same breakouts repeatedly and only want the alert objects, not duplicate logs.
     """
     cfg = cfg or BacktestConfig()
 
@@ -908,7 +1139,8 @@ def scan_ticker_continuous(
             alert = evaluate_breakout(window, zone_info, model_bundle, cfg)
             t_eval += time.perf_counter() - _t
             if alert:
-                alert.log_summary()
+                if log_alerts:
+                    alert.log_summary()
                 alerts.append(alert)
                 # Abandon the old zone so the next window starts fresh,
                 # but advance only 1 candle so a reversal breakout nearby

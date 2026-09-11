@@ -9,6 +9,7 @@ Usage
   python main.py --scan --from-date 2024-06-01 --to-date 2024-09-30  # snapshot at end of window
   python main.py --backtest --from-date 2024-06-01 --to-date 2024-09-30          # all breakouts in range
   python main.py --backtest --from-date 2024-06-01 --to-date 2024-09-30 --ticker ROTO
+  python main.py --triangle-alerts   # confirm breakouts from the last week (still holding + sharp move)
   python main.py --schedule           # start the hourly scheduler (blocking)
   python main.py --status             # print model status + feature importances
   python main.py --train --scan       # train then immediately scan
@@ -32,34 +33,41 @@ logger = logging.getLogger(__name__)
 
 # ── Scheduler (simple cron-like, no external dependency) ─────────────────────
 
-def _parse_cron_minute(cron: str) -> int:
-    """Extract the minute field from a cron expression like '2 * * * *'."""
-    return int(cron.split()[0])
+def _parse_cron_minutes(cron: str) -> list[int]:
+    """Extract the minute field from a cron expression like '2,17,32,47 * * * *'."""
+    return [int(m) for m in cron.split()[0].split(",")]
 
 
 def run_scheduler(tickers: list[str]):
     """
-    Blocking hourly scheduler.
-    Waits until HH:MM (SCANNER_CRON minute) and fires scan_all().
+    Blocking scheduler. Fires at each HH:MM listed in SCANNER_CRON's minute
+    field, running scan_all() followed by scan_triangle_alerts() so the
+    triangle-confirmation check runs automatically at the same cadence.
     """
-    from traingle_breakout_training.scanner import scan_all
+    from traingle_breakout_training.scanner import scan_all, scan_triangle_alerts
 
-    target_minute = _parse_cron_minute(SCANNER_CRON)
-    logger.info("Scheduler started — will scan at HH:%02d each hour", target_minute)
+    target_minutes = _parse_cron_minutes(SCANNER_CRON)
+    logger.info("Scheduler started — will scan at HH:%s each hour",
+                ",".join(f"{m:02d}" for m in target_minutes))
     logger.info("Tickers: %s", ", ".join(tickers))
 
-    last_run_hour = -1
+    last_run_key = None   # (hour, minute) of the last fired tick
 
     while True:
         now = datetime.now(timezone.utc)
+        run_key = (now.hour, now.minute)
 
-        if now.minute == target_minute and now.hour != last_run_hour:
+        if now.minute in target_minutes and run_key != last_run_key:
             logger.info("Scheduler firing at %s", now.strftime("%Y-%m-%d %H:%M UTC"))
             try:
-                alerts = scan_all(tickers)
+                scan_all(tickers)
             except Exception as e:
                 logger.error("Scheduler scan failed: %s", e, exc_info=True)
-            last_run_hour = now.hour
+            try:
+                scan_triangle_alerts(tickers)
+            except Exception as e:
+                logger.error("Scheduler triangle-alert scan failed: %s", e, exc_info=True)
+            last_run_key = run_key
 
         time.sleep(15)   # check every 15 seconds
 
@@ -99,7 +107,8 @@ def print_status():
 
     logger.info("═" * 56)
     logger.info("  Configured tickers: %s", ", ".join(SCAN_TICKERS))
-    logger.info("  Scanner cron      : %s  (HH:%02d)", SCANNER_CRON, _parse_cron_minute(SCANNER_CRON))
+    logger.info("  Scanner cron      : %s  (HH:%s)", SCANNER_CRON,
+                ",".join(f"{m:02d}" for m in _parse_cron_minutes(SCANNER_CRON)))
     logger.info("═" * 56)
 
 
@@ -114,6 +123,7 @@ def main():
     parser.add_argument("--train",      action="store_true", help="Train/retrain the ML model")
     parser.add_argument("--scan",       action="store_true", help="Run scanner once (latest candles)")
     parser.add_argument("--backtest",   action="store_true", help="Continuous window scan between --from-date and --to-date")
+    parser.add_argument("--triangle-alerts", action="store_true", help="Scan for confirmed triangle alerts (breakout within the last week, still holding, sharp move to +2%%)")
     parser.add_argument("--schedule",   action="store_true", help="Start hourly scheduler (blocking)")
     parser.add_argument("--status",     action="store_true", help="Print model status")
     parser.add_argument("--ticker",     type=str,            help="Limit scan/backtest to one ticker")
@@ -122,7 +132,7 @@ def main():
 
     args = parser.parse_args()
 
-    if not any([args.train, args.scan, args.backtest, args.schedule, args.status]):
+    if not any([args.train, args.scan, args.backtest, args.triangle_alerts, args.schedule, args.status]):
         parser.print_help()
         sys.exit(0)
 
@@ -166,6 +176,11 @@ def main():
             scan_ticker_continuous(args.ticker.upper(), model_bundle, from_ts, to_ts)
         else:
             scan_all_continuous(from_ts, to_ts, tickers)
+
+    # ── Triangle confirmation alerts ──────────────────────────────────────
+    if args.triangle_alerts:
+        from traingle_breakout_training.scanner import scan_triangle_alerts
+        scan_triangle_alerts(tickers)
 
     # ── Status ─────────────────────────────────────────────────────────────
     if args.status:
