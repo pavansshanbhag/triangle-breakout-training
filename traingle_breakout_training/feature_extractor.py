@@ -283,8 +283,10 @@ def _best_subset_line(
     (default 0.8%).  The best (inlier_count, -rmse) wins.
 
     Anchor enumeration is capped at 8 swing points regardless of N, keeping
-    the worst-case subset count at C(8, 3..8) = 219.  Inliers are still
-    counted against all N swing points so no information is lost.
+    the worst-case subset count at C(8, 3..8) = 219.  A swing point on candle 0
+    is excluded from anchors (a possible window-edge artifact) unless that
+    leaves fewer than min_points.  Inliers are still counted against all N
+    swing points so no information is lost.
 
     Optional candle_closes / candle_x filter:
       If provided, any candidate line where more than max_violation_pct of
@@ -305,16 +307,23 @@ def _best_subset_line(
     avg_price = float(np.mean(prices))
     eps_price = inlier_pct * avg_price
 
+    # A pivot on the window's first candle may only be an extreme because the
+    # window starts there, so it can't anchor a line — unless excluding it
+    # leaves too few anchors. It is still scored as an inlier below.
+    eligible = np.flatnonzero(idx > 0)
+    if len(eligible) < min_points:
+        eligible = np.arange(n, dtype=np.intp)
+
     # Cap anchor pool to 8 points — limits subsets to ≤ 219 regardless of N.
-    # When N > 8 distribute slots evenly across the full range (always
-    # including the last swing high) so late swing points can appear in
-    # candidate subsets.  Lines are still scored against all N swing points.
-    if n <= 8:
-        anchor_pool = np.arange(n, dtype=np.intp)
+    # When there are more than 8 eligible anchors, distribute slots evenly
+    # across them (always including the last swing point) so late swing points
+    # can appear in candidate subsets.  Lines are still scored against all N.
+    if len(eligible) <= 8:
+        anchor_pool = eligible
     else:
-        anchor_pool = np.unique(
-            np.round(np.linspace(0, n - 1, 8)).astype(np.intp)
-        )
+        anchor_pool = eligible[np.unique(
+            np.round(np.linspace(0, len(eligible) - 1, 8)).astype(np.intp)
+        )]
     anchor_n = len(anchor_pool)
 
     # Batch OLS across all subsets of the same size in one numpy pass.
@@ -588,7 +597,10 @@ def fit_trendlines_from_swings(
 
 def fit_trendlines(zone_candles: pd.DataFrame) -> dict:
     """
-    Public interface used by scanner.evaluate_breakout().
+    Standalone fitter used by extract_features() when no detection-pass `tl`
+    is supplied (training / ad-hoc feature extraction with no prior zone
+    detection). scanner.evaluate_breakout() instead reuses the fit already
+    computed by detect_triangle_zone, so the scored line matches the drawn one.
     Runs _best_zigzag internally and falls back to raw-candle regression
     if swing-point extraction fails (very short zone).
     """
@@ -641,6 +653,7 @@ def extract_features(
     zone_to_ts=None,
     upper_at_bo: float = None,
     candles_per_day: int = CANDLES_PER_DAY,
+    tl: dict = None,
 ) -> Optional[dict]:
     """
     Extract the 15-feature vector for one (zone, breakout) pair.
@@ -654,6 +667,12 @@ def extract_features(
                      feature is consistent with the direction check that already
                      confirmed the breakout. When None, it is re-projected here
                      (used during training where no direction check exists).
+    tl             : pre-computed trendline fit (zone-relative — x=0 at
+                     zone_candles.iloc[0]), reused from the detection pass so
+                     the features/score describe the same line drawn on the
+                     chart. When None (e.g. during training, where no prior
+                     detection pass exists), it is fit internally from
+                     zone_candles via fit_trendlines().
 
     Returns None if zone is too short or data is degenerate.
     """
@@ -662,9 +681,10 @@ def extract_features(
         logger.debug("Zone too short (%d candles), skipping", n_candles)
         return None
 
-    # ── Run ZigZag and fit trendlines ─────────────────────────────────────────
-    tl = fit_trendlines(zone_candles)
-    n  = tl["n"]
+    # ── Run ZigZag and fit trendlines (reuse caller's fit when supplied) ──────
+    if tl is None:
+        tl = fit_trendlines(zone_candles)
+    n = n_candles
 
     # Anchor prices from first candle (not first swing point) for scale-invariance
     first_close = float(zone_candles["close"].iloc[0])

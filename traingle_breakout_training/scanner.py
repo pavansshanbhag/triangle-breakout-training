@@ -636,6 +636,26 @@ def _carry_forward_zone(
 
 # ── Breakout evaluator ────────────────────────────────────────────────────────
 
+def _zone_relative_tl(tl: dict, zone_start_idx: int, deviation: float) -> dict:
+    """
+    Re-express a window-relative trendline fit (x=0 at the scan window's
+    start) in zone-relative coordinates (x=0 at zone_candles.iloc[0]), so
+    extract_features can reuse the exact line detect_triangle_zone found and
+    drew on the chart, instead of re-fitting its own from zone_candles alone
+    (which previously used a different, hardcoded ZigZag deviation list and
+    so could pick a different line entirely).
+
+    Only intercept and apex_x depend on the x origin — slope does not.
+    """
+    shifted = dict(tl)
+    shifted["upper_intercept"] = tl["upper_intercept"] + tl["upper_slope"] * zone_start_idx
+    shifted["lower_intercept"] = tl["lower_intercept"] + tl["lower_slope"] * zone_start_idx
+    shifted["apex_x"]          = tl["apex_x"] - zone_start_idx
+    shifted["used_zigzag"]     = True
+    shifted["deviation"]       = deviation
+    return shifted
+
+
 def evaluate_breakout(
     candles: pd.DataFrame,
     zone_info: dict,
@@ -710,6 +730,7 @@ def evaluate_breakout(
         zone_to_ts=zone_to_ts,
         upper_at_bo=upper_at_bo,
         candles_per_day=cfg.candles_per_day,
+        tl=_zone_relative_tl(tl, zone_start, zone_info["deviation"]),
     )
 
     if features is None:
